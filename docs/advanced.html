@@ -1,0 +1,172 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Advanced Features &#8212; PyBNF v0.3.1 documentation</title>
+    
+    <link rel="stylesheet" href="_static/sphinxdoc.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     'v0.3.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Algorithm Development" href="algorithm_development.html" />
+    <link rel="prev" title="Fitting Algorithms" href="algorithms.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="algorithm_development.html" title="Algorithm Development"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="algorithms.html" title="Fitting Algorithms"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">PyBNF v0.3.1 documentation</a> &#187;</li> 
+      </ul>
+    </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="index.html">
+              <img class="logo" src="_static/LogoSm.png" alt="Logo"/>
+            </a></p>
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Advanced Features</a><ul>
+<li><a class="reference internal" href="#bootstrapping">Bootstrapping</a></li>
+<li><a class="reference internal" href="#custom-postprocessing">Custom Postprocessing</a><ul>
+<li><a class="reference internal" href="#debugging-scripts">Debugging scripts</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="algorithms.html"
+                        title="previous chapter">Fitting Algorithms</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="algorithm_development.html"
+                        title="next chapter">Algorithm Development</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/advanced.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="advanced-features">
+<h1>Advanced Features<a class="headerlink" href="#advanced-features" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="bootstrapping">
+<h2>Bootstrapping<a class="headerlink" href="#bootstrapping" title="Permalink to this headline">¶</a></h2>
+<p>Bootstrapping is a method of uncertainty quantification in which fitting is repeated several times with random subsets of the data. PyBNF can be configured to perform bootstrapping by setting the <code class="docutils literal"><span class="pre">bootstrap</span></code> config key to a value equal to the number of bootstrap replicates.</p>
+<p>After the initial fitting run completes, PyBNF will repeat the fitting run the specified number of times. For each of these bootstrap replicates, a different random sample of the experimental data is used. For an exp file with <em>n</em> data points, the random sample consists of <em>n</em> points sampled <em>with replacement</em>, such that some points are used multiple times and others are unused.</p>
+<p>Note that the random sampling is performed at the level of exp files. For example, if you have data1.exp with 20 data points and data2.exp with 5 data points, each random sample will contain 20 points from data1.exp and 5 points from data2.exp. However, if data1.exp contains 10 points for observable A and 10 points for observable B, the random sample might contain an unequal number of A points and B points. Also note that constraint files are not sampled in bootstrapping; all bootstrap replicates enforce all constraints.</p>
+<p>If the config key <code class="docutils literal"><span class="pre">bootstrap_max_obj</span></code> is set, then each bootstrap replicate must achieve the specified objective value. If a bootstrap replicate completes fitting with a larger objective value, then the replicate is discarded and a new replicate is run.</p>
+<p>PyBNF will output additional files describing the bootstrap results. Each bootstrap replicate will have its own Simulations and Results folders. The Results folder will contain extra files of the form <code class="docutils literal"><span class="pre">&lt;suffix&gt;_weights_&lt;replicate&gt;.txt</span></code> that indicate which random sample of the data was used for this bootstrap replicate. The main Results folder will contain the file <code class="docutils literal"><span class="pre">bootstrapped_parameter_sets.txt</span></code>, which contains the best-fit parameter set from each bootstrap replicate, and can be used to analyze the uncertainty of each parameter value.</p>
+</div>
+<div class="section" id="custom-postprocessing">
+<span id="postproc"></span><h2>Custom Postprocessing<a class="headerlink" href="#custom-postprocessing" title="Permalink to this headline">¶</a></h2>
+<p>PyBNF provides an interface for custom Python scripts to postprocess simulation results. For example, you might want to perform curve fitting on one of your simulation outputs, or normalize your simulation data by an advanced method not offered in the PyBNF code base. Postprocessing scripts are configured with the <a class="reference internal" href="config_keys.html#postproc-key"><span class="std std-ref">postprocess</span></a> key which specifies the path to the custom script, and a list of suffixes of which simulations should be fed to the script for postprocessing.</p>
+<p>Your custom script should be a Python file that defines the function <code class="docutils literal"><span class="pre">postprocess(simdata)</span></code>. The function&#8217;s argument <code class="docutils literal"><span class="pre">simdata</span></code> is a PyBNF <a class="reference internal" href="modules/data.html#data-module"><span class="std std-ref">Data</span></a> object containing the simulation data. The function should return a modified Data object.</p>
+<p>The Data object is essentially a container for an array containing data from a .gdat or .scan file. The syntax <code class="docutils literal"><span class="pre">simdata['A']</span></code> can be used to access and modify the column of data corresponding to observable <code class="docutils literal"><span class="pre">A</span></code>. The field <code class="docutils literal"><span class="pre">simdata.data</span></code> contains the array itself, which can be accessed and modified like a normal numpy array. Each column of the array gives the value of one variable over the course of the time course or parameter scan, with column 0 corresponding to the independent variable. The mapping of observable names to column indices is stored in the dictionary <code class="docutils literal"><span class="pre">simdata.cols</span></code>, and the reverse mapping from column indices to observable names is stored in <code class="docutils literal"><span class="pre">simdata.headers</span></code>. For example:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">postprocess</span><span class="p">(</span><span class="n">simdata</span><span class="p">):</span>
+
+    <span class="n">simdata</span><span class="o">.</span><span class="n">data</span> <span class="c1"># a 2D numpy array containing the data</span>
+    <span class="n">simdata</span><span class="p">[</span><span class="s1">&#39;A&#39;</span><span class="p">]</span> <span class="c1"># a 1D numpy array containing the output for observable A</span>
+    <span class="n">simdata</span><span class="o">.</span><span class="n">cols</span><span class="p">[</span><span class="s1">&#39;A&#39;</span><span class="p">]</span> <span class="c1"># The column number corresponding to the observable A</span>
+    <span class="n">simdata</span><span class="o">.</span><span class="n">headers</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="c1"># The observable name corresponding to column 3</span>
+    <span class="n">simdata</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="mi">3</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mf">42.</span> <span class="c1"># At the 3rd data point, set the independent variable to a value of 42.</span>
+</pre></div>
+</div>
+<p>It is also possible to create and return an entirely new <a class="reference internal" href="modules/data.html#data-module"><span class="std std-ref">Data</span></a> object, replacing the original one for evaluation by the objective function. Import the <code class="docutils literal"><span class="pre">data</span></code> module with <code class="docutils literal"><span class="pre">from</span> <span class="pre">pybnf</span> <span class="pre">import</span> <span class="pre">data</span></code>, and then use the constructor <code class="docutils literal"><span class="pre">data.Data()</span></code>. Be sure to set the <code class="docutils literal"><span class="pre">data</span></code>, <code class="docutils literal"><span class="pre">cols</span></code>, and <code class="docutils literal"><span class="pre">headers</span></code> fields in your new object.</p>
+<p>The following example postprocessing script could be used to normalize the observable <code class="docutils literal"><span class="pre">A</span></code> such that it has a mean of 0, but retains its original standard deviation:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<span class="k">def</span> <span class="nf">postprocess</span><span class="p">(</span><span class="n">simdata</span><span class="p">):</span>
+
+    <span class="n">a_data</span> <span class="o">=</span> <span class="n">simdata</span><span class="p">[</span><span class="s1">&#39;A&#39;</span><span class="p">]</span>
+    <span class="n">a_data</span> <span class="o">-=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">a_data</span><span class="p">)</span>
+    <span class="n">simdata</span><span class="p">[</span><span class="s1">&#39;A&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">a_data</span>
+
+    <span class="k">return</span> <span class="n">simdata</span>
+</pre></div>
+</div>
+<div class="section" id="debugging-scripts">
+<h3>Debugging scripts<a class="headerlink" href="#debugging-scripts" title="Permalink to this headline">¶</a></h3>
+<p>PyBNF will import and execute your script during runtime. If something goes wrong, PyBNF will report than an unknown error ocurred, or a simulation failed with an unknown error. Tracebacks for any errors will be saved in the PyBNF log file.</p>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="algorithm_development.html" title="Algorithm Development"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="algorithms.html" title="Fitting Algorithms"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">PyBNF v0.3.1 documentation</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2018, Ryan Suderman, Eshan Mitra.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.5.6.
+    </div>
+  </body>
+</html>

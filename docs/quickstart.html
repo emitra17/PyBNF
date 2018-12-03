@@ -1,0 +1,232 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Quick Start &#8212; PyBNF v0.3.1 documentation</title>
+    
+    <link rel="stylesheet" href="_static/sphinxdoc.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     'v0.3.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Configuring a Fitting Job" href="config.html" />
+    <link rel="prev" title="Installation" href="installation.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="config.html" title="Configuring a Fitting Job"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="installation.html" title="Installation"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">PyBNF v0.3.1 documentation</a> &#187;</li> 
+      </ul>
+    </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="index.html">
+              <img class="logo" src="_static/LogoSm.png" alt="Logo"/>
+            </a></p>
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Quick Start</a><ul>
+<li><a class="reference internal" href="#verify-installation-with-simple-examples">Verify installation with simple examples</a><ul>
+<li><a class="reference internal" href="#on-a-slurm-cluster">On a SLURM cluster</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#set-up-your-own-fitting-job">Set up your own fitting job</a><ul>
+<li><a class="reference internal" href="#modify-your-bngl-file">Modify your BNGL file</a></li>
+<li><a class="reference internal" href="#make-your-data-file">Make your data file</a></li>
+<li><a class="reference internal" href="#make-your-configuration-file">Make your configuration file</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="installation.html"
+                        title="previous chapter">Installation</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="config.html"
+                        title="next chapter">Configuring a Fitting Job</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/quickstart.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="quick-start">
+<h1>Quick Start<a class="headerlink" href="#quick-start" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="verify-installation-with-simple-examples">
+<h2>Verify installation with simple examples<a class="headerlink" href="#verify-installation-with-simple-examples" title="Permalink to this headline">¶</a></h2>
+<p>examples/demo contains two simple example configurations to verify that PyBNF and associated simulators are installed and working correctly. The model files consist of simple polynomial functions, and the entire fitting run should complete in under a minute.</p>
+<p>To run the examples, use the following commands from the examples/demo directory</p>
+<p>For a simple job using BioNetGen:
+  <strong class="command">pybnf -c demo_bng.conf</strong></p>
+<p>For a simple job using SBML:
+  <strong class="command">pybnf -c demo_xml.conf</strong></p>
+<p>The examples will print progress to the terminal as the fitting proceeds, and the results will be saved in the directory examples/demo/output (this output directory can be changed by editing <code class="docutils literal"><span class="pre">demo_bng.conf</span></code> and <code class="docutils literal"><span class="pre">demo_xml.conf</span></code>).</p>
+<p>In examples/demo/output/Results, the file sorted_params.txt contains the parameter sets tested during the fitting run. Open this file and verify that the best-fit parameter set (first line of the file) is close to the ground truth value of v1__FREE=0.5, v2__FREE=1.5, v3__FREE=3.0.</p>
+<p>After verifying that PyBNF is installed correctly, it should be possible to run any of the other examples in the examples/ directory. For more information about these examples and the features they include, see <a class="reference internal" href="examples.html#examples"><span class="std std-ref">Examples</span></a></p>
+<div class="section" id="on-a-slurm-cluster">
+<h3>On a SLURM cluster<a class="headerlink" href="#on-a-slurm-cluster" title="Permalink to this headline">¶</a></h3>
+<p>To run the examples on a cluster with the Slurm resource manager, start by allocating 2 nodes for your job:</p>
+<blockquote>
+<div><strong class="command">salloc -N 2</strong></div></blockquote>
+<p>Log in to your allocated nodes (depending on your cluster, this may happen automatically without this command):</p>
+<blockquote>
+<div><strong class="command">slogin</strong></div></blockquote>
+<p>Then run pybnf as on a single machine, but use the <code class="docutils literal"><span class="pre">-t</span></code> flag to indicate that you are on a cluster:</p>
+<blockquote>
+<div><p><strong class="command">pybnf -c demo_bng.conf -t slurm</strong></p>
+<p><strong class="command">pybnf -c demo_xml.conf -t slurm</strong></p>
+</div></blockquote>
+<p>To close your Slurm session after completing the jobs, run the command <code class="docutils literal"><span class="pre">exit</span></code> twice (once to log out of the node, and a second time to relinquish the job allocation)</p>
+</div>
+</div>
+<div class="section" id="set-up-your-own-fitting-job">
+<h2>Set up your own fitting job<a class="headerlink" href="#set-up-your-own-fitting-job" title="Permalink to this headline">¶</a></h2>
+<p>In this Quick Start, we will assume your fitting run consists of a single BNGL file and a single experimental data set. For more advanced use cases, see the complete section on <a class="reference internal" href="config.html#config"><span class="std std-ref">Configuring a Fitting Job</span></a>.</p>
+<p>Start by creating a new folder to contain your modified BNGL file, data file, configuration file, and results.</p>
+<div class="section" id="modify-your-bngl-file">
+<h3>Modify your BNGL file<a class="headerlink" href="#modify-your-bngl-file" title="Permalink to this headline">¶</a></h3>
+<p>In your bngl file, replace each value you want PyBNF to fit with a name ending in <code class="docutils literal"><span class="pre">__FREE</span></code></p>
+<p>For example, if you want to fit var1, var2, and var3 in the following parameters block:</p>
+<div class="highlight-none"><div class="highlight"><pre><span></span>begin parameters
+
+    var1 1
+    var2 3
+    var3 7
+
+end parameters
+</pre></div>
+</div>
+<p>Modify the BNGL code to:</p>
+<div class="highlight-none"><div class="highlight"><pre><span></span>begin parameters
+
+    var1 var1__FREE
+    var2 var2__FREE
+    var3 var3__FREE
+
+end parameters
+</pre></div>
+</div>
+<p>In addition, edit your <code class="docutils literal"><span class="pre">simulate</span></code> command to include the <code class="docutils literal"><span class="pre">suffix</span></code> argument. For example:</p>
+<div class="highlight-none"><div class="highlight"><pre><span></span>simulate(method=&gt;&quot;ode&quot;,t_end=&gt;60,suffix=&gt;&quot;data1&quot;)
+</pre></div>
+</div>
+</div>
+<div class="section" id="make-your-data-file">
+<h3>Make your data file<a class="headerlink" href="#make-your-data-file" title="Permalink to this headline">¶</a></h3>
+<p>Create a text file with the extension &#8221;.exp&#8221; and the same name as the suffix you defined above, for example, <code class="docutils literal"><span class="pre">data1.exp</span></code>.</p>
+<p>The first line of this file should be a header, and the remaining lines should contain data in whitespace-delimited format. Your header should start with &#8220;#&#8221;, followed by &#8220;time&#8221;, followed by the names of observables in your BNGL file. Enter your data points on the subsequent lines, for example:</p>
+<div class="highlight-none"><div class="highlight"><pre><span></span># time Obs1 Obs2
+5      1.7  1e5
+10     3.7  1.5e5
+60     4.2  5e5
+</pre></div>
+</div>
+</div>
+<div class="section" id="make-your-configuration-file">
+<h3>Make your configuration file<a class="headerlink" href="#make-your-configuration-file" title="Permalink to this headline">¶</a></h3>
+<p>We&#8217;ll run the fitting job using the differential evolution algorithm. Create the config file <code class="docutils literal"><span class="pre">my_config.conf</span></code> with the following contents:</p>
+<div class="highlight-none"><div class="highlight"><pre><span></span>model=model.bngl: data1.exp
+output_dir=output/
+bng_command=/path/to/bng2/BNG2.pl
+
+objfunc=sos
+fit_type=de
+population_size=20
+max_iterations=30
+
+uniform_var=var1__FREE 1 10
+uniform_var=var2__FREE 1 10
+uniform_var=var3__FREE 1 10
+</pre></div>
+</div>
+<p>Replace <code class="docutils literal"><span class="pre">model.bngl</span></code> and <code class="docutils literal"><span class="pre">data1.exp</span></code> with the names of your .bngl and .exp files. Replace <code class="docutils literal"><span class="pre">/path/to/bng2/BNG2.pl</span></code> with the full path to the file BNG2.pl on your computer (or delete the line if you have the BNGPATH enviorment variable set). Replace the variable names <code class="docutils literal"><span class="pre">var1__FREE</span></code> etc. with the names of the free parameters in your bngl file, and replace the corresponding numbers <code class="docutils literal"><span class="pre">1</span> <span class="pre">10</span></code> with the minimum and maximum bounds for each parameter.</p>
+<p>This config file will run the differential evolution algorithm on a population of 20 individuals for 30 iterations (600 simulations total), and evaluate the best fits using a sum-of-squares objective function. Adjust these settings as is suited for your model.</p>
+<p>Once you have your config file edited as needed, run PyBNF from the folder containing all of your files:</p>
+<blockquote>
+<div><strong class="command">pybnf -c my_config.conf</strong></div></blockquote>
+<p>Congratulations, you&#8217;ve just completed your first PyBNF fitting job!</p>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="config.html" title="Configuring a Fitting Job"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="installation.html" title="Installation"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">PyBNF v0.3.1 documentation</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2018, Ryan Suderman, Eshan Mitra.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.5.6.
+    </div>
+  </body>
+</html>

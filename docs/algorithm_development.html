@@ -1,0 +1,198 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Algorithm Development &#8212; PyBNF v0.3.1 documentation</title>
+    
+    <link rel="stylesheet" href="_static/sphinxdoc.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     'v0.3.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Running on a cluster" href="cluster.html" />
+    <link rel="prev" title="Advanced Features" href="advanced.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="cluster.html" title="Running on a cluster"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="advanced.html" title="Advanced Features"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">PyBNF v0.3.1 documentation</a> &#187;</li> 
+      </ul>
+    </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="index.html">
+              <img class="logo" src="_static/LogoSm.png" alt="Logo"/>
+            </a></p>
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Algorithm Development</a><ul>
+<li><a class="reference internal" href="#implementation">Implementation</a></li>
+<li><a class="reference internal" href="#adding-configuration-options">Adding configuration options</a></li>
+<li><a class="reference internal" href="#pull-requests">Pull requests</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="advanced.html"
+                        title="previous chapter">Advanced Features</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="cluster.html"
+                        title="next chapter">Running on a cluster</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/algorithm_development.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="algorithm-development">
+<h1>Algorithm Development<a class="headerlink" href="#algorithm-development" title="Permalink to this headline">¶</a></h1>
+<p>PyBNF was designed with extensibility in mind.  As a result, all of the algorithms implemented here subclass the
+Algorithm class found in <a class="reference internal" href="modules/algorithms.html#alg-module"><span class="std std-ref">PyBNF algorithms (pybnf.algorithms)</span></a>.</p>
+<div class="section" id="implementation">
+<h2>Implementation<a class="headerlink" href="#implementation" title="Permalink to this headline">¶</a></h2>
+<p>A new algorithm can be written by creating a class that subclasses the Algorithm class:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">NewAlgorithm</span><span class="p">(</span><span class="n">Algorithm</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">NewAlgorithm</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
+        <span class="c1"># Other setup that may involve additional arguments</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">current_iter_results</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ready_for_next_iter</span> <span class="o">=</span> <span class="kc">False</span>
+
+    <span class="k">def</span> <span class="nf">my_custom_function</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># User defined support function</span>
+        <span class="o">...</span>
+</pre></div>
+</div>
+<p>The new algorithm requires defining three methods, with the first being the <code class="docutils literal"><span class="pre">__init__</span></code> constructor method.  This
+method will likely take a Configuration object as its first argument.  The other two required methods that must be
+implemented are the <code class="docutils literal"><span class="pre">start_run</span></code> and <code class="docutils literal"><span class="pre">got_result</span></code> methods.</p>
+<p>The <code class="docutils literal"><span class="pre">start_run</span></code> method must return a list of PSet instances that correspond to the first batch of parameter set
+evaluations. The Algorithm superclass functions <code class="docutils literal"><span class="pre">random_pset</span></code> and <code class="docutils literal"><span class="pre">random_latin_hypercube_psets</span></code> may be useful:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">start_run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">random_latin_hypercube_psets</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">population_size</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>The <code class="docutils literal"><span class="pre">got_result</span></code> method takes a Result instance as an argument and returns either a list of new PSet instances for
+another round of parameter set evaluations, or the string &#8220;STOP&#8221; to terminate the fitting run.  Note that an empty list
+is valid if the algorithm requires synchronization (and thus must wait for all jobs in the current iteration to
+finish).:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">got_result</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">res</span><span class="p">):</span>
+    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">satisfies_stop_condition</span><span class="p">(</span><span class="n">res</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s2">&quot;STOP&quot;</span>  <span class="c1"># Terminates algorithm</span>
+
+    <span class="bp">self</span><span class="o">.</span><span class="n">current_iter_results</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">res</span><span class="p">)</span>
+    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">ready_for_next_iter</span><span class="p">:</span>  <span class="c1"># Synchronization check</span>
+        <span class="n">new_psets</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">current_iter_results</span><span class="p">:</span>
+            <span class="n">new_psets</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">generate_new_pset</span><span class="p">(</span><span class="n">r</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">new_psets</span>
+
+    <span class="k">return</span> <span class="p">[]</span>  <span class="c1"># Waiting for synchronization</span>
+</pre></div>
+</div>
+<p>Four additional support methods in the Algorithm superclass may optionally be overridden, depending on the details of the new algorithm,
+such that the new algorithm is compatible with all features of PyBNF.</p>
+<blockquote>
+<div><ul class="simple">
+<li><code class="docutils literal"><span class="pre">add_iterations(self,n)</span></code> is required to support adding extra iterations with the <code class="docutils literal"><span class="pre">-r</span></code> flag. This method should add <code class="docutils literal"><span class="pre">n</span></code> iterations to the algorithm&#8217;s maximum iteration count. The superclass implementation simply adds <code class="docutils literal"><span class="pre">n</span></code> to the attribute <code class="docutils literal"><span class="pre">self.max_iterations</span></code>. You should override the method if your algorithm tracks iteration count in a different way.</li>
+<li><code class="docutils literal"><span class="pre">reset(self,</span> <span class="pre">bootstrap)</span></code> is required to support bootstrapping. This method should call the superclass method, and then reset the state of the algorithm so that another fitting replicate can be run.</li>
+<li><code class="docutils literal"><span class="pre">get_backup_every(self)</span></code> helps choose when to save a backup of the algorithm. This method should return an integer telling after how many individual simulations we should back up the algorithm. The superclass implementation uses a formula that should work in most cases, but you can override this depending on details of your algorithm.</li>
+<li><code class="docutils literal"><span class="pre">cleanup(self)</span></code> is used to clean up after an error. This method is called just before PyBNF exits due to an error or keyboard interrupt, and may be used to save any useful files before exiting.</li>
+</ul>
+</div></blockquote>
+</div>
+<div class="section" id="adding-configuration-options">
+<h2>Adding configuration options<a class="headerlink" href="#adding-configuration-options" title="Permalink to this headline">¶</a></h2>
+<p>If the new algorithm requires user configuration via the configuration file, new options may be added to the
+<code class="docutils literal"><span class="pre">pybnf.parse</span></code> module.  The configuration parser uses the <code class="docutils literal"><span class="pre">pyparsing</span></code> module and new grammars for parsing individual
+lines may be added to the <code class="docutils literal"><span class="pre">pybnf.parse.parse</span></code> function based on the key text.  Default values for parameters may be
+added to the <code class="docutils literal"><span class="pre">Configuration</span></code> object via its <code class="docutils literal"><span class="pre">default_config</span></code> method in the <code class="docutils literal"><span class="pre">pybnf.config</span></code> module if desired.
+Other supporting configuration methods should also be added to the <code class="docutils literal"><span class="pre">Configuration</span></code> object if necessary.</p>
+</div>
+<div class="section" id="pull-requests">
+<h2>Pull requests<a class="headerlink" href="#pull-requests" title="Permalink to this headline">¶</a></h2>
+<p>To have new algorithms added into the PyBNF software suite, submit a pull request to the master branch at
+<a class="reference external" href="https://github.com/lanl/PyBNF">https://github.com/lanl/PyBNF</a></p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="cluster.html" title="Running on a cluster"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="advanced.html" title="Advanced Features"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">PyBNF v0.3.1 documentation</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2018, Ryan Suderman, Eshan Mitra.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.5.6.
+    </div>
+  </body>
+</html>

@@ -1,0 +1,362 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Examples &#8212; PyBNF v0.3.1 documentation</title>
+    
+    <link rel="stylesheet" href="_static/sphinxdoc.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     'v0.3.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Troubleshooting" href="troubleshooting.html" />
+    <link rel="prev" title="Running on a cluster" href="cluster.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="troubleshooting.html" title="Troubleshooting"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="cluster.html" title="Running on a cluster"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">PyBNF v0.3.1 documentation</a> &#187;</li> 
+      </ul>
+    </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="index.html">
+              <img class="logo" src="_static/LogoSm.png" alt="Logo"/>
+            </a></p>
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Examples</a><ul>
+<li><a class="reference internal" href="#list-of-examples-included-in-pybnf">List of examples included in PyBNF</a><ul>
+<li><a class="reference internal" href="#constraint-advanced">constraint_advanced</a></li>
+<li><a class="reference internal" href="#constraint-demo">constraint_demo</a></li>
+<li><a class="reference internal" href="#constraint-raf">constraint_raf</a></li>
+<li><a class="reference internal" href="#degranulation">degranulation</a></li>
+<li><a class="reference internal" href="#demo">demo</a></li>
+<li><a class="reference internal" href="#egfr-bleaching">egfr_bleaching</a></li>
+<li><a class="reference internal" href="#egfr-benchmark">egfr_benchmark</a></li>
+<li><a class="reference internal" href="#egfr-nf">egfr_nf</a></li>
+<li><a class="reference internal" href="#egfr-ode">egfr_ode</a></li>
+<li><a class="reference internal" href="#fceri-gamma">fceri_gamma</a></li>
+<li><a class="reference internal" href="#igf1r">igf1r</a></li>
+<li><a class="reference internal" href="#raf-sbml">raf_sbml</a></li>
+<li><a class="reference internal" href="#receptor">receptor</a></li>
+<li><a class="reference internal" href="#receptor-nf">receptor_nf</a></li>
+<li><a class="reference internal" href="#tcr">tcr</a></li>
+<li><a class="reference internal" href="#tlbr">tlbr</a></li>
+<li><a class="reference internal" href="#yeast-cell-cycle">yeast_cell_cycle</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#index-of-examples-by-attribute">Index of examples by attribute</a><ul>
+<li><a class="reference internal" href="#examples-by-complexity">Examples by complexity</a></li>
+<li><a class="reference internal" href="#examples-by-source">Examples by source</a></li>
+<li><a class="reference internal" href="#examples-by-data-model-types">Examples by data/model types</a></li>
+<li><a class="reference internal" href="#examples-by-pybnf-feature">Examples by PyBNF feature</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="cluster.html"
+                        title="previous chapter">Running on a cluster</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="troubleshooting.html"
+                        title="next chapter">Troubleshooting</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/examples.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="examples">
+<span id="id1"></span><h1>Examples<a class="headerlink" href="#examples" title="Permalink to this headline">¶</a></h1>
+<p>PyBNF contains 17 example fitting jobs in the examples/ directory.</p>
+<p>Each example directory contains all files required to run the example: the config file, model file(s), and data / constraint file(s). The config file paths are specified such that the examples should be run from the root PyBNF directory, i.e., to run the &#8220;demo&#8221; example, cd into the examples/demo direcotry and run <code class="docutils literal"><span class="pre">pybnf</span> <span class="pre">-c</span> <span class="pre">demo_bng.conf</span></code>. Results will be saved in a directory called &#8220;output&#8221; inside the examples/demo directory. Examples with BioNetGen assume that you have set the <code class="docutils literal"><span class="pre">BNGPATH</span></code> environmental variable to point to your BioNetGen installation; if not, you should add the <code class="docutils literal"><span class="pre">bng_command</span></code> key to the config file to specify the location of your BioNetGen.</p>
+<p>The examples are described below. For an index of which examples demonstrate which PyBNF features, refer to <a class="reference internal" href="#index-of-examples-by-attribute">Index of examples by attribute</a></p>
+<div class="section" id="list-of-examples-included-in-pybnf">
+<h2>List of examples included in PyBNF<a class="headerlink" href="#list-of-examples-included-in-pybnf" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="constraint-advanced">
+<h3>constraint_advanced<a class="headerlink" href="#constraint-advanced" title="Permalink to this headline">¶</a></h3>
+<p>A demonstration of the features of the PyBNF constraint language. The model consists of simple fourth-order polynomial functions. The constraint files consist of constraints of various forms, showcasing the available capabilities for constraint handling in PyBNF. All constraints are consistent with a known ground truth for the model, so it should be possible to fit with a very low final objective value.</p>
+</div>
+<div class="section" id="constraint-demo">
+<h3>constraint_demo<a class="headerlink" href="#constraint-demo" title="Permalink to this headline">¶</a></h3>
+<p>A simple demonstration of a constrained fitting problem, in which we fit a parabola and a line to both quantitative and qualitative data. This is the same problem described in Fig. 1 of <a class="reference internal" href="#mitra2018" id="id2">[Mitra2018]</a>.</p>
+</div>
+<div class="section" id="constraint-raf">
+<h3>constraint_raf<a class="headerlink" href="#constraint-raf" title="Permalink to this headline">¶</a></h3>
+<p>A small, biologically relevant fitting problem that includes both constraints and quantitative data. The model describes the process by which Raf dimerizes and binds inhibitor. In certain parameter regimes, it is possible for the inhibitor to counterintuitively cause Raf activation, by promoting dimerization and increasing the concentration of the highly active species RIR. Two equilibrium constants, K3 and K5, are assumed to be unknown, and are fit using synthetic qualtitative and quantitative data. This is the same problem described in Fig. 2 of <a class="reference internal" href="#mitra2018" id="id3">[Mitra2018]</a>.</p>
+</div>
+<div class="section" id="degranulation">
+<h3>degranulation<a class="headerlink" href="#degranulation" title="Permalink to this headline">¶</a></h3>
+<p>A model that relates the initial events of IgE-Fc<img class="math" src="_images/math/65d19c66c148d5016c6a89d26486bf6d1966ded1.png" alt="\epsilon"/>RI signaling to the degranulation response. The model is fit to experimental data from a microfluidic device that was used to measure mast cell degranulation in response to time courses of alternating stimulatory and non-stimulatory inputs. The data and model were originally published in <a class="reference internal" href="#harmon2017" id="id4">[Harmon2017]</a>.</p>
+<p>In the original study, the model was analyzed by Bayesian MCMC to acquire probability distributions for each parameter. We provide config files to repeat this analysis in PyBNF, using both of our algorithms that calculate probability distributions: MCMC, and Parallel tempering. In both cases, the results from PyBNF are expected to match the results shown in Fig. S10 of <a class="reference internal" href="#harmon2017" id="id5">[Harmon2017]</a>. A large number of samples is required to obtain an acceptable distribution, so we recommend running on a cluster or powerful multi-core workstation. An example batch file to submit the job to a SLURM cluster is provided. For best performance, the config key <code class="docutils literal"><span class="pre">population_size</span></code> should be set to the number of available cores.
+.. Note: DREAM also provided, but it gives the wrong distribution.</p>
+</div>
+<div class="section" id="demo">
+<h3>demo<a class="headerlink" href="#demo" title="Permalink to this headline">¶</a></h3>
+<p>Fit a simple parabola implemented in either BNGL or SBML. Useful to validate that PyBNF and associated simulators are installed correctly.</p>
+</div>
+<div class="section" id="egfr-bleaching">
+<h3>egfr_bleaching<a class="headerlink" href="#egfr-bleaching" title="Permalink to this headline">¶</a></h3>
+<p>A model of EGFR fit using novel experimental data, presented for the first time with PyBNF. Ryan is going to explain this one.</p>
+</div>
+<div class="section" id="egfr-benchmark">
+<h3>egfr_benchmark<a class="headerlink" href="#egfr-benchmark" title="Permalink to this headline">¶</a></h3>
+<p>A benchmark rule-based model of EGFR signaling, originally published in <a class="reference internal" href="#blinov2006" id="id6">[Blinov2006]</a> and considered in <a class="reference internal" href="#gupta2018" id="id7">[Gupta2018]</a>. To create an example fitting problem, we generated synthetic data based on the published ground truth, and try to recover the ground truth parameters by fitting.</p>
+<p>We used this benchmark problem to test and showcase all of the fitting algorithms available in PyBNF. The folder contains one config file for each of the available PyBNF algorithms. All config files are set the same number of total simulations are run (note that this comparison does not take into account the avantage of asynchronicity in PSO and ADE).</p>
+</div>
+<div class="section" id="egfr-nf">
+<h3>egfr_nf<a class="headerlink" href="#egfr-nf" title="Permalink to this headline">¶</a></h3>
+<p>A model of EGFR signaling described in <a class="reference internal" href="#kozer2013" id="id8">[Kozer2013]</a>. Simulations are performed in NFsim.</p>
+<p>This problem was considered as example2 in the original BioNetFit ( <a class="reference internal" href="#thomas2016" id="id9">[Thomas2016]</a> ).</p>
+</div>
+<div class="section" id="egfr-ode">
+<h3>egfr_ode<a class="headerlink" href="#egfr-ode" title="Permalink to this headline">¶</a></h3>
+<p>A model of EGFR signaling described in <a class="reference internal" href="#kozer2013" id="id10">[Kozer2013]</a>. Simulations are performed by numerical integration of ODEs in BioNetGen.</p>
+<p>This problem was considered as example1 in the original BioNetFit ( <a class="reference internal" href="#thomas2016" id="id11">[Thomas2016]</a> ).</p>
+</div>
+<div class="section" id="fceri-gamma">
+<h3>fceri_gamma<a class="headerlink" href="#fceri-gamma" title="Permalink to this headline">¶</a></h3>
+<p>A benchmark rule-based model of IgE-Fc<img class="math" src="_images/math/65d19c66c148d5016c6a89d26486bf6d1966ded1.png" alt="\epsilon"/>RI signaling, published in <a class="reference internal" href="#gupta2018" id="id12">[Gupta2018]</a>. To create an example fitting problem, we generated synthetic data based on the published ground truth, and try to recover the ground truth parameters by fitting.</p>
+</div>
+<div class="section" id="igf1r">
+<h3>igf1r<a class="headerlink" href="#igf1r" title="Permalink to this headline">¶</a></h3>
+<p>A model if IGF1R interation with IGF, orignally published and fit with BioNetFit 1 in <a class="reference internal" href="#erickson2018" id="id13">[Erickson2018]</a>. We provide the config and data files to solve the same fitting problem as in the original study.</p>
+<p>The original study also performed bootstrapping to assess parameter uncertainty. We provide the config igf1r_boot.conf to perform the same analysis in PyBNF. The results are expected to match the bootstrapping figure in <a class="reference internal" href="#erickson2018" id="id14">[Erickson2018]</a>.</p>
+</div>
+<div class="section" id="raf-sbml">
+<h3>raf_sbml<a class="headerlink" href="#raf-sbml" title="Permalink to this headline">¶</a></h3>
+<p>A SBML model of MST2 and Raf1 crosstalk described in <a class="reference internal" href="#romano2014" id="id15">[Romano2014]</a> and published on BioModels Database. We include this problem as an example of fitting a typical SBML model found on BioModels Database. We generated synthetic data using the ground truth parameters in the published model, and try to recover the ground truth by fitting.</p>
+<p>Fitting every free parameter in the model (63 parameters) is computationally difficult, recommended only on a cluster. To try out fitting with a smaller scale of computation, we also provide the config raf_sbml_simple.conf, in which only a subset of the parameters are free, and the remaining parameters are fixed at the published values.</p>
+</div>
+<div class="section" id="receptor">
+<h3>receptor<a class="headerlink" href="#receptor" title="Permalink to this headline">¶</a></h3>
+<p>A simple ligand-receptor model fit using synthetic data.</p>
+<p>This problem was considered as example5 in the original BioNetFit ( <a class="reference internal" href="#thomas2016" id="id16">[Thomas2016]</a> ).</p>
+</div>
+<div class="section" id="receptor-nf">
+<h3>receptor_nf<a class="headerlink" href="#receptor-nf" title="Permalink to this headline">¶</a></h3>
+<p>A simple ligand-receptor model fit using synthetic data, simulated in NFsim.</p>
+<p>This problem was considered as example6 in the original BioNetFit ( <a class="reference internal" href="#thomas2016" id="id17">[Thomas2016]</a> ).</p>
+</div>
+<div class="section" id="tcr">
+<h3>tcr<a class="headerlink" href="#tcr" title="Permalink to this headline">¶</a></h3>
+<p>A model of T cell receptor signaling, originally published in <a class="reference internal" href="#chylek2014" id="id18">[Chylek2014]</a>. This problem was considered as example4 in the original BioNetFit ( <a class="reference internal" href="#thomas2016" id="id19">[Thomas2016]</a> ).</p>
+<p>This is a computationally expensive model run in NFsim, with each individual simulation taking tens of minutes to complete. We recommend only attempting to run this on a cluster. An example batch file to submit the job to a SLURM cluster is provided.</p>
+</div>
+<div class="section" id="tlbr">
+<h3>tlbr<a class="headerlink" href="#tlbr" title="Permalink to this headline">¶</a></h3>
+<p>A model trivalent ligand, bivalent receptor system. The model is described in <a class="reference internal" href="#monine2010" id="id20">[Monine2010]</a> and fit to data in <a class="reference internal" href="#posner2007" id="id21">[Posner2007]</a>. The problem was considered as example3 in the original BioNetFit ( <a class="reference internal" href="#thomas2016" id="id22">[Thomas2016]</a> ).</p>
+<p>The model is run in NFSim, and can grow computationally expensive in parameter regimes that result in the formation of large aggregates. An example batch file to submit the job to a SLURM cluster is provided.</p>
+</div>
+<div class="section" id="yeast-cell-cycle">
+<h3>yeast_cell_cycle<a class="headerlink" href="#yeast-cell-cycle" title="Permalink to this headline">¶</a></h3>
+<p>A detailed model for cell cycle control in yeast, described and fit in <a class="reference internal" href="#oguz2013" id="id23">[Oguz2013]</a> using a binary objective function. The model was refit in <a class="reference internal" href="#mitra2018" id="id24">[Mitra2018]</a> with an objective function that combined qualitative and quantitative data, as a demonstration of incorporating constraints into fitting. We provide config, data, and constraint files to reproduce the fit of <a class="reference internal" href="#mitra2018" id="id25">[Mitra2018]</a>.</p>
+<p>This is the most difficult example provided in PyBNF. Due to the huge size of parameter space (150 parameters), we require many iterations of fitting to expect a good result. Although each simulation is fast, each objective evaluation requires a total of 120 simulations of different mutant yeast strains, which take a total of ~ 30 seconds on the libRoadRunner/CVODE simulator. Replicating the fit under the same specifications used in <a class="reference internal" href="#mitra2018" id="id26">[Mitra2018]</a> is expected to take several weeks on a cluster or powerful workstation.</p>
+<p>The config file may be inspected as an example of how to use the <code class="docutils literal"><span class="pre">mutant</span></code> keyword to consider &#8220;mutant&#8221; models that differ only slightly from another model used in fitting. In this problem, each yeast mutant considered is declared using the <code class="docutils literal"><span class="pre">mutant</span></code> keyword to change a few parameters compared to the base model. By doing so, we avoid having to maintain 120 separate, nearly identical .xml files.</p>
+</div>
+</div>
+<div class="section" id="index-of-examples-by-attribute">
+<h2>Index of examples by attribute<a class="headerlink" href="#index-of-examples-by-attribute" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="examples-by-complexity">
+<h3>Examples by complexity<a class="headerlink" href="#examples-by-complexity" title="Permalink to this headline">¶</a></h3>
+<blockquote>
+<div><ul class="simple">
+<li>Trivial (for validating installation): <a class="reference internal" href="#demo">demo</a>, <a class="reference internal" href="#constraint-demo">constraint_demo</a></li>
+<li>Easy (Can run on a personal computer): <a class="reference internal" href="#receptor">receptor</a>, <a class="reference internal" href="#receptor-nf">receptor_nf</a> <a class="reference internal" href="#constraint-raf">constraint_raf</a>, <a class="reference internal" href="#fceri-gamma">fceri_gamma</a>, <a class="reference internal" href="#egfr-benchmark">egfr_benchmark</a></li>
+<li>Moderate: <a class="reference internal" href="#degranulation">degranulation</a>, <a class="reference internal" href="#igf1r">igf1r</a>, <a class="reference internal" href="#egfr-ode">egfr_ode</a>, <a class="reference internal" href="#egfr-nf">egfr_nf</a>, <a class="reference internal" href="#egfr-bleaching">egfr_bleaching</a>, <a class="reference internal" href="#raf-sbml">raf_sbml</a></li>
+<li>Difficult (Recommended on a cluster only): <a class="reference internal" href="#tcr">tcr</a>, <a class="reference internal" href="#tlbr">tlbr</a>, <a class="reference internal" href="#yeast-cell-cycle">yeast_cell_cycle</a></li>
+</ul>
+</div></blockquote>
+</div>
+<div class="section" id="examples-by-source">
+<h3>Examples by source<a class="headerlink" href="#examples-by-source" title="Permalink to this headline">¶</a></h3>
+<blockquote>
+<div><ul class="simple">
+<li>Novel fits described in the PyBNF paper: <a class="reference internal" href="#egfr-bleaching">egfr_bleaching</a>, <a class="reference internal" href="#yeast-cell-cycle">yeast_cell_cycle</a></li>
+<li>Examples from BioNetFit 1: <a class="reference internal" href="#egfr-ode">egfr_ode</a>, <a class="reference internal" href="#egfr-nf">egfr_nf</a>, <a class="reference internal" href="#tlbr">tlbr</a>, <a class="reference internal" href="#tcr">tcr</a>, <a class="reference internal" href="#receptor">receptor</a>, <a class="reference internal" href="#receptor-nf">receptor_nf</a></li>
+<li>Published applications of BioNetFit 1: <a class="reference internal" href="#degranulation">degranulation</a>, <a class="reference internal" href="#igf1r">igf1r</a></li>
+<li>Synthetic data with known ground truth: <a class="reference internal" href="#constraint-raf">constraint_raf</a>, <a class="reference internal" href="#fceri-gamma">fceri_gamma</a>, <a class="reference internal" href="#egfr-benchmark">egfr_benchmark</a>, <a class="reference internal" href="#raf-sbml">raf_sbml</a></li>
+</ul>
+</div></blockquote>
+</div>
+<div class="section" id="examples-by-data-model-types">
+<h3>Examples by data/model types<a class="headerlink" href="#examples-by-data-model-types" title="Permalink to this headline">¶</a></h3>
+<blockquote>
+<div><ul class="simple">
+<li>Constraint (.con) data files: <a class="reference internal" href="#constraint-demo">constraint_demo</a>, <a class="reference internal" href="#constraint-raf">constraint_raf</a>, <a class="reference internal" href="#constraint-advanced">constraint_advanced</a>, <a class="reference internal" href="#yeast-cell-cycle">yeast_cell_cycle</a></li>
+<li>SBML models: <a class="reference internal" href="#raf-sbml">raf_sbml</a>. <a class="reference internal" href="#yeast-cell-cycle">yeast_cell_cycle</a></li>
+<li>Multiple data files: <a class="reference internal" href="#degranulation">degranulation</a></li>
+<li>Multiple model files: <a class="reference internal" href="#egfr-bleaching">egfr_bleaching</a></li>
+<li>Mutant models: <a class="reference internal" href="#yeast-cell-cycle">yeast_cell_cycle</a></li>
+</ul>
+</div></blockquote>
+</div>
+<div class="section" id="examples-by-pybnf-feature">
+<h3>Examples by PyBNF feature<a class="headerlink" href="#examples-by-pybnf-feature" title="Permalink to this headline">¶</a></h3>
+<blockquote>
+<div><ul class="simple">
+<li>Comparison of all available algorithms: <a class="reference internal" href="#egfr-benchmark">egfr_benchmark</a></li>
+<li>Bootstrapping: <a class="reference internal" href="#igf1r">igf1r</a></li>
+<li>Calculating Bayesian posterior: <a class="reference internal" href="#degranulation">degranulation</a></li>
+<li>Advanced constraint configuration: <a class="reference internal" href="#constraint-advanced">constraint_advanced</a></li>
+<li>Submitting jobs to a cluster: <a class="reference internal" href="#tlbr">tlbr</a>, <a class="reference internal" href="#tcr">tcr</a>, <a class="reference internal" href="#degranulation">degranulation</a></li>
+</ul>
+</div></blockquote>
+<table class="docutils citation" frame="void" id="blinov2006" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id6">[Blinov2006]</a></td><td>Blinov, M. L.; Faeder, J. R.; Goldstein, B.; Hlavacek, W. S. A Network Model of Early Events in Epidermal Growth Factor Receptor Signaling That Accounts for Combinatorial Complexity. BioSystems 2006, 83 (2–3 SPEC. ISS.), 136–151.</td></tr>
+</tbody>
+</table>
+<table class="docutils citation" frame="void" id="chylek2014" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id18">[Chylek2014]</a></td><td>Chylek, L. A.; Akimov, V.; Dengjel, J.; Rigbolt, K. T. G.; Hu, B.; Hlavacek, W. S.; Blagoev, B. Phosphorylation Site Dynamics of Early T-Cell Receptor Signaling. PLoS One 2014, 9 (8), e104240.</td></tr>
+</tbody>
+</table>
+<table class="docutils citation" frame="void" id="erickson2018" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label">[Erickson2018]</td><td><em>(<a class="fn-backref" href="#id13">1</a>, <a class="fn-backref" href="#id14">2</a>)</em> Erickson, K.; et. al. Under review.</td></tr>
+</tbody>
+</table>
+<table class="docutils citation" frame="void" id="gupta2018" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label">[Gupta2018]</td><td><em>(<a class="fn-backref" href="#id7">1</a>, <a class="fn-backref" href="#id12">2</a>)</em> Gupta, A.; Mendes, P. An Overview of Network-Based and -Free Approaches for Stochastic Simulation of Biochemical Systems. Computation 2018, 6 (1), 9.</td></tr>
+</tbody>
+</table>
+<table class="docutils citation" frame="void" id="harmon2017" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label">[Harmon2017]</td><td><em>(<a class="fn-backref" href="#id4">1</a>, <a class="fn-backref" href="#id5">2</a>)</em> Harmon, B.; Chylek, L. A.; Liu, Y.; Mitra, E. D.; Mahajan, A.; Saada, E. A.; Schudel, B. R.; Holowka, D. A.; Baird, B. A.; Wilson, B. S.; et al. Timescale Separation of Positive and Negative Signaling Creates History-Dependent Responses to IgE Receptor Stimulation. Sci. Rep. 2017, 7 (1), 15586.</td></tr>
+</tbody>
+</table>
+<table class="docutils citation" frame="void" id="kozer2013" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label">[Kozer2013]</td><td><em>(<a class="fn-backref" href="#id8">1</a>, <a class="fn-backref" href="#id10">2</a>)</em> Kozer, N.; Barua, D.; Orchard, S.; Nice, E. C.; Burgess, A. W.; Hlavacek, W. S.; Clayton, A. H. A. Exploring Higher-Order EGFR Oligomerisation and Phosphorylation—a Combined Experimental and Theoretical Approach. Mol. BioSyst. Mol. BioSyst 2013, 9 (9), 1849–1863.</td></tr>
+</tbody>
+</table>
+<table class="docutils citation" frame="void" id="mitra2018" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label">[Mitra2018]</td><td><em>(<a class="fn-backref" href="#id2">1</a>, <a class="fn-backref" href="#id3">2</a>, <a class="fn-backref" href="#id24">3</a>, <a class="fn-backref" href="#id25">4</a>, <a class="fn-backref" href="#id26">5</a>)</em> Mitra, E. D.; Dias, R.; Posner, R. G.; Hlavacek, W. S. Using Both Qualitative and Quantitative Data in Parameter Identification for Systems Biology Models. Under review.</td></tr>
+</tbody>
+</table>
+<table class="docutils citation" frame="void" id="monine2010" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id20">[Monine2010]</a></td><td>Monine, M. I.; Posner, R. G.; Savage, P. B.; Faeder, J. R.; Hlavacek, W. S. Modeling Multivalent Ligand-Receptor Interactions with Steric Constraints on Configurations of Cell-Surface Receptor Aggregates. Biophys. J. 2010, 98 (1), 48–56.</td></tr>
+</tbody>
+</table>
+<table class="docutils citation" frame="void" id="oguz2013" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id23">[Oguz2013]</a></td><td>Oguz, C.; Laomettachit, T.; Chen, K. C.; Watson, L. T.; Baumann, W. T.; Tyson, J. J. Optimization and Model Reduction in the High Dimensional Parameter Space of a Budding Yeast Cell Cycle Model. BMC Syst. Biol. 2013, 7 (1), 53.</td></tr>
+</tbody>
+</table>
+<table class="docutils citation" frame="void" id="posner2007" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id21">[Posner2007]</a></td><td>Posner, R. G.; Geng, D.; Haymore, S.; Bogert, J.; Pecht, I.; Licht, A.; Savage, P. B. Trivalent Antigens for Degranulation of Mast Cells. Org. Lett. 2007, 9 (18), 3551–3554.</td></tr>
+</tbody>
+</table>
+<table class="docutils citation" frame="void" id="romano2014" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id15">[Romano2014]</a></td><td>Romano, D.; Nguyen, L. K.; Matallanas, D.; Halasz, M.; Doherty, C.; Kholodenko, B. N.; Kolch, W. Protein Interaction Switches Coordinate Raf-1 and MST2/Hippo Signalling. Nat. Cell Biol. 2014, 16 (7), 673–684.</td></tr>
+</tbody>
+</table>
+<table class="docutils citation" frame="void" id="thomas2016" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label">[Thomas2016]</td><td><em>(<a class="fn-backref" href="#id9">1</a>, <a class="fn-backref" href="#id11">2</a>, <a class="fn-backref" href="#id16">3</a>, <a class="fn-backref" href="#id17">4</a>, <a class="fn-backref" href="#id19">5</a>, <a class="fn-backref" href="#id22">6</a>)</em> Thomas, B. R.; Chylek, L. A.; Colvin, J.; Sirimulla, S.; Clayton, A. H. A.; Hlavacek, W. S.; Posner, R. G. BioNetFit: A Fitting Tool Compatible with BioNetGen, NFsim and Distributed Computing Environments. Bioinformatics 2016, 32 (5), 798–800.</td></tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="troubleshooting.html" title="Troubleshooting"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="cluster.html" title="Running on a cluster"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">PyBNF v0.3.1 documentation</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2018, Ryan Suderman, Eshan Mitra.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.5.6.
+    </div>
+  </body>
+</html>

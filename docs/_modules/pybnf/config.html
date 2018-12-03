@@ -1,0 +1,797 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>pybnf.config &#8212; PyBNF v0.3.1 documentation</title>
+    
+    <link rel="stylesheet" href="../../_static/sphinxdoc.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     'v0.3.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">PyBNF v0.3.1 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" accesskey="U">Module code</a> &#187;</li> 
+      </ul>
+    </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="../../index.html">
+              <img class="logo" src="../../_static/LogoSm.png" alt="Logo"/>
+            </a></p>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for pybnf.config</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;Classes and methods for configuring the fitting run&quot;&quot;&quot;</span>
+
+
+<span class="kn">from</span> <span class="nn">.data</span> <span class="k">import</span> <span class="n">Data</span>
+<span class="kn">from</span> <span class="nn">.objective</span> <span class="k">import</span> <span class="n">ChiSquareObjective</span><span class="p">,</span> <span class="n">SumOfSquaresObjective</span><span class="p">,</span> <span class="n">NormSumOfSquaresObjective</span><span class="p">,</span> \
+    <span class="n">AveNormSumOfSquaresObjective</span>
+
+<span class="kn">from</span> <span class="nn">.pset</span> <span class="k">import</span> <span class="n">BNGLModel</span><span class="p">,</span> <span class="n">ModelError</span><span class="p">,</span> <span class="n">SbmlModel</span><span class="p">,</span> <span class="n">SbmlModelNoTimeout</span><span class="p">,</span> <span class="n">FreeParameter</span><span class="p">,</span> <span class="n">TimeCourse</span><span class="p">,</span> <span class="n">ParamScan</span><span class="p">,</span> \
+    <span class="n">Mutation</span><span class="p">,</span> <span class="n">MutationSet</span>
+<span class="kn">from</span> <span class="nn">.printing</span> <span class="k">import</span> <span class="n">verbosity</span><span class="p">,</span> <span class="n">print1</span><span class="p">,</span> <span class="n">PybnfError</span>
+<span class="kn">from</span> <span class="nn">.constraint</span> <span class="k">import</span> <span class="n">ConstraintSet</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">re</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span> <span class="nn">subprocess</span>
+<span class="kn">import</span> <span class="nn">roadrunner</span>
+
+
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">init_logging</span><span class="p">(</span><span class="n">file_prefix</span><span class="p">,</span> <span class="n">debug</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="n">fmt</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">Formatter</span><span class="p">(</span><span class="n">fmt</span><span class="o">=</span><span class="s1">&#39;</span><span class="si">%(asctime)s</span><span class="s1"> </span><span class="si">%(name)-15s</span><span class="s1"> </span><span class="si">%(levelname)-8s</span><span class="s1"> </span><span class="si">%(processName)-10s</span><span class="s1"> </span><span class="si">%(message)s</span><span class="s1">&#39;</span><span class="p">)</span>
+
+    <span class="n">fh</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">FileHandler</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">%s</span><span class="s1">.log&#39;</span> <span class="o">%</span> <span class="n">file_prefix</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;a&#39;</span><span class="p">)</span>
+    <span class="n">fh</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">INFO</span><span class="p">)</span>
+    <span class="n">fh</span><span class="o">.</span><span class="n">setFormatter</span><span class="p">(</span><span class="n">fmt</span><span class="p">)</span>
+
+    <span class="n">root</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">()</span>
+    <span class="n">root</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span>
+    <span class="n">root</span><span class="o">.</span><span class="n">addHandler</span><span class="p">(</span><span class="n">fh</span><span class="p">)</span>
+
+    <span class="n">dlog</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s1">&#39;distributed&#39;</span><span class="p">)</span>
+    <span class="n">dlog</span><span class="o">.</span><span class="n">handlers</span><span class="p">[:]</span> <span class="o">=</span> <span class="p">[]</span>  <span class="c1"># remove any existing handlers</span>
+    <span class="n">dlog</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">WARNING</span><span class="p">)</span>
+    <span class="n">dlog</span><span class="o">.</span><span class="n">addHandler</span><span class="p">(</span><span class="n">fh</span><span class="p">)</span>
+
+    <span class="n">tlog</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s1">&#39;tornado&#39;</span><span class="p">)</span>
+    <span class="n">tlog</span><span class="o">.</span><span class="n">handlers</span><span class="p">[:]</span> <span class="o">=</span> <span class="p">[]</span>  <span class="c1"># remove any existing handlers</span>
+    <span class="n">tlog</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">CRITICAL</span><span class="p">)</span>
+    <span class="n">tlog</span><span class="o">.</span><span class="n">addHandler</span><span class="p">(</span><span class="n">fh</span><span class="p">)</span>
+
+    <span class="n">talog</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s1">&#39;tornado.application&#39;</span><span class="p">)</span>
+    <span class="n">talog</span><span class="o">.</span><span class="n">handlers</span><span class="p">[:]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">talog</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">ERROR</span><span class="p">)</span>
+    <span class="n">talog</span><span class="o">.</span><span class="n">addHandler</span><span class="p">(</span><span class="n">fh</span><span class="p">)</span>
+
+    <span class="n">asynclog</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s1">&#39;asyncio&#39;</span><span class="p">)</span>
+    <span class="n">asynclog</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="mi">999</span><span class="p">)</span>  <span class="c1"># Higher than critical -&gt; silent</span>
+
+    <span class="k">if</span> <span class="n">debug</span><span class="p">:</span>
+        <span class="n">dfh</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">FileHandler</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">%s</span><span class="s1">_debug.log&#39;</span> <span class="o">%</span> <span class="n">file_prefix</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;a&#39;</span><span class="p">)</span>
+        <span class="n">dfh</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">DEBUG</span><span class="p">)</span>
+        <span class="n">dfh</span><span class="o">.</span><span class="n">setFormatter</span><span class="p">(</span><span class="n">fmt</span><span class="p">)</span>
+
+        <span class="n">root</span><span class="o">.</span><span class="n">addHandler</span><span class="p">(</span><span class="n">dfh</span><span class="p">)</span>
+        <span class="n">dlog</span><span class="o">.</span><span class="n">addHandler</span><span class="p">(</span><span class="n">dfh</span><span class="p">)</span>
+        <span class="n">tlog</span><span class="o">.</span><span class="n">addHandler</span><span class="p">(</span><span class="n">dfh</span><span class="p">)</span>
+        <span class="n">talog</span><span class="o">.</span><span class="n">addHandler</span><span class="p">(</span><span class="n">dfh</span><span class="p">)</span>
+
+<div class="viewcode-block" id="reinit_logging"><a class="viewcode-back" href="../../modules/config.html#pybnf.config.reinit_logging">[docs]</a><span class="k">def</span> <span class="nf">reinit_logging</span><span class="p">(</span><span class="n">file_prefix</span><span class="p">,</span> <span class="n">debug</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Shut down logging, then restart it.</span>
+<span class="sd">    Used when some module (e.g. distributed v1.22.0) breaks the logging.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">logging</span><span class="o">.</span><span class="n">root</span><span class="p">:</span>
+        <span class="k">del</span> <span class="n">logging</span><span class="o">.</span><span class="n">root</span><span class="o">.</span><span class="n">handlers</span><span class="p">[:]</span>
+    <span class="n">init_logging</span><span class="p">(</span><span class="n">file_prefix</span><span class="p">,</span> <span class="n">debug</span><span class="p">)</span></div>
+
+<span class="k">class</span> <span class="nc">Configuration</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">d</span><span class="o">=</span><span class="nb">dict</span><span class="p">()):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Instantiates a Configuration object using a dictionary generated</span>
+<span class="sd">        by the configuration file parser.  Default key, value pairs are used</span>
+<span class="sd">        when possible for pairs not present in the provided dictionary.</span>
+
+<span class="sd">        :param d: The result from parsing a configuration file</span>
+<span class="sd">        :type d: dict</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="s1">&#39;models&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">d</span> <span class="ow">or</span> <span class="nb">len</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s1">&#39;models&#39;</span><span class="p">])</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">UnspecifiedConfigurationKeyError</span><span class="p">(</span><span class="s2">&quot;&#39;model&#39; must be specified in the configuration file.&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_req_user_params</span><span class="p">()</span> <span class="o">&lt;=</span> <span class="n">d</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="n">unspecified_keys</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_req_user_params</span><span class="p">():</span>
+                <span class="k">if</span> <span class="n">k</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">d</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                    <span class="n">unspecified_keys</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">k</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="n">UnspecifiedConfigurationKeyError</span><span class="p">(</span>
+                <span class="s2">&quot;The following configuration keys must be specified:</span><span class="se">\n\t</span><span class="s2">&quot;</span><span class="o">+</span><span class="s2">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">unspecified_keys</span><span class="p">))</span>
+
+        <span class="k">if</span> <span class="s1">&#39;fit_type&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">d</span><span class="p">:</span>
+            <span class="n">d</span><span class="p">[</span><span class="s1">&#39;fit_type&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;de&#39;</span>
+            <span class="n">print1</span><span class="p">(</span><span class="s1">&#39;Warning: fit_type was not specified. Defaulting to de (Differential Evolution).&#39;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">verbosity</span> <span class="o">&gt;=</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">check_unused_keys</span><span class="p">(</span><span class="n">d</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">d</span><span class="p">[</span><span class="s1">&#39;fit_type&#39;</span><span class="p">]</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">&#39;bmc&#39;</span><span class="p">,</span> <span class="s1">&#39;pt&#39;</span><span class="p">,</span> <span class="s1">&#39;sa&#39;</span><span class="p">,</span> <span class="s1">&#39;dream&#39;</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">postprocess_mcmc_keys</span><span class="p">(</span><span class="n">d</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">config</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">default_config</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">d</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">v</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_data_map</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>  <span class="c1"># Internal structure to help get both regular and mutant data to the right place</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">models</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_load_models</span><span class="p">()</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Loaded models&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_load_actions</span><span class="p">()</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Loaded actions&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_load_simulators</span><span class="p">()</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Loaded simulators&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_load_mutants</span><span class="p">()</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Loaded mutants&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mapping</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_check_actions</span><span class="p">()</span>  <span class="c1"># dict of model prefix -&gt; set of experimental data prefixes</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Loaded model:exp mapping&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">exp_data</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">constraints</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_load_exp_data</span><span class="p">()</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Loaded data&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">obj</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_load_obj_func</span><span class="p">()</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Loaded objective function&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">variables</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_load_variables</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_check_variable_correspondence</span><span class="p">()</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Loaded variables&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_postprocess_normalization</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_load_postprocessing</span><span class="p">()</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Completed configuration&#39;</span><span class="p">)</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">default_config</span><span class="p">():</span>
+        <span class="sd">&quot;&quot;&quot;Default configuration values&quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">bng_command</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">&#39;BNGPATH&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="s1">&#39;/BNG2.pl&#39;</span>
+        <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+            <span class="n">bng_command</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+
+        <span class="n">default</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;objfunc&#39;</span><span class="p">:</span> <span class="s1">&#39;chi_sq&#39;</span><span class="p">,</span> <span class="s1">&#39;output_dir&#39;</span><span class="p">:</span> <span class="s1">&#39;bnf_out&#39;</span><span class="p">,</span> <span class="s1">&#39;delete_old_files&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s1">&#39;num_to_output&#39;</span><span class="p">:</span> <span class="mi">5000</span><span class="p">,</span>
+            <span class="s1">&#39;output_every&#39;</span><span class="p">:</span> <span class="mi">20</span><span class="p">,</span> <span class="s1">&#39;initialization&#39;</span><span class="p">:</span> <span class="s1">&#39;lh&#39;</span><span class="p">,</span> <span class="s1">&#39;refine&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s1">&#39;bng_command&#39;</span><span class="p">:</span> <span class="n">bng_command</span><span class="p">,</span> <span class="s1">&#39;smoothing&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+            <span class="s1">&#39;backup_every&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s1">&#39;time_course&#39;</span><span class="p">:</span> <span class="p">(),</span> <span class="s1">&#39;param_scan&#39;</span><span class="p">:</span> <span class="p">(),</span> <span class="s1">&#39;min_objective&#39;</span><span class="p">:</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">,</span> <span class="s1">&#39;bootstrap&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+            <span class="s1">&#39;bootstrap_max_obj&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span> <span class="s1">&#39;ind_var_rounding&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s1">&#39;local_objective_eval&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s1">&#39;constraint_scale&#39;</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">,</span>
+            <span class="s1">&#39;sbml_integrator&#39;</span><span class="p">:</span> <span class="s1">&#39;cvode&#39;</span><span class="p">,</span> <span class="s1">&#39;parallel_count&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span> <span class="s1">&#39;save_best_data&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+
+            <span class="s1">&#39;mutation_rate&#39;</span><span class="p">:</span> <span class="mf">0.5</span><span class="p">,</span> <span class="s1">&#39;mutation_factor&#39;</span><span class="p">:</span> <span class="mf">0.5</span><span class="p">,</span> <span class="s1">&#39;islands&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s1">&#39;migrate_every&#39;</span><span class="p">:</span> <span class="mi">20</span><span class="p">,</span> <span class="s1">&#39;num_to_migrate&#39;</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span>
+            <span class="s1">&#39;stop_tolerance&#39;</span><span class="p">:</span> <span class="mf">0.002</span><span class="p">,</span> <span class="s1">&#39;de_strategy&#39;</span><span class="p">:</span> <span class="s1">&#39;rand1&#39;</span><span class="p">,</span>
+
+            <span class="s1">&#39;particle_weight&#39;</span><span class="p">:</span> <span class="mf">0.7</span><span class="p">,</span> <span class="s1">&#39;adaptive_n_max&#39;</span><span class="p">:</span> <span class="mi">30</span><span class="p">,</span> <span class="s1">&#39;adaptive_n_stop&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">,</span> <span class="s1">&#39;adaptive_abs_tol&#39;</span><span class="p">:</span> <span class="mf">0.0</span><span class="p">,</span>
+            <span class="s1">&#39;adaptive_rel_tol&#39;</span><span class="p">:</span> <span class="mf">0.0</span><span class="p">,</span> <span class="s1">&#39;cognitive&#39;</span><span class="p">:</span> <span class="mf">1.5</span><span class="p">,</span> <span class="s1">&#39;social&#39;</span><span class="p">:</span> <span class="mf">1.5</span><span class="p">,</span> <span class="s1">&#39;v_stop&#39;</span><span class="p">:</span> <span class="mf">0.</span><span class="p">,</span>
+
+            <span class="s1">&#39;local_min_limit&#39;</span><span class="p">:</span> <span class="mi">5</span><span class="p">,</span>
+
+            <span class="s1">&#39;step_size&#39;</span><span class="p">:</span> <span class="mf">0.2</span><span class="p">,</span> <span class="s1">&#39;burn_in&#39;</span><span class="p">:</span> <span class="mi">10000</span><span class="p">,</span> <span class="s1">&#39;sample_every&#39;</span><span class="p">:</span> <span class="mi">100</span><span class="p">,</span> <span class="s1">&#39;output_hist_every&#39;</span><span class="p">:</span> <span class="mi">100</span><span class="p">,</span> <span class="s1">&#39;hist_bins&#39;</span><span class="p">:</span> <span class="mi">10</span><span class="p">,</span>
+            <span class="s1">&#39;credible_intervals&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mf">68.</span><span class="p">,</span> <span class="mf">95.</span><span class="p">],</span> <span class="s1">&#39;beta&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mf">1.0</span><span class="p">],</span> <span class="s1">&#39;exchange_every&#39;</span><span class="p">:</span> <span class="mi">20</span><span class="p">,</span> <span class="s1">&#39;beta_max&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">,</span> <span class="s1">&#39;cooling&#39;</span><span class="p">:</span> <span class="mf">0.01</span><span class="p">,</span>
+
+            <span class="s1">&#39;simplex_step&#39;</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">,</span> <span class="s1">&#39;simplex_reflection&#39;</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">,</span> <span class="s1">&#39;simplex_expansion&#39;</span><span class="p">:</span><span class="mf">1.0</span><span class="p">,</span> <span class="s1">&#39;simplex_contraction&#39;</span><span class="p">:</span> <span class="mf">0.5</span><span class="p">,</span>
+            <span class="s1">&#39;simplex_shrink&#39;</span><span class="p">:</span> <span class="mf">0.5</span><span class="p">,</span> <span class="s1">&#39;simplex_stop_tol&#39;</span><span class="p">:</span> <span class="mf">0.</span><span class="p">,</span>
+
+            <span class="s1">&#39;wall_time_gen&#39;</span><span class="p">:</span> <span class="mi">3600</span><span class="p">,</span>
+            <span class="s1">&#39;wall_time_sim&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>  <span class="c1"># Chosen when loading models</span>
+            <span class="s1">&#39;normalization&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+
+            <span class="s1">&#39;cluster_type&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="s1">&#39;scheduler_node&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="s1">&#39;scheduler_file&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="s1">&#39;worker_nodes&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+
+            <span class="s1">&#39;gamma_prob&#39;</span><span class="p">:</span> <span class="mf">0.1</span><span class="p">,</span>
+            <span class="s1">&#39;zeta&#39;</span><span class="p">:</span> <span class="mf">1e-6</span><span class="p">,</span>
+            <span class="s1">&#39;lambda&#39;</span><span class="p">:</span> <span class="mf">0.1</span><span class="p">,</span>
+            <span class="s1">&#39;crossover_number&#39;</span><span class="p">:</span> <span class="mi">3</span>
+        <span class="p">}</span>
+        <span class="k">return</span> <span class="n">default</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">check_unused_keys</span><span class="p">(</span><span class="n">conf_dict</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Gives warnings if the user has specified parameters that will be ignored by the chosen algorithm.</span>
+<span class="sd">        :param conf_dict: The config dictionary</span>
+<span class="sd">        :return:</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">alg_specific</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;ade&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;mutation_rate&#39;</span><span class="p">,</span> <span class="s1">&#39;mutation_factor&#39;</span><span class="p">,</span> <span class="s1">&#39;stop_tolerance&#39;</span><span class="p">,</span> <span class="s1">&#39;de_strategy&#39;</span><span class="p">},</span>
+                        <span class="s1">&#39;de&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;islands&#39;</span><span class="p">,</span> <span class="s1">&#39;migrate_every&#39;</span><span class="p">,</span> <span class="s1">&#39;num_to_migrate&#39;</span><span class="p">},</span>
+                        <span class="s1">&#39;pso&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;cognitive&#39;</span><span class="p">,</span> <span class="s1">&#39;social&#39;</span><span class="p">,</span> <span class="s1">&#39;particle_weight&#39;</span><span class="p">,</span> <span class="s1">&#39;particle_weight_final&#39;</span><span class="p">,</span> <span class="s1">&#39;adaptive_n_max&#39;</span><span class="p">,</span>
+                                <span class="s1">&#39;adaptive_n_stop&#39;</span><span class="p">,</span> <span class="s1">&#39;adaptive_abs_tol&#39;</span><span class="p">,</span> <span class="s1">&#39;adaptive_rel_tol&#39;</span><span class="p">,</span> <span class="s1">&#39;v_stop&#39;</span><span class="p">},</span>
+                        <span class="s1">&#39;ss&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;init_size&#39;</span><span class="p">,</span> <span class="s1">&#39;local_min_limit&#39;</span><span class="p">,</span> <span class="s1">&#39;reserve_size&#39;</span><span class="p">},</span>
+                        <span class="s1">&#39;bmc&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;step_size&#39;</span><span class="p">,</span> <span class="s1">&#39;burn_in&#39;</span><span class="p">,</span> <span class="s1">&#39;sample_every&#39;</span><span class="p">,</span> <span class="s1">&#39;output_hist_every&#39;</span><span class="p">,</span> <span class="s1">&#39;hist_bins&#39;</span><span class="p">,</span>
+                                <span class="s1">&#39;credible_intervals&#39;</span><span class="p">,</span> <span class="s1">&#39;beta&#39;</span><span class="p">,</span> <span class="s1">&#39;beta_range&#39;</span><span class="p">,</span> <span class="s1">&#39;exchange_every&#39;</span><span class="p">,</span> <span class="s1">&#39;beta_max&#39;</span><span class="p">,</span> <span class="s1">&#39;cooling&#39;</span><span class="p">,</span>
+                                <span class="s1">&#39;crossover_number&#39;</span><span class="p">,</span> <span class="s1">&#39;zeta&#39;</span><span class="p">,</span> <span class="s1">&#39;lambda&#39;</span><span class="p">,</span> <span class="s1">&#39;gamma_prob&#39;</span><span class="p">},</span>
+                        <span class="s1">&#39;sim&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;simplex_step&#39;</span><span class="p">,</span> <span class="s1">&#39;simplex_log_step&#39;</span><span class="p">,</span> <span class="s1">&#39;simplex_reflection&#39;</span><span class="p">,</span> <span class="s1">&#39;simplex_expansion&#39;</span><span class="p">,</span>
+                                <span class="s1">&#39;simplex_contraction&#39;</span><span class="p">,</span> <span class="s1">&#39;simplex_shrink&#39;</span><span class="p">,</span> <span class="s1">&#39;simplex_max_iterations&#39;</span><span class="p">,</span>
+                                <span class="s1">&#39;simplex_stop_tol&#39;</span><span class="p">}</span>
+                        <span class="p">}</span>
+        <span class="n">ignored_params</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+        <span class="n">thisalg</span> <span class="o">=</span> <span class="n">conf_dict</span><span class="p">[</span><span class="s1">&#39;fit_type&#39;</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">thisalg</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">&#39;pt&#39;</span><span class="p">,</span> <span class="s1">&#39;sa&#39;</span><span class="p">,</span> <span class="s1">&#39;dream&#39;</span><span class="p">):</span>
+            <span class="n">thisalg</span> <span class="o">=</span> <span class="s1">&#39;bmc&#39;</span>
+        <span class="k">for</span> <span class="n">alg</span> <span class="ow">in</span> <span class="n">alg_specific</span><span class="p">:</span>
+            <span class="k">if</span> <span class="p">(</span><span class="n">thisalg</span> <span class="o">!=</span> <span class="n">alg</span>
+               <span class="ow">and</span> <span class="ow">not</span><span class="p">(</span><span class="n">alg</span> <span class="o">==</span> <span class="s1">&#39;sim&#39;</span> <span class="ow">and</span> <span class="s1">&#39;refine&#39;</span> <span class="ow">in</span> <span class="n">conf_dict</span> <span class="ow">and</span> <span class="n">conf_dict</span><span class="p">[</span><span class="s1">&#39;refine&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span><span class="p">)</span>
+               <span class="ow">and</span> <span class="ow">not</span> <span class="p">(</span><span class="n">thisalg</span> <span class="o">==</span> <span class="s1">&#39;de&#39;</span> <span class="ow">and</span> <span class="n">alg</span> <span class="o">==</span> <span class="s1">&#39;ade&#39;</span><span class="p">)):</span>
+                <span class="n">ignored_params</span> <span class="o">=</span> <span class="n">ignored_params</span><span class="o">.</span><span class="n">union</span><span class="p">(</span><span class="n">alg_specific</span><span class="p">[</span><span class="n">alg</span><span class="p">])</span>
+        <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">ignored_params</span><span class="o">.</span><span class="n">intersection</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">conf_dict</span><span class="o">.</span><span class="n">keys</span><span class="p">())):</span>
+            <span class="n">print1</span><span class="p">(</span><span class="s1">&#39;Warning: Configuration key </span><span class="si">%s</span><span class="s1"> is not used in fit_type </span><span class="si">%s</span><span class="s1">, so I am ignoring it&#39;</span>
+                            <span class="o">%</span> <span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">conf_dict</span><span class="p">[</span><span class="s1">&#39;fit_type&#39;</span><span class="p">]))</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s1">&#39;Ignoring unused key </span><span class="si">%s</span><span class="s1"> for fitting algorithm </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">conf_dict</span><span class="p">[</span><span class="s1">&#39;fit_type&#39;</span><span class="p">]))</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">postprocess_mcmc_keys</span><span class="p">(</span><span class="n">conf_dict</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Algorithms &#39;bmc&#39;, &#39;pt&#39;, &#39;dream&#39;, and &#39;sa&#39; have similar but non-identical valid config keys. This helper method</span>
+<span class="sd">        does post-processing of config keys for these 3 algorithms</span>
+
+<span class="sd">        :param conf_dict:</span>
+<span class="sd">        :return:</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Check keys that only work for a subset of the 4 algorithms</span>
+        <span class="k">if</span> <span class="n">conf_dict</span><span class="p">[</span><span class="s1">&#39;fit_type&#39;</span><span class="p">]</span> <span class="o">!=</span> <span class="s1">&#39;pt&#39;</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;exchange_every&#39;</span><span class="p">,</span> <span class="s1">&#39;reps_per_beta&#39;</span><span class="p">]:</span>
+                <span class="k">if</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">conf_dict</span><span class="p">:</span>
+                    <span class="n">print1</span><span class="p">(</span><span class="s1">&#39;Warning: Configuration key </span><span class="si">%s</span><span class="s1"> is not used in fit_type </span><span class="si">%s</span><span class="s1">, so I am ignoring it&#39;</span>
+                           <span class="o">%</span> <span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">conf_dict</span><span class="p">[</span><span class="s1">&#39;fit_type&#39;</span><span class="p">]))</span>
+            <span class="n">conf_dict</span><span class="p">[</span><span class="s1">&#39;exchange_every&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">inf</span>
+            <span class="n">conf_dict</span><span class="p">[</span><span class="s1">&#39;reps_per_beta&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="k">elif</span> <span class="s1">&#39;reps_per_beta&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">conf_dict</span><span class="p">:</span>
+            <span class="n">conf_dict</span><span class="p">[</span><span class="s1">&#39;reps_per_beta&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>  <span class="c1"># Default value if using pt but didn&#39;t specify</span>
+        <span class="k">if</span> <span class="n">conf_dict</span><span class="p">[</span><span class="s1">&#39;fit_type&#39;</span><span class="p">]</span> <span class="o">!=</span> <span class="s1">&#39;sa&#39;</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;cooling&#39;</span><span class="p">,</span> <span class="s1">&#39;beta_max&#39;</span><span class="p">]:</span>
+                <span class="k">if</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">conf_dict</span><span class="p">:</span>
+                    <span class="n">print1</span><span class="p">(</span><span class="s1">&#39;Warning: Configuration key </span><span class="si">%s</span><span class="s1"> is not used in fit_type </span><span class="si">%s</span><span class="s1">, so I am ignoring it&#39;</span>
+                           <span class="o">%</span> <span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">conf_dict</span><span class="p">[</span><span class="s1">&#39;fit_type&#39;</span><span class="p">]))</span>
+        <span class="k">if</span> <span class="n">conf_dict</span><span class="p">[</span><span class="s1">&#39;fit_type&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;sa&#39;</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;burn_in&#39;</span><span class="p">,</span> <span class="s1">&#39;sample_every&#39;</span><span class="p">,</span> <span class="s1">&#39;output_hist_every&#39;</span><span class="p">,</span> <span class="s1">&#39;hist_bins&#39;</span><span class="p">,</span> <span class="s1">&#39;credible_intervals&#39;</span><span class="p">]:</span>
+                <span class="k">if</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">conf_dict</span><span class="p">:</span>
+                    <span class="n">print1</span><span class="p">(</span><span class="s1">&#39;Warning: Configuration key </span><span class="si">%s</span><span class="s1"> is not used in fit_type </span><span class="si">%s</span><span class="s1">, so I am ignoring it&#39;</span>
+                           <span class="o">%</span> <span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">conf_dict</span><span class="p">[</span><span class="s1">&#39;fit_type&#39;</span><span class="p">]))</span>
+        <span class="k">if</span> <span class="n">conf_dict</span><span class="p">[</span><span class="s1">&#39;fit_type&#39;</span><span class="p">]</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;bmc&#39;</span><span class="p">,</span> <span class="s1">&#39;sa&#39;</span><span class="p">,</span> <span class="s1">&#39;pt&#39;</span><span class="p">]:</span>
+            <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;crossover_numer&#39;</span><span class="p">,</span> <span class="s1">&#39;zeta&#39;</span><span class="p">,</span> <span class="s1">&#39;lambda&#39;</span><span class="p">,</span> <span class="s1">&#39;gamma_prob&#39;</span><span class="p">]:</span>
+                <span class="k">if</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">conf_dict</span><span class="p">:</span>
+                    <span class="n">print1</span><span class="p">(</span><span class="s1">&#39;Warning: Configuration key </span><span class="si">%s</span><span class="s1"> is not used in fit_type </span><span class="si">%s</span><span class="s1">, so I am ignoring it&#39;</span>
+                           <span class="o">%</span> <span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">conf_dict</span><span class="p">[</span><span class="s1">&#39;fit_type&#39;</span><span class="p">]))</span>
+
+        <span class="c1"># Create the starting list of betas based on the various available options. Warn if tried to do something weird</span>
+        <span class="k">if</span> <span class="s1">&#39;beta&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">conf_dict</span> <span class="ow">and</span> <span class="s1">&#39;beta_range&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">conf_dict</span><span class="p">:</span>
+            <span class="n">conf_dict</span><span class="p">[</span><span class="s1">&#39;beta&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="mf">1.</span><span class="p">]</span>
+
+        <span class="c1"># Handle the Parallel Tempering case where reps_per_beta is specified.</span>
+        <span class="c1"># First, check it&#39;s divisible by the population size</span>
+        <span class="k">if</span> <span class="n">conf_dict</span><span class="p">[</span><span class="s1">&#39;population_size&#39;</span><span class="p">]</span> <span class="o">%</span> <span class="n">conf_dict</span><span class="p">[</span><span class="s1">&#39;reps_per_beta&#39;</span><span class="p">]</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">conf_dict</span><span class="p">[</span><span class="s1">&#39;population_size&#39;</span><span class="p">]</span> <span class="o">-=</span> <span class="n">conf_dict</span><span class="p">[</span><span class="s1">&#39;population_size&#39;</span><span class="p">]</span> <span class="o">%</span> <span class="n">conf_dict</span><span class="p">[</span><span class="s1">&#39;reps_per_beta&#39;</span><span class="p">]</span>
+            <span class="n">print1</span><span class="p">(</span><span class="s1">&#39;Warning: Lowered your population_size to </span><span class="si">%i</span><span class="s1"> so that it is divisible by your setting for &#39;</span>
+                   <span class="s1">&#39;reps_per_beta&#39;</span> <span class="o">%</span> <span class="n">conf_dict</span><span class="p">[</span><span class="s1">&#39;population_size&#39;</span><span class="p">])</span>
+        <span class="c1"># Then, we want the beta_list generated below to contain only one copy of the spread of betas to use</span>
+        <span class="c1"># At the end, we make reps_per_beta copies of that list to arrive at the final beta list.</span>
+        <span class="n">subpop_size</span> <span class="o">=</span> <span class="n">conf_dict</span><span class="p">[</span><span class="s1">&#39;population_size&#39;</span><span class="p">]</span> <span class="o">//</span> <span class="n">conf_dict</span><span class="p">[</span><span class="s1">&#39;reps_per_beta&#39;</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="s1">&#39;beta_range&#39;</span> <span class="ow">in</span> <span class="n">conf_dict</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">conf_dict</span><span class="p">[</span><span class="s1">&#39;beta_range&#39;</span><span class="p">])</span> <span class="o">!=</span> <span class="mi">2</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">PybnfError</span><span class="p">(</span><span class="s2">&quot;Wrong number of entries in beta_range&quot;</span><span class="p">,</span>
+                                 <span class="s2">&quot;Config key &#39;beta_range&#39; must have exactly 2 numbers: the min and the max.&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="s1">&#39;beta&#39;</span> <span class="ow">in</span> <span class="n">conf_dict</span><span class="p">:</span>
+                <span class="n">print1</span><span class="p">(</span><span class="s2">&quot;Warning: Ignoring config key &#39;beta&#39; because it is overridden by config key &#39;beta_range&#39;&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">conf_dict</span><span class="p">[</span><span class="s1">&#39;fit_type&#39;</span><span class="p">]</span> <span class="o">!=</span> <span class="s1">&#39;pt&#39;</span><span class="p">:</span>
+                <span class="n">print1</span><span class="p">(</span><span class="s2">&quot;Warning: You used &#39;beta_range&#39; with the method </span><span class="si">%s</span><span class="s2">. This is an odd thing to do. Usually, you &quot;</span>
+                       <span class="s2">&quot;would want all your replicates starting at the same beta value.&quot;</span> <span class="o">%</span> <span class="n">conf_dict</span><span class="p">[</span><span class="s1">&#39;fit_type&#39;</span><span class="p">])</span>
+            <span class="n">betalist</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">conf_dict</span><span class="p">[</span><span class="s1">&#39;beta_range&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span> <span class="n">conf_dict</span><span class="p">[</span><span class="s1">&#39;beta_range&#39;</span><span class="p">][</span><span class="mi">1</span><span class="p">],</span> <span class="n">subpop_size</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">conf_dict</span><span class="p">[</span><span class="s1">&#39;beta&#39;</span><span class="p">])</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">betalist</span> <span class="o">=</span> <span class="n">conf_dict</span><span class="p">[</span><span class="s1">&#39;beta&#39;</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">conf_dict</span><span class="p">[</span><span class="s1">&#39;fit_type&#39;</span><span class="p">]</span> <span class="o">!=</span> <span class="s1">&#39;pt&#39;</span><span class="p">:</span>
+                <span class="n">print1</span><span class="p">(</span><span class="s2">&quot;Warning: You specified multiple beta values with the method </span><span class="si">%s</span><span class="s2">. This is an odd thing to do. &quot;</span>
+                       <span class="s2">&quot;Usually, you would specify one beta value to use with all your replicates. &quot;</span> <span class="o">%</span> <span class="n">conf_dict</span><span class="p">[</span><span class="s1">&#39;fit_type&#39;</span><span class="p">])</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">betalist</span><span class="p">)</span> <span class="o">!=</span> <span class="n">subpop_size</span><span class="p">:</span>
+                <span class="n">print1</span><span class="p">(</span><span class="s2">&quot;Warning: You specified </span><span class="si">%i</span><span class="s2"> beta values, so I will run </span><span class="si">%i</span><span class="s2"> replicates instead of using your &quot;</span>
+                       <span class="s2">&quot;population_size setting&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">betalist</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">betalist</span><span class="p">)</span><span class="o">*</span><span class="n">conf_dict</span><span class="p">[</span><span class="s1">&#39;reps_per_beta&#39;</span><span class="p">]))</span>
+                <span class="n">conf_dict</span><span class="p">[</span><span class="s1">&#39;population_size&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">betalist</span><span class="p">)</span><span class="o">*</span><span class="n">conf_dict</span><span class="p">[</span><span class="s1">&#39;reps_per_beta&#39;</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">betalist</span> <span class="o">=</span> <span class="n">conf_dict</span><span class="p">[</span><span class="s1">&#39;beta&#39;</span><span class="p">]</span> <span class="o">*</span> <span class="n">subpop_size</span>  <span class="c1"># n copies of the single beta value</span>
+            <span class="k">if</span> <span class="n">conf_dict</span><span class="p">[</span><span class="s1">&#39;fit_type&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;pt&#39;</span><span class="p">:</span>
+                <span class="n">print1</span><span class="p">(</span><span class="s2">&quot;Warning: You specified a single beta value with the method pt. This makes the algorithm&#39;s &quot;</span>
+                       <span class="s2">&quot;replica exchanges accomplish nothing. To make good use of this algorithm, set the key &quot;</span>
+                       <span class="s2">&quot;&#39;beta_range&#39; or specify multiple values with the &#39;beta&#39; key.&quot;</span><span class="p">)</span>
+        <span class="n">betalist</span><span class="o">.</span><span class="n">sort</span><span class="p">()</span>
+        <span class="n">betalist</span> <span class="o">=</span> <span class="n">betalist</span> <span class="o">*</span> <span class="n">conf_dict</span><span class="p">[</span><span class="s1">&#39;reps_per_beta&#39;</span><span class="p">]</span>
+        <span class="n">conf_dict</span><span class="p">[</span><span class="s1">&#39;beta_list&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">betalist</span>
+
+        <span class="k">if</span> <span class="n">conf_dict</span><span class="p">[</span><span class="s1">&#39;fit_type&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;pt&#39;</span> <span class="ow">and</span> <span class="n">betalist</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">print1</span><span class="p">(</span><span class="s1">&#39;Warning: You are about to calculate a distribution with beta=</span><span class="si">%i</span><span class="s1"> instead of 1. That means your &#39;</span>
+                   <span class="s1">&#39;calculated distribution will be </span><span class="si">%s</span><span class="s1"> than the true probability distribution&#39;</span> <span class="o">%</span>
+                   <span class="p">(</span><span class="n">betalist</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="s1">&#39;narrower&#39;</span> <span class="k">if</span> <span class="n">betalist</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">1</span> <span class="k">else</span> <span class="s1">&#39;broader&#39;</span><span class="p">))</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_req_user_params</span><span class="p">():</span>
+        <span class="sd">&quot;&quot;&quot;Configuration keys that the user must specify&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">{</span><span class="s1">&#39;models&#39;</span><span class="p">,</span> <span class="s1">&#39;population_size&#39;</span><span class="p">,</span> <span class="s1">&#39;max_iterations&#39;</span><span class="p">}</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_absolute</span><span class="p">(</span><span class="n">directory</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Convert relative paths to absolute paths</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">home_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">()</span>
+        <span class="k">return</span> <span class="s1">&#39;&#39;</span> <span class="k">if</span> <span class="n">directory</span> <span class="o">==</span> <span class="s1">&#39;&#39;</span> <span class="k">else</span> <span class="n">directory</span> <span class="k">if</span> <span class="n">directory</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;/&#39;</span> <span class="k">else</span> <span class="n">home_dir</span> <span class="o">+</span> <span class="s1">&#39;/&#39;</span> <span class="o">+</span> <span class="n">directory</span>
+
+    <span class="k">def</span> <span class="nf">_load_models</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Loads models specified in configuration file in a dictionary keyed on</span>
+<span class="sd">        Model.name</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># If needed, choose the default timeout, which depends on what simulators the models use.</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s1">&#39;wall_time_sim&#39;</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s1">&#39;wall_time_sim&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="k">for</span> <span class="n">mf</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s1">&#39;models&#39;</span><span class="p">]:</span>
+                <span class="k">if</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="s1">&#39;\.bngl$&#39;</span><span class="p">,</span> <span class="n">mf</span><span class="p">):</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s1">&#39;wall_time_sim&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">3600</span>
+                    <span class="k">break</span>
+
+        <span class="n">md</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">mf</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s1">&#39;models&#39;</span><span class="p">]:</span>
+            <span class="c1"># Initialize model type based on extension</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="s1">&#39;\.bngl$&#39;</span><span class="p">,</span> <span class="n">mf</span><span class="p">):</span>
+                    <span class="n">model</span> <span class="o">=</span> <span class="n">BNGLModel</span><span class="p">(</span><span class="n">mf</span><span class="p">)</span>
+                    <span class="n">model</span><span class="o">.</span><span class="n">bng_command</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_absolute</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s1">&#39;bng_command&#39;</span><span class="p">])</span>
+                    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Set model </span><span class="si">%s</span><span class="s1"> command to </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">mf</span><span class="p">,</span> <span class="n">model</span><span class="o">.</span><span class="n">bng_command</span><span class="p">))</span>
+                <span class="k">elif</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="s1">&#39;\.xml$&#39;</span><span class="p">,</span> <span class="n">mf</span><span class="p">):</span>
+                    <span class="n">save_flag</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s1">&#39;delete_old_files&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s1">&#39;wall_time_sim&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                        <span class="n">model</span> <span class="o">=</span> <span class="n">SbmlModelNoTimeout</span><span class="p">(</span><span class="n">mf</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_absolute</span><span class="p">(</span><span class="n">mf</span><span class="p">),</span> <span class="n">save_files</span><span class="o">=</span><span class="n">save_flag</span><span class="p">,</span> <span class="n">integrator</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s1">&#39;sbml_integrator&#39;</span><span class="p">])</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">model</span> <span class="o">=</span> <span class="n">SbmlModel</span><span class="p">(</span><span class="n">mf</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_absolute</span><span class="p">(</span><span class="n">mf</span><span class="p">),</span> <span class="n">save_files</span><span class="o">=</span><span class="n">save_flag</span><span class="p">,</span> <span class="n">integrator</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s1">&#39;sbml_integrator&#39;</span><span class="p">])</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="c1"># Should not get here - should be caught in parsing</span>
+                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Unrecognized model suffix in </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">mf</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">FileNotFoundError</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">PybnfError</span><span class="p">(</span><span class="s1">&#39;Model file </span><span class="si">%s</span><span class="s1"> was not found.&#39;</span> <span class="o">%</span> <span class="n">mf</span><span class="p">)</span>
+            <span class="k">except</span> <span class="n">ModelError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">PybnfError</span><span class="p">(</span><span class="s1">&#39;In model file </span><span class="si">%s</span><span class="s1">: </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">mf</span><span class="p">,</span> <span class="n">e</span><span class="o">.</span><span class="n">message</span><span class="p">))</span>
+            <span class="k">if</span> <span class="n">model</span><span class="o">.</span><span class="n">name</span> <span class="ow">in</span> <span class="n">md</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">PybnfError</span><span class="p">(</span><span class="s1">&#39;Multiple models with the name &quot;</span><span class="si">%s</span><span class="s1">&quot;. Please give all your models different names. &#39;</span>
+                                 <span class="o">%</span> <span class="n">model</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+            <span class="n">md</span><span class="p">[</span><span class="n">model</span><span class="o">.</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">model</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_data_map</span><span class="p">[</span><span class="n">model</span><span class="o">.</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="n">mf</span><span class="p">]</span>  <span class="c1"># List of exp files associated with this model</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s1">&#39;smoothing&#39;</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="c1"># Check for misuse of &#39;smoothing&#39; feature</span>
+            <span class="n">stochastic</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">([</span><span class="n">m</span><span class="o">.</span><span class="n">stochastic</span> <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">md</span><span class="o">.</span><span class="n">values</span><span class="p">()])</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">stochastic</span><span class="p">:</span>
+                <span class="n">print1</span><span class="p">(</span><span class="s1">&#39;Warning: You specified smoothing=</span><span class="si">%i</span><span class="s1">, but it looks like none of your models use a stochastic &#39;</span>
+                       <span class="s1">&#39;method. All of your smoothing replicates will come out identical.&#39;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s1">&#39;smoothing&#39;</span><span class="p">])</span>
+            <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">([</span><span class="n">m</span><span class="o">.</span><span class="n">seeded</span> <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">md</span><span class="o">.</span><span class="n">values</span><span class="p">()</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="n">BNGLModel</span><span class="p">)]):</span>
+                <span class="k">raise</span> <span class="n">PybnfError</span><span class="p">(</span><span class="s1">&#39;You specified smoothing=</span><span class="si">%i</span><span class="s1">, but one of your simulation commands contains the &quot;seed&quot; &#39;</span>
+                                 <span class="s1">&#39;argument. This would cause all of your smoothing replicates to come out the same.&#39;</span>
+                                 <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s1">&#39;smoothing&#39;</span><span class="p">])</span>
+
+        <span class="k">return</span> <span class="n">md</span>
+
+    <span class="k">def</span> <span class="nf">_load_mutants</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="k">if</span> <span class="s1">&#39;mutant&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">:</span>
+            <span class="k">return</span>
+
+        <span class="k">for</span> <span class="n">base</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">mutations</span><span class="p">,</span> <span class="n">exps</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s1">&#39;mutant&#39;</span><span class="p">]:</span>
+            <span class="n">base</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_file_prefix</span><span class="p">(</span><span class="n">base</span><span class="p">,</span> <span class="s1">&#39;(bngl|xml)&#39;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">base</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">models</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">PybnfError</span><span class="p">(</span><span class="s1">&#39;Mutant </span><span class="si">%s</span><span class="s1"> declared corresponding to model </span><span class="si">%s</span><span class="s1">, but that model was not found&#39;</span> <span class="o">%</span>
+                                 <span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">base</span><span class="p">))</span>
+            <span class="n">mut_objects</span> <span class="o">=</span> <span class="p">[</span><span class="n">Mutation</span><span class="p">(</span><span class="n">var</span><span class="p">,</span> <span class="n">op</span><span class="p">,</span> <span class="nb">float</span><span class="p">(</span><span class="n">val</span><span class="p">))</span> <span class="k">for</span> <span class="n">var</span><span class="p">,</span> <span class="n">op</span><span class="p">,</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">mutations</span><span class="p">]</span>
+            <span class="n">mut_set</span> <span class="o">=</span> <span class="n">MutationSet</span><span class="p">(</span><span class="n">mut_objects</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">models</span><span class="p">[</span><span class="n">base</span><span class="p">]</span><span class="o">.</span><span class="n">add_mutant</span><span class="p">(</span><span class="n">mut_set</span><span class="p">)</span>
+            <span class="c1"># Check that the exp files will have simulation outputs</span>
+            <span class="k">for</span> <span class="n">ex</span> <span class="ow">in</span> <span class="n">exps</span><span class="p">:</span>
+                <span class="n">ename</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_file_prefix</span><span class="p">(</span><span class="n">ex</span><span class="p">,</span> <span class="s1">&#39;(exp|con)&#39;</span><span class="p">)</span>
+                <span class="n">base_suffix</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="s1">&#39;.*(?=</span><span class="si">%s</span><span class="s1">)&#39;</span> <span class="o">%</span> <span class="n">name</span><span class="p">,</span> <span class="n">ename</span><span class="p">)</span>
+                <span class="n">suffix_choices</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">models</span><span class="p">[</span><span class="n">base</span><span class="p">]</span><span class="o">.</span><span class="n">suffixes</span><span class="p">]</span>
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">suffix_choices</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="n">PybnfError</span><span class="p">(</span><span class="s2">&quot;Model </span><span class="si">%s</span><span class="s2"> has no action suffixes, so I can&#39;t have mutant model </span><span class="si">%s</span><span class="s2"> with &quot;</span>
+                                     <span class="s2">&quot;data file </span><span class="si">%s</span><span class="s2"> based on that model&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">base</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">ex</span><span class="p">))</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">base_suffix</span> <span class="ow">or</span> <span class="n">base_suffix</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">suffix_choices</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="n">PybnfError</span><span class="p">(</span><span class="s1">&#39;Experimental file name </span><span class="si">%s</span><span class="s1"> in mutant model </span><span class="si">%s</span><span class="s1">. This file name should consist of &#39;</span>
+                                     <span class="s1">&#39;the model suffix it corresponds to, followed by the mutant name (e.g. </span><span class="si">%s%s</span><span class="s1">.exp)&#39;</span>
+                                     <span class="o">%</span> <span class="p">(</span><span class="n">ex</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">suffix_choices</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">name</span><span class="p">))</span>
+            <span class="c1"># Stages these exp files to get loaded along with regular model ones</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_data_map</span><span class="p">[</span><span class="n">base</span><span class="p">]</span> <span class="o">+=</span> <span class="n">exps</span>
+
+    <span class="k">def</span> <span class="nf">_load_simulators</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="n">model_types</span> <span class="o">=</span> <span class="nb">set</span><span class="p">([</span><span class="nb">type</span><span class="p">(</span><span class="n">m</span><span class="p">)</span> <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">models</span><span class="o">.</span><span class="n">values</span><span class="p">()])</span>
+
+        <span class="c1"># For each model type that exists in the run, check that the simulator is available, and pass the simulator</span>
+        <span class="c1"># path to the appropriate Model subclass</span>
+        <span class="k">if</span> <span class="n">BNGLModel</span> <span class="ow">in</span> <span class="n">model_types</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s1">&#39;bng_command&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;&#39;</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">PybnfError</span><span class="p">(</span><span class="s1">&#39;Path to BNG2.pl not defined.  Please specify using the &quot;bng_command&quot; parameter &#39;</span>
+                                 <span class="s1">&#39;in the configuration file or set the BNGPATH environmental variable&#39;</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;BNG2.pl&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s1">&#39;bng_command&#39;</span><span class="p">])</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">PybnfError</span><span class="p">(</span><span class="s1">&#39;The specified &quot;bng_command&quot; parameter in the configuration file must include the script &#39;</span>
+                                 <span class="s1">&#39;name at the end of the path (e.g. /path/to/BNG2.pl)&#39;</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>  <span class="c1"># check to make sure BNG2.pl is available</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Checking to make sure bng_command is appropriately set&#39;</span><span class="p">)</span>
+                    <span class="n">subprocess</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s1">&#39;bng_command&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="s1">&#39; -v&#39;</span><span class="p">,</span> <span class="n">shell</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">check</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                                   <span class="n">stdout</span><span class="o">=</span><span class="n">subprocess</span><span class="o">.</span><span class="n">DEVNULL</span><span class="p">,</span> <span class="n">stderr</span><span class="o">=</span><span class="n">subprocess</span><span class="o">.</span><span class="n">STDOUT</span><span class="p">)</span>
+                <span class="k">except</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">CalledProcessError</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="n">PybnfError</span><span class="p">(</span><span class="s1">&#39;BioNetGen failed to execute.  Please check that &quot;bng_command&quot; parameter in the &#39;</span>
+                                     <span class="s1">&#39;configuration file points to the BNG2.pl script or that the BNGPATH environmental &#39;</span>
+                                     <span class="s1">&#39;variable is correctly set&#39;</span><span class="p">)</span>
+        <span class="c1"># Check that the integrator is valid</span>
+        <span class="n">integrators</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;cvode&#39;</span><span class="p">,</span> <span class="s1">&#39;euler&#39;</span><span class="p">,</span> <span class="s1">&#39;rk4&#39;</span><span class="p">,</span> <span class="s1">&#39;gillespie&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s1">&#39;sbml_integrator&#39;</span><span class="p">]</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">integrators</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">PybnfError</span><span class="p">(</span><span class="s1">&#39;Invalid sbml_integrator </span><span class="si">%s</span><span class="s1">. Options are: </span><span class="si">%s</span><span class="s1">.&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s1">&#39;sbml_integrator&#39;</span><span class="p">],</span>
+                                                                               <span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">integrators</span><span class="p">)))</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s1">&#39;sbml_integrator&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;euler&#39;</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">roadrunner</span><span class="o">.</span><span class="n">__version__</span> <span class="o">&lt;</span> <span class="s1">&#39;1.5.1&#39;</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">PybnfError</span><span class="p">(</span><span class="s1">&#39;Config option &quot;sbml_integrator = euler&quot; requires Roadrunner version 1.5.1 or higher. You &#39;</span>
+                                 <span class="s1">&#39;have version </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">roadrunner</span><span class="o">.</span><span class="n">__version__</span><span class="p">)</span>
+            <span class="n">print1</span><span class="p">(</span><span class="s1">&#39;Warning: &quot;sbml_integrator = euler&quot; can be numerically unstable. Confirm that your model is &#39;</span>
+                   <span class="s1">&#39;producing reasonable output.&#39;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_load_actions</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="k">for</span> <span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">ActionType</span><span class="p">)</span> <span class="ow">in</span> <span class="p">((</span><span class="s1">&#39;time_course&#39;</span><span class="p">,</span> <span class="n">TimeCourse</span><span class="p">),</span> <span class="p">(</span><span class="s1">&#39;param_scan&#39;</span><span class="p">,</span> <span class="n">ParamScan</span><span class="p">)):</span>
+            <span class="c1"># Iterate through all time courses and param scans included in the config dict, create the corresponding</span>
+            <span class="c1"># Action objects, and add them to the appropriate model(s).</span>
+            <span class="k">for</span> <span class="n">action_dict</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="n">key</span><span class="p">]:</span>
+                <span class="k">if</span> <span class="s1">&#39;subdivisions&#39;</span> <span class="ow">in</span> <span class="n">action_dict</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s1">&#39;sbml_integrator&#39;</span><span class="p">]</span> <span class="o">!=</span> <span class="s1">&#39;euler&#39;</span><span class="p">:</span>
+                    <span class="n">print1</span><span class="p">(</span><span class="s1">&#39;Warning: Ignoring &quot;subdivisions&quot; setting because that is only used with sbml_integrator = &#39;</span>
+                           <span class="s1">&#39;euler&#39;</span><span class="p">)</span>
+                <span class="k">if</span> <span class="s1">&#39;model&#39;</span> <span class="ow">in</span> <span class="n">action_dict</span><span class="p">:</span>
+                    <span class="n">action</span> <span class="o">=</span> <span class="n">ActionType</span><span class="p">(</span><span class="n">action_dict</span><span class="p">)</span>
+                    <span class="k">try</span><span class="p">:</span>
+                        <span class="c1"># Model lookup - should work if model name included the extension or not.</span>
+                        <span class="n">model_key</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_file_prefix</span><span class="p">(</span><span class="n">action_dict</span><span class="p">[</span><span class="s1">&#39;model&#39;</span><span class="p">],</span> <span class="s1">&#39;(bngl|xml)&#39;</span><span class="p">)</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">models</span><span class="p">[</span><span class="n">model_key</span><span class="p">]</span><span class="o">.</span><span class="n">add_action</span><span class="p">(</span><span class="n">action</span><span class="p">)</span>
+                    <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+                        <span class="k">raise</span> <span class="n">PybnfError</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">%s</span><span class="s1"> declared for model </span><span class="si">%s</span><span class="s1">, but that model was not found.&#39;</span> <span class="o">%</span>
+                                         <span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">action_dict</span><span class="p">[</span><span class="s1">&#39;model&#39;</span><span class="p">]))</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="c1"># Apply to all models (hopefully just 1)</span>
+                    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">models</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+                        <span class="n">print1</span><span class="p">(</span><span class="s1">&#39;Warning: Applying the same </span><span class="si">%s</span><span class="s1"> action to all models in this fitting run.&#39;</span> <span class="o">%</span> <span class="n">key</span><span class="p">)</span>
+                    <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">models</span><span class="p">:</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">models</span><span class="p">[</span><span class="n">m</span><span class="p">]</span><span class="o">.</span><span class="n">add_action</span><span class="p">(</span><span class="n">ActionType</span><span class="p">(</span><span class="n">action_dict</span><span class="p">))</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_file_prefix</span><span class="p">(</span><span class="n">ef</span><span class="p">,</span> <span class="n">ext</span><span class="o">=</span><span class="s2">&quot;exp&quot;</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="s2">&quot;\.&quot;</span><span class="o">+</span><span class="n">ext</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">,</span> <span class="n">ef</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+
+    <span class="k">def</span> <span class="nf">_load_exp_data</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Loads experimental data files in a nested dictionary keyed on model name, then data prefix</span>
+<span class="sd">        Also loads constraint files (which at this point are stored in the same structures as the exp files) and stores</span>
+<span class="sd">        them in a set.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">ed</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">csets</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_data_map</span><span class="p">:</span>
+            <span class="n">ed</span><span class="p">[</span><span class="n">m</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+            <span class="k">for</span> <span class="n">ef</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_data_map</span><span class="p">[</span><span class="n">m</span><span class="p">]:</span>
+                <span class="k">if</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="s2">&quot;exp$&quot;</span><span class="p">,</span> <span class="n">ef</span><span class="p">):</span>
+                    <span class="k">try</span><span class="p">:</span>
+                        <span class="n">d</span> <span class="o">=</span> <span class="n">Data</span><span class="p">(</span><span class="n">file_name</span><span class="o">=</span><span class="n">ef</span><span class="p">)</span>
+                    <span class="k">except</span> <span class="ne">FileNotFoundError</span><span class="p">:</span>
+                        <span class="k">raise</span> <span class="n">PybnfError</span><span class="p">(</span><span class="s1">&#39;Experimental data file </span><span class="si">%s</span><span class="s1"> was not found.&#39;</span> <span class="o">%</span> <span class="n">ef</span><span class="p">)</span>
+                    <span class="n">ed</span><span class="p">[</span><span class="n">m</span><span class="p">][</span><span class="bp">self</span><span class="o">.</span><span class="n">_file_prefix</span><span class="p">(</span><span class="n">ef</span><span class="p">)]</span> <span class="o">=</span> <span class="n">d</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">cs</span> <span class="o">=</span> <span class="n">ConstraintSet</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_file_prefix</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="s1">&#39;(bngl|xml)&#39;</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">_file_prefix</span><span class="p">(</span><span class="n">ef</span><span class="p">,</span> <span class="s1">&#39;con&#39;</span><span class="p">))</span>
+                    <span class="k">try</span><span class="p">:</span>
+                        <span class="n">cs</span><span class="o">.</span><span class="n">load_constraint_file</span><span class="p">(</span><span class="n">ef</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s1">&#39;constraint_scale&#39;</span><span class="p">])</span>
+                    <span class="k">except</span> <span class="ne">FileNotFoundError</span><span class="p">:</span>
+                        <span class="k">raise</span> <span class="n">PybnfError</span><span class="p">(</span><span class="s1">&#39;Constraint file </span><span class="si">%s</span><span class="s1"> was not found&#39;</span> <span class="o">%</span> <span class="n">ef</span><span class="p">)</span>
+                    <span class="n">csets</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">cs</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">ed</span><span class="p">,</span> <span class="n">csets</span>
+
+    <span class="k">def</span> <span class="nf">_check_actions</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">mapping</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">model</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">models</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+            <span class="n">suffs</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">get_suffixes</span><span class="p">())</span>
+            <span class="n">efs_per_m</span> <span class="o">=</span> <span class="p">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_file_prefix</span><span class="p">(</span><span class="n">ef</span><span class="p">)</span> <span class="k">for</span> <span class="n">ef</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="n">model</span><span class="o">.</span><span class="n">file_path</span><span class="p">]</span> <span class="k">if</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="s2">&quot;\.exp$&quot;</span><span class="p">,</span> <span class="n">ef</span><span class="p">)}</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">efs_per_m</span> <span class="o">&lt;=</span> <span class="n">suffs</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">ef</span> <span class="ow">in</span> <span class="n">efs_per_m</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">ef</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">suffs</span><span class="p">:</span>
+                        <span class="k">raise</span> <span class="n">UnmatchedExperimentalDataError</span><span class="p">(</span><span class="s2">&quot;Action not specified for &#39;</span><span class="si">%s</span><span class="s2">.exp&#39;&quot;</span> <span class="o">%</span> <span class="n">ef</span><span class="p">,</span>
+                              <span class="s2">&quot;You specified that model </span><span class="si">%s</span><span class="s2"> corresponds to data file </span><span class="si">%s</span><span class="s2">.exp, but I can&#39;t find the &quot;</span>
+                              <span class="s2">&quot;corresponding action in the model file or config file. One of the actions in </span><span class="si">%s</span><span class="s2">.bngl &quot;</span>
+                              <span class="s2">&quot;needs to include the argument &#39;suffix=&gt;</span><span class="se">\&quot;</span><span class="si">%s</span><span class="se">\&quot;</span><span class="s2"> &#39;, or your config file needs to include &quot;</span>
+                              <span class="s2">&quot;an action with the suffix </span><span class="si">%s</span><span class="s2">.&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">ef</span><span class="p">,</span> <span class="n">model</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">ef</span><span class="p">,</span> <span class="n">ef</span><span class="p">))</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Model </span><span class="si">%s</span><span class="s1"> was mapped to </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">efs_per_m</span><span class="p">))</span>
+            <span class="n">mapping</span><span class="p">[</span><span class="n">model</span><span class="o">.</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">efs_per_m</span>
+        <span class="k">return</span> <span class="n">mapping</span>
+
+    <span class="k">def</span> <span class="nf">_load_obj_func</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s1">&#39;objfunc&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;chi_sq&#39;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">ChiSquareObjective</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s1">&#39;ind_var_rounding&#39;</span><span class="p">])</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s1">&#39;objfunc&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;sos&#39;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">SumOfSquaresObjective</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s1">&#39;ind_var_rounding&#39;</span><span class="p">])</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s1">&#39;objfunc&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;norm_sos&#39;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">NormSumOfSquaresObjective</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s1">&#39;ind_var_rounding&#39;</span><span class="p">])</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s1">&#39;objfunc&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;ave_norm_sos&#39;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">AveNormSumOfSquaresObjective</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s1">&#39;ind_var_rounding&#39;</span><span class="p">])</span>
+        <span class="k">raise</span> <span class="n">UnknownObjectiveFunctionError</span><span class="p">(</span><span class="s2">&quot;Objective function </span><span class="si">%s</span><span class="s2"> not defined&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s1">&#39;objfunc&#39;</span><span class="p">],</span>
+              <span class="s2">&quot;Objective function </span><span class="si">%s</span><span class="s2"> is not defined. Valid objective function choices are: &quot;</span>
+              <span class="s2">&quot;chi_sq, sos, norm_sos, ave_norm_sos&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s1">&#39;objfunc&#39;</span><span class="p">])</span>
+
+    <span class="k">def</span> <span class="nf">_load_variables</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Loads the variable names from the config dict into FreeParameter instances.</span>
+
+<span class="sd">        :return: a list of FreeParameter instances</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">variables</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="s1">&#39;var$&#39;</span><span class="p">,</span> <span class="n">k</span><span class="p">[</span><span class="mi">0</span><span class="p">]):</span>
+                    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s1">&#39;fit_type&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;sim&#39;</span> <span class="ow">and</span> <span class="n">k</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">&#39;var&#39;</span><span class="p">,</span> <span class="s1">&#39;logvar&#39;</span><span class="p">):</span>
+                        <span class="k">raise</span> <span class="n">PybnfError</span><span class="p">(</span><span class="s1">&#39;Invalid Simplex variable type </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">k</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+                               <span class="s2">&quot;You&#39;ve specified the Simplex algorithm (fit_type = sim), &quot;</span>
+                               <span class="s2">&quot;but defined variable </span><span class="si">%s</span><span class="s2"> with the </span><span class="si">%s</span><span class="s2"> keyword.</span><span class="se">\n</span><span class="s2">&quot;</span>
+                               <span class="s2">&quot;For Simplex, you must instead define a single initial value for each variable</span><span class="se">\n</span><span class="s2">&quot;</span>
+                               <span class="s2">&quot;using the var or logvar keyword (e.g. var=</span><span class="si">%s</span><span class="s2"> 42 )&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">k</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">k</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">k</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span>
+
+                    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s1">&#39;fit_type&#39;</span><span class="p">]</span> <span class="o">!=</span> <span class="s1">&#39;sim&#39;</span> <span class="ow">and</span> <span class="n">k</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">&#39;var&#39;</span><span class="p">,</span> <span class="s1">&#39;logvar&#39;</span><span class="p">):</span>
+                        <span class="k">raise</span> <span class="n">PybnfError</span><span class="p">(</span><span class="s1">&#39;Tried to use Simplex variable type </span><span class="si">%s</span><span class="s1"> in another algorithm.&#39;</span> <span class="o">%</span> <span class="n">k</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+                               <span class="s2">&quot;You&#39;ve specified variable </span><span class="si">%s</span><span class="s2"> with keyword </span><span class="si">%s</span><span class="s2">, but that keyword &quot;</span>
+                               <span class="s2">&quot;is only to be used with the Simplex algorithm (fit_type = sim)</span><span class="se">\n</span><span class="s2">&quot;</span>
+                               <span class="s2">&quot;Valid keywords for other algorithms are: uniform_var, normal_var, </span><span class="se">\n</span><span class="s2">&quot;</span>
+                               <span class="s2">&quot;lognormal_var, loguniform_var.&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">k</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">k</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
+
+                    <span class="k">if</span> <span class="n">k</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">&#39;var&#39;</span><span class="p">,</span> <span class="s1">&#39;logvar&#39;</span><span class="p">):</span>
+                        <span class="c1"># 2nd number (step size) may be absent, must fill in appropriately</span>
+                        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="n">k</span><span class="p">])</span> <span class="o">&gt;=</span> <span class="mi">2</span><span class="p">:</span>
+                            <span class="n">stepsize</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="n">k</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span> <span class="c1"># easy, it was right there</span>
+                        <span class="k">else</span><span class="p">:</span>
+                            <span class="n">stepsize</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># Will sort out within SimplexAlgorithm</span>
+                        <span class="n">free_param</span> <span class="o">=</span> <span class="n">FreeParameter</span><span class="p">(</span><span class="n">k</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">k</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="n">k</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span> <span class="n">stepsize</span><span class="p">)</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="n">k</span><span class="p">])</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
+                            <span class="n">free_param</span> <span class="o">=</span> <span class="n">FreeParameter</span><span class="p">(</span><span class="n">k</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">k</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="n">k</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="n">k</span><span class="p">][</span><span class="mi">1</span><span class="p">],</span>
+                                                           <span class="n">bounded</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="n">k</span><span class="p">][</span><span class="mi">2</span><span class="p">])</span>
+                        <span class="k">else</span><span class="p">:</span>
+                            <span class="n">free_param</span> <span class="o">=</span> <span class="n">FreeParameter</span><span class="p">(</span><span class="n">k</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">k</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="n">k</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="n">k</span><span class="p">][</span><span class="mi">1</span><span class="p">])</span>
+
+                    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Adding parameter </span><span class="si">%s</span><span class="s1"> with bounds [</span><span class="si">%s</span><span class="s1">, </span><span class="si">%s</span><span class="s1">]&#39;</span> <span class="o">%</span>
+                                 <span class="p">(</span><span class="n">free_param</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">free_param</span><span class="o">.</span><span class="n">lower_bound</span><span class="p">,</span> <span class="n">free_param</span><span class="o">.</span><span class="n">upper_bound</span><span class="p">))</span>
+                    <span class="n">variables</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">free_param</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Loaded variables&#39;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">variables</span>
+
+    <span class="k">def</span> <span class="nf">_check_variable_correspondence</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Verifies that each variable specified in the configuration appears in at least one model file, and each</span>
+<span class="sd">        FREE parameter specified in a model file appears in the config file</span>
+<span class="sd">        :return:</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">model_vars</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">models</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+            <span class="n">model_vars</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">param_names</span><span class="p">)</span>
+
+        <span class="n">variables_names</span> <span class="o">=</span> <span class="p">{</span><span class="n">v</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">variables</span><span class="p">}</span>
+        <span class="n">extra_in_conf</span> <span class="o">=</span> <span class="n">variables_names</span><span class="o">.</span><span class="n">difference</span><span class="p">(</span><span class="n">model_vars</span><span class="p">)</span>
+        <span class="n">extra_in_model</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">model_vars</span><span class="p">)</span><span class="o">.</span><span class="n">difference</span><span class="p">(</span><span class="n">variables_names</span><span class="p">)</span>
+        <span class="n">extra_in_model</span> <span class="o">=</span> <span class="p">{</span><span class="n">p</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">extra_in_model</span> <span class="k">if</span> <span class="n">p</span><span class="p">[</span><span class="o">-</span><span class="mi">8</span><span class="p">:]</span> <span class="o">==</span> <span class="s1">&#39;__FREE&#39;</span><span class="p">}</span>
+
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">extra_in_conf</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">PybnfError</span><span class="p">(</span><span class="s1">&#39;The following variables are declared in the .conf file, but were not found in any model &#39;</span>
+                             <span class="s1">&#39;file: </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">extra_in_conf</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">extra_in_model</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">PybnfError</span><span class="p">(</span><span class="s1">&#39;The following free parameters are in your model files, but are not declared in your &#39;</span>
+                             <span class="s1">&#39;.conf file: </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">extra_in_model</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_postprocess_normalization</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Postprocessing on the &#39;normalization&#39; key</span>
+<span class="sd">        :return:</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">seedoc</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">See the documentation for the syntax options for the &#39;normalization&#39; key&quot;</span>
+        <span class="n">valid</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;init&#39;</span><span class="p">,</span> <span class="s1">&#39;peak&#39;</span><span class="p">,</span> <span class="s1">&#39;zero&#39;</span><span class="p">,</span> <span class="s1">&#39;unit&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s1">&#39;normalization&#39;</span><span class="p">])</span> <span class="o">==</span> <span class="nb">dict</span><span class="p">:</span>
+            <span class="c1"># Iterate through the keys, which should be .exp file names. Check that these are actual exp files that</span>
+            <span class="c1"># are used in the fitting, then add to the dictionary just the suffix, for easier lookup later</span>
+            <span class="n">newdict</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+            <span class="k">for</span> <span class="n">ef</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s1">&#39;normalization&#39;</span><span class="p">]:</span>
+                <span class="k">if</span> <span class="n">ef</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s1">&#39;exp_data&#39;</span><span class="p">]:</span>
+                    <span class="k">raise</span> <span class="n">PybnfError</span><span class="p">(</span><span class="s2">&quot;Invalid exp file </span><span class="si">%s</span><span class="s2"> under the normalization key&quot;</span> <span class="o">%</span> <span class="n">ef</span><span class="p">,</span>
+                                     <span class="s2">&quot;The exp file </span><span class="si">%s</span><span class="s2"> given under the &#39;normalization&#39; keyword is not associated with &quot;</span>
+                                     <span class="s2">&quot;any model.&quot;</span> <span class="o">%</span> <span class="n">ef</span> <span class="o">+</span> <span class="n">seedoc</span><span class="p">)</span>
+                <span class="n">val</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s1">&#39;normalization&#39;</span><span class="p">][</span><span class="n">ef</span><span class="p">]</span>
+
+                <span class="c1"># Figure out how to get to the right data object (it&#39;s in a dict keyed on model name, then suffix)</span>
+                <span class="n">m</span> <span class="o">=</span> <span class="kc">None</span>
+                <span class="k">for</span> <span class="n">modelpath</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s1">&#39;models&#39;</span><span class="p">]:</span>
+                    <span class="k">if</span> <span class="n">ef</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="n">modelpath</span><span class="p">]:</span>
+                        <span class="n">m</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_file_prefix</span><span class="p">(</span><span class="n">modelpath</span><span class="p">,</span> <span class="s1">&#39;(bngl|xml)&#39;</span><span class="p">)</span>
+                        <span class="k">break</span>
+                <span class="n">suff</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_file_prefix</span><span class="p">(</span><span class="n">ef</span><span class="p">)</span>
+
+                <span class="k">def</span> <span class="nf">checkval</span><span class="p">(</span><span class="n">v</span><span class="p">):</span>
+                    <span class="k">if</span> <span class="n">v</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">valid</span><span class="p">:</span>
+                        <span class="k">raise</span> <span class="n">PybnfError</span><span class="p">(</span><span class="s2">&quot;Invalid normalization type &#39;</span><span class="si">%s</span><span class="s2">&#39;&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s1">&#39;normalization&#39;</span><span class="p">][</span><span class="n">ef</span><span class="p">],</span>
+                                         <span class="s2">&quot;Invalid normalization type &#39;</span><span class="si">%s</span><span class="s2">&#39;. Options are: init, peak, zero, unit&quot;</span> <span class="o">%</span>
+                                         <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s1">&#39;normalization&#39;</span><span class="p">][</span><span class="n">ef</span><span class="p">]</span> <span class="o">+</span> <span class="n">seedoc</span><span class="p">)</span>
+                <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">val</span><span class="p">)</span> <span class="o">==</span> <span class="nb">str</span><span class="p">:</span>
+                    <span class="c1"># This exp file has a single normalization type for all columns</span>
+                    <span class="n">checkval</span><span class="p">(</span><span class="n">val</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="c1"># This exp file has a list of one or more pairs specifying (normalization_type, [columns])</span>
+                    <span class="k">for</span> <span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="p">(</span><span class="n">ntype</span><span class="p">,</span> <span class="n">cols</span><span class="p">))</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">val</span><span class="p">):</span>
+                        <span class="n">checkval</span><span class="p">(</span><span class="n">ntype</span><span class="p">)</span>
+                        <span class="n">new_cols</span> <span class="o">=</span> <span class="p">[]</span>
+                        <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">cols</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">==</span> <span class="nb">int</span><span class="p">:</span>
+                            <span class="c1"># Need to convert to string labels, because the indices into the sim data will be different</span>
+                            <span class="n">to_convert</span> <span class="o">=</span> <span class="n">cols</span>
+                            <span class="k">for</span> <span class="n">label</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">exp_data</span><span class="p">[</span><span class="n">m</span><span class="p">][</span><span class="n">suff</span><span class="p">]</span><span class="o">.</span><span class="n">cols</span><span class="p">:</span>
+                                <span class="n">ci</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">exp_data</span><span class="p">[</span><span class="n">m</span><span class="p">][</span><span class="n">suff</span><span class="p">]</span><span class="o">.</span><span class="n">cols</span><span class="p">[</span><span class="n">label</span><span class="p">]</span>
+                                <span class="k">if</span> <span class="n">ci</span> <span class="ow">in</span> <span class="n">to_convert</span><span class="p">:</span>
+                                    <span class="n">to_convert</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">ci</span><span class="p">)</span>
+                                    <span class="n">new_cols</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">label</span><span class="p">)</span>
+                            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">to_convert</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                                <span class="k">raise</span> <span class="n">PybnfError</span><span class="p">(</span><span class="s2">&quot;Invalid normalization column </span><span class="si">%s</span><span class="s2"> for file </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">to_convert</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">ef</span><span class="p">),</span>
+                                                 <span class="s2">&quot;Specified normalization for column </span><span class="si">%i</span><span class="s2"> in file </span><span class="si">%s</span><span class="s2">, but that file &quot;</span>
+                                                 <span class="s2">&quot;contains only </span><span class="si">%i</span><span class="s2"> columns.&quot;</span> <span class="o">%</span> <span class="p">(</span>
+                                                 <span class="n">to_convert</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">ef</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">exp_data</span><span class="p">[</span><span class="n">m</span><span class="p">][</span><span class="n">suff</span><span class="p">]</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="o">+</span> <span class="n">seedoc</span><span class="p">)</span>
+                        <span class="k">else</span><span class="p">:</span>
+                            <span class="n">new_cols</span> <span class="o">=</span> <span class="n">cols</span>
+                        <span class="n">new_cols_iter</span> <span class="o">=</span> <span class="n">new_cols</span>
+                        <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">new_cols_iter</span><span class="p">:</span>
+                            <span class="k">if</span> <span class="n">c</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">exp_data</span><span class="p">[</span><span class="n">m</span><span class="p">][</span><span class="n">suff</span><span class="p">]</span><span class="o">.</span><span class="n">cols</span><span class="p">:</span>
+                                <span class="k">raise</span> <span class="n">PybnfError</span><span class="p">(</span><span class="s2">&quot;Invalid normalization column </span><span class="si">%s</span><span class="s2"> for file </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="n">ef</span><span class="p">),</span>
+                                                 <span class="s2">&quot;Specified normalization for column </span><span class="si">%s</span><span class="s2"> in file </span><span class="si">%s</span><span class="s2">, but that file does &quot;</span>
+                                                 <span class="s2">&quot;not contain that column name.&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="n">ef</span><span class="p">)</span> <span class="o">+</span> <span class="n">seedoc</span><span class="p">)</span>
+                            <span class="k">if</span> <span class="n">c</span><span class="p">[</span><span class="o">-</span><span class="mi">3</span><span class="p">:]</span> <span class="o">==</span> <span class="s1">&#39;_SD&#39;</span><span class="p">:</span>
+                                <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Removing </span><span class="si">%s</span><span class="s1"> from the normalization list&#39;</span> <span class="o">%</span> <span class="n">c</span><span class="p">)</span>
+                                <span class="n">print1</span><span class="p">(</span><span class="s2">&quot;Warning: You specified a normalization for </span><span class="si">%s</span><span class="s2">, but I can&#39;t normalize a &quot;</span>
+                                       <span class="s2">&quot;standard deviation separately, because it&#39;s not an output of the simulation. &quot;</span>
+                                       <span class="s2">&quot;I&#39;m ignoring your </span><span class="si">%s</span><span class="s2"> setting and assuming it&#39;s on the same scale as its data &quot;</span>
+                                       <span class="s2">&quot;column.&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="n">c</span><span class="p">))</span>
+                                <span class="n">new_cols</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">c</span><span class="p">)</span>
+                        <span class="c1"># Update with the postprocessed normalization info</span>
+                        <span class="n">val</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">ntype</span><span class="p">,</span> <span class="n">new_cols</span><span class="p">)</span>
+
+                <span class="n">newdict</span><span class="p">[</span><span class="n">suff</span><span class="p">]</span> <span class="o">=</span> <span class="n">val</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s1">&#39;normalization&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">newdict</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s1">&#39;normalization&#39;</span><span class="p">])</span> <span class="o">==</span> <span class="nb">str</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s1">&#39;normalization&#39;</span><span class="p">]</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">valid</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">PybnfError</span><span class="p">(</span><span class="s2">&quot;Invalid normalization type &#39;</span><span class="si">%s</span><span class="s2">&#39;&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s1">&#39;normalization&#39;</span><span class="p">],</span>
+                                 <span class="s2">&quot;Invalid normalization type &#39;</span><span class="si">%s</span><span class="s2">&#39;. Options are: init, peak, zero, unit&quot;</span> <span class="o">%</span>
+                                 <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s1">&#39;normalization&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="n">seedoc</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_load_postprocessing</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Loads config info for user-specified Python scripts for postprocessing data</span>
+<span class="sd">        :return:</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">postprocessing</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+        <span class="k">if</span> <span class="s1">&#39;postprocess&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">:</span>
+            <span class="k">return</span>
+
+        <span class="k">for</span> <span class="n">spec</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s1">&#39;postprocess&#39;</span><span class="p">]:</span>
+            <span class="n">script</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_absolute</span><span class="p">(</span><span class="n">spec</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+            <span class="n">suffixes</span> <span class="o">=</span> <span class="n">spec</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span>
+
+            <span class="c1"># Check for simple errors in the script here, before we start running anything.</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="c1"># This incantation loads the module as postproc</span>
+                <span class="kn">import</span> <span class="nn">importlib.util</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Prepare to load the script </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">script</span><span class="p">)</span>
+                <span class="n">spec</span> <span class="o">=</span> <span class="n">importlib</span><span class="o">.</span><span class="n">util</span><span class="o">.</span><span class="n">spec_from_file_location</span><span class="p">(</span><span class="s2">&quot;postprocessor&quot;</span><span class="p">,</span> <span class="n">script</span><span class="p">)</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">spec</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="n">PybnfError</span><span class="p">(</span><span class="s1">&#39;Could not load the postprocessing script </span><span class="si">%s</span><span class="s1">. Make sure this is a Python &#39;</span>
+                                     <span class="s1">&#39;file (.py)&#39;</span> <span class="o">%</span> <span class="n">script</span><span class="p">)</span>
+                <span class="n">postproc</span> <span class="o">=</span> <span class="n">importlib</span><span class="o">.</span><span class="n">util</span><span class="o">.</span><span class="n">module_from_spec</span><span class="p">(</span><span class="n">spec</span><span class="p">)</span>
+                <span class="n">spec</span><span class="o">.</span><span class="n">loader</span><span class="o">.</span><span class="n">exec_module</span><span class="p">(</span><span class="n">postproc</span><span class="p">)</span>
+                <span class="c1"># Now postproc is the user-defined Python module</span>
+            <span class="k">except</span> <span class="ne">OSError</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">PybnfError</span><span class="p">(</span><span class="s1">&#39;Could not load the postprocessing script </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">script</span><span class="p">)</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">func</span> <span class="o">=</span> <span class="n">postproc</span><span class="o">.</span><span class="n">postprocess</span>
+            <span class="k">except</span> <span class="ne">NameError</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">PybnfError</span><span class="p">(</span><span class="s1">&#39;The postprocessing script </span><span class="si">%s</span><span class="s1"> should contain a definition of the function &#39;</span>
+                                 <span class="s1">&#39;postprocess(data). This function was not found.&#39;</span> <span class="o">%</span> <span class="n">script</span><span class="p">)</span>
+
+            <span class="k">for</span> <span class="n">suff</span> <span class="ow">in</span> <span class="n">suffixes</span><span class="p">:</span>
+
+                <span class="c1"># Need to backsolve the model name based on the suffix.</span>
+                <span class="n">model_choices</span> <span class="o">=</span> <span class="p">[]</span>
+                <span class="k">for</span> <span class="n">modelname</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">models</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">suff</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">models</span><span class="p">[</span><span class="n">modelname</span><span class="p">]</span><span class="o">.</span><span class="n">get_suffixes</span><span class="p">():</span>
+                        <span class="n">model_choices</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">modelname</span><span class="p">)</span>
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">model_choices</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="n">PybnfError</span><span class="p">(</span><span class="s1">&#39;Suffix </span><span class="si">%s</span><span class="s1"> was specified for a postprocessing script, but that suffix was not &#39;</span>
+                                     <span class="s1">&#39;found in any model&#39;</span> <span class="o">%</span> <span class="n">suff</span><span class="p">)</span>
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">model_choices</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="n">PybnfError</span><span class="p">(</span><span class="s1">&#39;Suffix </span><span class="si">%s</span><span class="s1"> was specified for a postprocessing script, but was found in multiple &#39;</span>
+                                     <span class="s1">&#39;models. Please rename suffixes to avoid this ambiguity.&#39;</span> <span class="o">%</span> <span class="n">suff</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">postprocessing</span><span class="p">[(</span><span class="n">model_choices</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">suff</span><span class="p">)]</span> <span class="o">=</span> <span class="n">script</span>
+
+
+<span class="k">class</span> <span class="nc">UnknownObjectiveFunctionError</span><span class="p">(</span><span class="n">PybnfError</span><span class="p">):</span>
+    <span class="k">pass</span>
+
+
+<span class="k">class</span> <span class="nc">UnspecifiedConfigurationKeyError</span><span class="p">(</span><span class="n">PybnfError</span><span class="p">):</span>
+    <span class="k">pass</span>
+
+
+<span class="k">class</span> <span class="nc">UnmatchedExperimentalDataError</span><span class="p">(</span><span class="n">PybnfError</span><span class="p">):</span>
+    <span class="k">pass</span>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">PyBNF v0.3.1 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" >Module code</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2018, Ryan Suderman, Eshan Mitra.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.5.6.
+    </div>
+  </body>
+</html>

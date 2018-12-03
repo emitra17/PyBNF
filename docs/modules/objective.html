@@ -1,0 +1,261 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>PyBNF objective functions (pybnf.objective) &#8212; PyBNF v0.3.1 documentation</title>
+    
+    <link rel="stylesheet" href="../_static/sphinxdoc.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     'v0.3.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="PyBNF configuration parsing (pybnf.parse)" href="parse.html" />
+    <link rel="prev" title="PyBNF data container (pybnf.data)" href="data.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="parse.html" title="PyBNF configuration parsing (pybnf.parse)"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="data.html" title="PyBNF data container (pybnf.data)"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">PyBNF v0.3.1 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" accesskey="U">PyBNF Module References</a> &#187;</li> 
+      </ul>
+    </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="../index.html">
+              <img class="logo" src="../_static/LogoSm.png" alt="Logo"/>
+            </a></p>
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="data.html"
+                        title="previous chapter">PyBNF data container (<code class="docutils literal"><span class="pre">pybnf.data</span></code>)</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="parse.html"
+                        title="next chapter">PyBNF configuration parsing (<code class="docutils literal"><span class="pre">pybnf.parse</span></code>)</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/modules/objective.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-pybnf.objective">
+<span id="pybnf-objective-functions-pybnf-objective"></span><h1>PyBNF objective functions (<a class="reference internal" href="#module-pybnf.objective" title="pybnf.objective"><code class="xref py py-mod docutils literal"><span class="pre">pybnf.objective</span></code></a>)<a class="headerlink" href="#module-pybnf.objective" title="Permalink to this headline">¶</a></h1>
+<p>Classes defining various objective functions used for evaluating points in parameter space</p>
+<dl class="class">
+<dt id="pybnf.objective.AveNormSumOfSquaresObjective">
+<em class="property">class </em><code class="descclassname">pybnf.objective.</code><code class="descname">AveNormSumOfSquaresObjective</code><span class="sig-paren">(</span><em>ind_var_rounding=0</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pybnf/objective.html#AveNormSumOfSquaresObjective"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pybnf.objective.AveNormSumOfSquaresObjective" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sum of squares where each point is normalized by the average value of that variable,
+((y-y&#8217;)/ybar)^2</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="pybnf.objective.NormSumOfSquaresObjective">
+<em class="property">class </em><code class="descclassname">pybnf.objective.</code><code class="descname">NormSumOfSquaresObjective</code><span class="sig-paren">(</span><em>ind_var_rounding=0</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pybnf/objective.html#NormSumOfSquaresObjective"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pybnf.objective.NormSumOfSquaresObjective" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sum of squares where each point is normalized by the y value at that point, ((y-y&#8217;)/y)^2</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="pybnf.objective.ObjectiveCalculator">
+<em class="property">class </em><code class="descclassname">pybnf.objective.</code><code class="descname">ObjectiveCalculator</code><span class="sig-paren">(</span><em>objective</em>, <em>exp_data_dict</em>, <em>constraints</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pybnf/objective.html#ObjectiveCalculator"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pybnf.objective.ObjectiveCalculator" title="Permalink to this definition">¶</a></dt>
+<dd><p>Wrapper for all of the objects needed for the workers to calculate the objective function value.
+Contains the objective function, exp_data_dict, and constraint tuple</p>
+<dl class="method">
+<dt id="pybnf.objective.ObjectiveCalculator.evaluate_objective">
+<code class="descname">evaluate_objective</code><span class="sig-paren">(</span><em>sim_data_dict</em>, <em>show_warnings=True</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pybnf/objective.html#ObjectiveCalculator.evaluate_objective"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pybnf.objective.ObjectiveCalculator.evaluate_objective" title="Permalink to this definition">¶</a></dt>
+<dd><p>Evaluate the objective using the input simulation data and the info contained in this object
+:param sim_data_dict: Dictionary of the form {modelname: {suffix1: Data1}} containing the simulated data objects
+:param show_warnings: If True, print warnings about unused data
+:type show_warnings: bool
+:return:</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pybnf.objective.ObjectiveFunction">
+<em class="property">class </em><code class="descclassname">pybnf.objective.</code><code class="descname">ObjectiveFunction</code><a class="reference internal" href="../_modules/pybnf/objective.html#ObjectiveFunction"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pybnf.objective.ObjectiveFunction" title="Permalink to this definition">¶</a></dt>
+<dd><p>Abstract class representing an objective function
+Subclasses customize how the objective value is calculated from the quantitative exp data
+The base class includes all the support we need for constraints.</p>
+<dl class="method">
+<dt id="pybnf.objective.ObjectiveFunction.evaluate">
+<code class="descname">evaluate</code><span class="sig-paren">(</span><em>sim_data</em>, <em>exp_data</em>, <em>show_warnings=True</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pybnf/objective.html#ObjectiveFunction.evaluate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pybnf.objective.ObjectiveFunction.evaluate" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>sim_data</strong> (<a class="reference internal" href="data.html#pybnf.data.Data" title="pybnf.data.Data"><em>Data</em></a>) &#8211; A Data object containing simulated data</li>
+<li><strong>exp_data</strong> (<a class="reference internal" href="data.html#pybnf.data.Data" title="pybnf.data.Data"><em>Data</em></a>) &#8211; A Data object containing experimental data</li>
+<li><strong>show_warnings</strong> (<em>bool</em>) &#8211; If True, print warnings about unused data</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">float, value of the objective function, with a lower value indicating a better fit.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pybnf.objective.ObjectiveFunction.evaluate_multiple">
+<code class="descname">evaluate_multiple</code><span class="sig-paren">(</span><em>sim_data_dict</em>, <em>exp_data_dict</em>, <em>constraints=()</em>, <em>show_warnings=True</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pybnf/objective.html#ObjectiveFunction.evaluate_multiple"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pybnf.objective.ObjectiveFunction.evaluate_multiple" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the value of the objective function on several data sets, and return the total.
+Optionally may pass an iterable of ConstraintSets whose penalties will be added to the total</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>sim_data_dict</strong> (<em>dict</em>) &#8211; Dictionary of the form {modelname: {suffix1: Data1}} containing the simulated data objects</li>
+<li><strong>exp_data_dict</strong> (<em>dict</em>) &#8211; Dictionary of the form {modelname: {suffix1: Data1}} containing experimental Data objects</li>
+<li><strong>constraints</strong> &#8211; Iterable of ConstraintSet objects containing the constraints that we should evaluate using</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<p>the simulated data
+:type constraints: Iterable of ConstraintSet
+:param show_warnings: If True, print warnings about unused data
+:type show_warnings: bool
+:return:</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pybnf.objective.SummationObjective">
+<em class="property">class </em><code class="descclassname">pybnf.objective.</code><code class="descname">SummationObjective</code><span class="sig-paren">(</span><em>ind_var_rounding=0</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pybnf/objective.html#SummationObjective"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pybnf.objective.SummationObjective" title="Permalink to this definition">¶</a></dt>
+<dd><p>Represents a type of objective function in which we perform some kind of summation over all available experimental
+data points.
+Currently, this describes all objective functions in PyBNF.</p>
+<dl class="method">
+<dt id="pybnf.objective.SummationObjective.eval_point">
+<code class="descname">eval_point</code><span class="sig-paren">(</span><em>sim_data</em>, <em>exp_data</em>, <em>sim_row</em>, <em>exp_row</em>, <em>col_name</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pybnf/objective.html#SummationObjective.eval_point"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pybnf.objective.SummationObjective.eval_point" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate the objective function for a single point in the data</p>
+<p>This evaluation is what differentiates the different objective functions.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>sim_data</strong> &#8211; The simulation Data object</li>
+<li><strong>exp_data</strong> &#8211; The experimental Data object</li>
+<li><strong>sim_row</strong> &#8211; The row number to look at in sim_data</li>
+<li><strong>exp_row</strong> &#8211; The row number to look at in exp_data</li>
+<li><strong>col_name</strong> &#8211; The column name to look at  (same for the sim_data and the exp_data)</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"></p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pybnf.objective.SummationObjective.evaluate">
+<code class="descname">evaluate</code><span class="sig-paren">(</span><em>sim_data</em>, <em>exp_data</em>, <em>show_warnings=True</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pybnf/objective.html#SummationObjective.evaluate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pybnf.objective.SummationObjective.evaluate" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>sim_data</strong> (<a class="reference internal" href="data.html#pybnf.data.Data" title="pybnf.data.Data"><em>Data</em></a>) &#8211; A Data object containing simulated data</li>
+<li><strong>exp_data</strong> (<a class="reference internal" href="data.html#pybnf.data.Data" title="pybnf.data.Data"><em>Data</em></a>) &#8211; A Data object containing experimental data</li>
+<li><strong>show_warnings</strong> (<em>bool</em>) &#8211; If True, print warnings about unused data</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">float, value of the objective function, with a lower value indicating a better fit.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="parse.html" title="PyBNF configuration parsing (pybnf.parse)"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="data.html" title="PyBNF data container (pybnf.data)"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">PyBNF v0.3.1 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" >PyBNF Module References</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2018, Ryan Suderman, Eshan Mitra.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.5.6.
+    </div>
+  </body>
+</html>

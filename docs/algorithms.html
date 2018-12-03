@@ -1,0 +1,515 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Fitting Algorithms &#8212; PyBNF v0.3.1 documentation</title>
+    
+    <link rel="stylesheet" href="_static/sphinxdoc.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     'v0.3.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Advanced Features" href="advanced.html" />
+    <link rel="prev" title="Configuration Keys" href="config_keys.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="advanced.html" title="Advanced Features"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="config_keys.html" title="Configuration Keys"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">PyBNF v0.3.1 documentation</a> &#187;</li> 
+      </ul>
+    </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="index.html">
+              <img class="logo" src="_static/LogoSm.png" alt="Logo"/>
+            </a></p>
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Fitting Algorithms</a><ul>
+<li><a class="reference internal" href="#summary-of-available-algorithms">Summary of Available Algorithms</a></li>
+<li><a class="reference internal" href="#general-implementation-features-for-all-algorithms">General implementation features for all algorithms</a><ul>
+<li><a class="reference internal" href="#initialization">Initialization</a></li>
+<li><a class="reference internal" href="#objective-functions">Objective functions</a></li>
+<li><a class="reference internal" href="#changing-parameter-values">Changing parameter values</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#differential-evolution">Differential Evolution</a><ul>
+<li><a class="reference internal" href="#algorithm">Algorithm</a></li>
+<li><a class="reference internal" href="#parallelization">Parallelization</a></li>
+<li><a class="reference internal" href="#implementation-details">Implementation details</a><ul>
+<li><a class="reference internal" href="#asynchronous-version">Asynchronous version</a></li>
+<li><a class="reference internal" href="#island-based-version">Island-based version</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#applications">Applications</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#scatter-search">Scatter Search</a><ul>
+<li><a class="reference internal" href="#id3">Algorithm</a></li>
+<li><a class="reference internal" href="#id5">Parallelization</a></li>
+<li><a class="reference internal" href="#id6">Implementation details</a></li>
+<li><a class="reference internal" href="#id9">Applications</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#particle-swarm">Particle Swarm</a><ul>
+<li><a class="reference internal" href="#id10">Algorithm</a></li>
+<li><a class="reference internal" href="#id11">Parallelization</a></li>
+<li><a class="reference internal" href="#id12">Implementation details</a></li>
+<li><a class="reference internal" href="#id15">Applications</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#markov-chain-monte-carlo">Markov Chain Monte Carlo</a><ul>
+<li><a class="reference internal" href="#id16">Algorithm</a></li>
+<li><a class="reference internal" href="#id17">Parallelization</a></li>
+<li><a class="reference internal" href="#id18">Implementation details</a></li>
+<li><a class="reference internal" href="#id20">Applications</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#simulated-annealing">Simulated Annealing</a><ul>
+<li><a class="reference internal" href="#id21">Algorithm</a></li>
+<li><a class="reference internal" href="#id22">Parallelization</a></li>
+<li><a class="reference internal" href="#id23">Implementation details</a></li>
+<li><a class="reference internal" href="#id24">Applications</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#parallel-tempering">Parallel Tempering</a><ul>
+<li><a class="reference internal" href="#id25">Algorithm</a></li>
+<li><a class="reference internal" href="#id26">Parallelization</a></li>
+<li><a class="reference internal" href="#id27">Implementation details</a></li>
+<li><a class="reference internal" href="#id29">Applications</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#simplex">Simplex</a><ul>
+<li><a class="reference internal" href="#id30">Algorithm</a></li>
+<li><a class="reference internal" href="#id31">Parallelization</a></li>
+<li><a class="reference internal" href="#id32">Implementation details</a></li>
+<li><a class="reference internal" href="#id34">Applications</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="config_keys.html"
+                        title="previous chapter">Configuration Keys</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="advanced.html"
+                        title="next chapter">Advanced Features</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/algorithms.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="fitting-algorithms">
+<h1>Fitting Algorithms<a class="headerlink" href="#fitting-algorithms" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="summary-of-available-algorithms">
+<h2>Summary of Available Algorithms<a class="headerlink" href="#summary-of-available-algorithms" title="Permalink to this headline">¶</a></h2>
+<table border="1" class="docutils">
+<colgroup>
+<col width="21%" />
+<col width="13%" />
+<col width="12%" />
+<col width="54%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Algorithm</th>
+<th class="head">Class</th>
+<th class="head">Parallelization</th>
+<th class="head">Applications</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><a class="reference internal" href="#differential-evolution">Differential Evolution</a></td>
+<td>Population-based</td>
+<td>Synchronous or
+Asynchronous</td>
+<td>General-purpose parameter fitting</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#scatter-search">Scatter Search</a></td>
+<td>Population-based</td>
+<td>Synchronous</td>
+<td>General-purpose parameter fitting, especially difficult problems with high
+dimensions or many local minima</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#particle-swarm">Particle Swarm</a></td>
+<td>Population-based</td>
+<td>Asynchronous</td>
+<td>Fitting models with high variability in runtime</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#markov-chain-monte-carlo">Markov Chain Monte Carlo</a></td>
+<td>Metropolis
+sampling</td>
+<td>Independent
+Markov Chains</td>
+<td>Finding probability distributions of parameters</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#simulated-annealing">Simulated Annealing</a></td>
+<td>Metropolis
+sampling</td>
+<td>Independent
+Markov Chains</td>
+<td>Problem-specific applications</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#parallel-tempering">Parallel Tempering</a></td>
+<td>Metropolis
+sampling</td>
+<td>Synchronized
+Markov Chains</td>
+<td>Finding probability distributions in challenging probablity landscapes</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#simplex">Simplex</a></td>
+<td>Local search</td>
+<td>Synchronous</td>
+<td>Local optimization, or refinement of a result from another algorithm.</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="general-implementation-features-for-all-algorithms">
+<h2>General implementation features for all algorithms<a class="headerlink" href="#general-implementation-features-for-all-algorithms" title="Permalink to this headline">¶</a></h2>
+<p>All algorithms in PyBNF keep track of a list of parameter sets (a &#8220;population&#8221;), and over the course of the simulation, submit new parameter sets to run on the simulator. Algorithms periodically output the file <code class="docutils literal"><span class="pre">sorted_params.txt</span></code> containing the best parameter sets found so far, and the corresponding objective function values.</p>
+<div class="section" id="initialization">
+<h3>Initialization<a class="headerlink" href="#initialization" title="Permalink to this headline">¶</a></h3>
+<p>The initial population of parameter sets is generated based on the keys specified for each free parameter: <code class="docutils literal"><span class="pre">uniform_var</span></code>, <code class="docutils literal"><span class="pre">loguniform_var</span></code>, <code class="docutils literal"><span class="pre">normal_var</span></code> or <code class="docutils literal"><span class="pre">lognormal_var</span></code>. The value of the parameter in each new random parameter set is drawn from the specified probability distribution.</p>
+<p>The <code class="docutils literal"><span class="pre">latin_hypercube</span></code> option for initialization is enabled by default. This option only affects initialization of <code class="docutils literal"><span class="pre">uniform_var</span></code>s and <code class="docutils literal"><span class="pre">loguniform_var</span></code>s. When enabled, instead of drawing an independent random value for each starting parameter set, the starting parameter sets are generated with Latin hypercube sampling, which ensures a roughly even distribution of the parameter sets throughout the search space.</p>
+</div>
+<div class="section" id="objective-functions">
+<span id="objective"></span><h3>Objective functions<a class="headerlink" href="#objective-functions" title="Permalink to this headline">¶</a></h3>
+<p>All algorithms use an objective function to evaluate the quality of fit for each parameter set. The objective function is set with the <code class="docutils literal"><span class="pre">objfunc</span></code> key. The following options are available. Note that <img class="math" src="_images/math/07f6018e00c747406442bb3912e0209766fc9090.png" alt="y_i"/> are the experimental data points and <img class="math" src="_images/math/9999bca07ea8315fb4c9b9f48500bfe2d1b24106.png" alt="a_i"/> are the simulated data points. The summation is over all experimental data points.</p>
+<blockquote>
+<div><ul class="simple">
+<li>Chi squared (<code class="docutils literal"><span class="pre">obj_func</span> <span class="pre">=</span> <span class="pre">chi_sq</span></code>): <img class="math" src="_images/math/9ba158e5592aba9dff709b5b7adf7cfc71cf9bf2.png" alt="f(y, a) =  \sum_i \frac{(y_i - a_i)^2}{2 \sigma_i^2}"/> . <img class="math" src="_images/math/8b7987a1b64e009719daaf744c922bf934e69583.png" alt="\sigma_i"/> is the standard deviation of point <img class="math" src="_images/math/07f6018e00c747406442bb3912e0209766fc9090.png" alt="y_i"/>, and must be specified in the <a class="reference internal" href="config.html#exp-file"><span class="std std-ref">exp file</span></a>.</li>
+<li>Sum of squares (<code class="docutils literal"><span class="pre">obj_func</span> <span class="pre">=</span> <span class="pre">sos</span></code>): <img class="math" src="_images/math/3d01b8c3ae453752560b94db55e832f995bc66c1.png" alt="f(y, a) =  \sum_i (y_i - a_i)^2"/></li>
+<li>Normalized sum of squares (<code class="docutils literal"><span class="pre">obj_func</span> <span class="pre">=</span> <span class="pre">norm_sos</span></code>): <img class="math" src="_images/math/a79bd4e6daec056568150e5a5f95a0a469c883f2.png" alt="f(y, a) =  \sum_i \frac{(y_i - a_i)^2}{y_i^2}"/></li>
+<li>Average-normalized sum of squares (<code class="docutils literal"><span class="pre">obj_func</span> <span class="pre">=</span> <span class="pre">ave_norm_sos</span></code>): <img class="math" src="_images/math/4fcb8a61770378cdd08094e7c393f3e2ec82d392.png" alt="f(y, a) =  \sum_i \frac{(y_i - a_i)^2}{\bar{y}^2}"/>, where <img class="math" src="_images/math/b4070c26e385bdf428d20e1e5976bc2c425d4d34.png" alt="\bar{y}"/> is the average of the entire data column <img class="math" src="_images/math/276f7e256cbddeb81eee42e1efc348f3cb4ab5f8.png" alt="y"/>.</li>
+</ul>
+</div></blockquote>
+<p>If you include any <a class="reference internal" href="config.html#con-file"><span class="std std-ref">constraints</span></a> in your fit, the constraints add extra terms to the objective function.</p>
+</div>
+<div class="section" id="changing-parameter-values">
+<h3>Changing parameter values<a class="headerlink" href="#changing-parameter-values" title="Permalink to this headline">¶</a></h3>
+<p>All algorithms perform changes to parameter values as the fitting proceeds. The way these changes are calculated depends on the type of parameter.</p>
+<p><code class="docutils literal"><span class="pre">loguniform_var</span></code>s and <code class="docutils literal"><span class="pre">lognormal_var</span></code>s are moved in logarithmic space (base 10) throughout the entire fitting run.</p>
+<p><code class="docutils literal"><span class="pre">uniform_var</span></code>s and <code class="docutils literal"><span class="pre">loguniform_var</span></code>s avoid moving outside the defined initialization range. If a move is attempted that would take the parameter outside the bounds, the parameter value is reflected over the boundary, back within bounds. This feature can be disabled by appending <code class="docutils literal"><span class="pre">U</span></code> to the end of the variable definition (e.g. <code class="docutils literal"><span class="pre">uniform_var</span> <span class="pre">=</span> <span class="pre">x__FREE</span> <span class="pre">10</span> <span class="pre">30</span> <span class="pre">U</span></code>)</p>
+</div>
+</div>
+<div class="section" id="differential-evolution">
+<span id="alg-de"></span><h2>Differential Evolution<a class="headerlink" href="#differential-evolution" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="algorithm">
+<h3>Algorithm<a class="headerlink" href="#algorithm" title="Permalink to this headline">¶</a></h3>
+<p>A population of individuals (points in parameter space) are iteratively evaluated with an objective function.  Parent individuals from the current iteration are selected to form new individuals in the next iteration.  The new individual&#8217;s parameters are derived by combining parameters from the parents. New individuals are accepted into the population if they have an objective value lower than that of a member of the current population.</p>
+</div>
+<div class="section" id="parallelization">
+<h3>Parallelization<a class="headerlink" href="#parallelization" title="Permalink to this headline">¶</a></h3>
+<p>Three versions of differential evolution are available: All run in parallel, but they differ in their level of synchronicity.</p>
+<p>Asynchronous differential evolution (<code class="docutils literal"><span class="pre">fit_type</span> <span class="pre">=</span> <span class="pre">ade</span></code>) never allows processors to sit idle. One new simulation is started every time a simulation completes. This version is the best choice when a large number of processors are available.</p>
+<p>Synchronous differential evolution (<code class="docutils literal"><span class="pre">fit_type</span> <span class="pre">=</span> <span class="pre">de</span></code>) consists of discrete iterations. In each iteration, n simulations are run in parallel, but all must complete before moving on to the next iteration.</p>
+<p>Island-based differential evolution <a class="reference internal" href="#penas2015" id="id1">[Penas2015]</a> is partially asynchronous algorithm. To use this version, set <code class="docutils literal"><span class="pre">fit_type</span> <span class="pre">=</span> <span class="pre">de</span></code> and set a value greater than 1 for the <code class="docutils literal"><span class="pre">islands</span></code> key. In this version, the current population consists of m islands. Each island is able to move on to the next iteration even if other islands are still in progress. If m is set to the number of available processors, then processors will never sit idle. Note however that this might still underperform compared to the synchronous algorithm run on the same number of processors.</p>
+</div>
+<div class="section" id="implementation-details">
+<h3>Implementation details<a class="headerlink" href="#implementation-details" title="Permalink to this headline">¶</a></h3>
+<p>We maintain a list of <code class="docutils literal"><span class="pre">population_size</span></code> current parameter sets, and in each iteration, <code class="docutils literal"><span class="pre">population_size</span></code> new parameter sets are proposed. The method to propose a new parameter set is specified by the config key <code class="docutils literal"><span class="pre">de_strategy</span></code>. The default setting <code class="docutils literal"><span class="pre">rand1</span></code> works best for most problems, and runs as follows: We choose 3 random parameter sets p1, p2, and p3 in the current population. For each free parameter P, the new parameter set is assigned the value p1[P] + <code class="docutils literal"><span class="pre">mutation_factor</span></code> * (p2[P]-p3[P]) with probability <code class="docutils literal"><span class="pre">mutation_rate</span></code>, or p1[P] with probability 1 - <code class="docutils literal"><span class="pre">mutation_rate</span></code>. The new parameter set replaces the parameter set with the same index in the current population if it has a lower objective value.</p>
+<p>With <code class="docutils literal"><span class="pre">de_strategy</span></code> of <code class="docutils literal"><span class="pre">best1</span></code> or <code class="docutils literal"><span class="pre">best2</span></code>, we force the above p1 to be the parameter set with the lowest objective value. With <code class="docutils literal"><span class="pre">de_strategy</span></code> of <code class="docutils literal"><span class="pre">all1</span></code> or <code class="docutils literal"><span class="pre">all2</span></code>, we force p1 to be the parameter set at the same index we are proposing to replace. The <code class="docutils literal"><span class="pre">best</span></code> strategy results in fast convergence to what is likely only a local optimum. The <code class="docutils literal"><span class="pre">all</span></code> strategy converges more slowly, and prevents the entire population from converging to the same value. However, there is still a risk of each member of the population becoming stuck in its own local minimum. For the <code class="docutils literal"><span class="pre">de_strategy</span></code>s ending in <code class="docutils literal"><span class="pre">2</span></code>, we instead choose a total of 5 parameter sets, p1 through p5, and set the new parameter value as p1[P] + <code class="docutils literal"><span class="pre">mutation_factor</span></code> * (p2[P]-p3[P] + p4[P]-p5[P])</p>
+<div class="section" id="asynchronous-version">
+<h4>Asynchronous version<a class="headerlink" href="#asynchronous-version" title="Permalink to this headline">¶</a></h4>
+<p>The asynchronous version of the algorithm is identical to the sychronous algorithm, except that whenever a simulation completes, a new parameter set is immediately proposed based on the current population. Therefore, the random parameter sets p1, p2, and p3 might come from different iteration numbers.</p>
+</div>
+<div class="section" id="island-based-version">
+<span id="alg-island"></span><h4>Island-based version<a class="headerlink" href="#island-based-version" title="Permalink to this headline">¶</a></h4>
+<p>In the island-based version of the algorithm <a class="reference internal" href="#penas2015" id="id2">[Penas2015]</a>, the population is divided into <code class="docutils literal"><span class="pre">num_islands</span></code> islands, which each follow the above update procedure independently. Every <code class="docutils literal"><span class="pre">migrate_every</span></code> iterations, a migration step occurs in which <code class="docutils literal"><span class="pre">num_to_migrate</span></code> individuals from each island are transferred randomly to others (according to a random permutation of the islands, keeping the number of individuals on each island constant). The migration step does not require synchronization of the islands; it is performed when the last island reaches the appropriate iteration number, regardless of whether other islands are already further along.</p>
+</div>
+</div>
+<div class="section" id="applications">
+<h3>Applications<a class="headerlink" href="#applications" title="Permalink to this headline">¶</a></h3>
+<p>In our experience, differential evolution tends to be a good general-purpose algorithm.</p>
+<p>The asynchronous version has similar advantages to <a class="reference internal" href="#particle-swarm">Particle Swarm</a>.</p>
+</div>
+</div>
+<div class="section" id="scatter-search">
+<span id="alg-ss"></span><h2>Scatter Search<a class="headerlink" href="#scatter-search" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="id3">
+<h3>Algorithm<a class="headerlink" href="#id3" title="Permalink to this headline">¶</a></h3>
+<p>Scatter Search <a class="reference internal" href="#glover2000" id="id4">[Glover2000]</a> functions similarly to differential evolution, but maintains a smaller current population than the number of available processors. In each iteration, every possible pair of individuals are combined to propose a new individual.</p>
+</div>
+<div class="section" id="id5">
+<h3>Parallelization<a class="headerlink" href="#id5" title="Permalink to this headline">¶</a></h3>
+<p>In a scatter search run of population size n, each iteration requires n*(n-1) independent simulations that can all be run in parallel. Scatter search requires synchronization at the end of each iteration, waiting for all simulations to complete before moving to the next iteration.</p>
+</div>
+<div class="section" id="id6">
+<h3>Implementation details<a class="headerlink" href="#id6" title="Permalink to this headline">¶</a></h3>
+<p>The PyBNF implementation follows the outline presented in the introduction of <a class="reference internal" href="#penas2017" id="id7">[Penas2017]</a> and uses the recombination method described in <a class="reference internal" href="#egea2009" id="id8">[Egea2009]</a>.</p>
+<p>We maintain a reference set of <code class="docutils literal"><span class="pre">population_size</span></code> individuals, recommended to be a small number (~ 9-18). Each newly proposed parameter set is based on a &#8220;parent&#8221; parameter set and a &#8220;helper&#8221; parameter set, both from the current reference set. In each iteration, we consider all possible parent-helper combinations, for a total of n*(n-1) parameter sets. The new parameter set depends on the rank of the parent and helper (call them <img class="math" src="_images/math/24b68632b58b3294cc8f170cef67b2dd9510e981.png" alt="p_i"/> and <img class="math" src="_images/math/d03a4b38f7e618d6826778cf0a8b906fbbaa935a.png" alt="h_i"/>) when the reference set is sorted from best to worst.</p>
+<p>Then we apply a series of formulas to choose the next parameter value.</p>
+<p>Let <img class="math" src="_images/math/877d234f4cec6974ce218fc2e975a486a7972dfd.png" alt="\alpha"/> = -1 if <img class="math" src="_images/math/13ab2c8d82662400f26fec7c9bfe41d4c2c09301.png" alt="h_i&gt;p_i"/> or 1 if <img class="math" src="_images/math/c7ee610c2dd5facfaee106cd0d5dc0618c82f46e.png" alt="p_i&lt;h_i"/>, let <img class="math" src="_images/math/c47e287126693a74476c11959cb69f8b92e14d13.png" alt="\beta = (|h_i-p_i|-1) / (n-2)"/>, let <img class="math" src="_images/math/0564519b01eb8de6190d05dc3c698f1f905640ef.png" alt="d = \textrm{helper}[P] - \textrm{parent}[P]"/> for some parameter P.</p>
+<p>Then the in the new parameter set, <img class="math" src="_images/math/48d25d568ffd34e3b3962dd9310fb02d7eac16cb.png" alt="P = \textrm{parent}[P] + \textrm{rand\_uniform}(-d * (1 + \alpha * \beta), d * (1 - \alpha * \beta))"/></p>
+<p>Intuitively what we do here is perturb P on the order of d (which acts as a measure of the variability of P in the population). If the parent is better than the helper, we keep P closer to the parent, and if the helper is better, we shift it closer to the helper.</p>
+<p>The proposed new parameter set is accepted if it achieves a lower objective value than its parent.</p>
+<p>If a parent goes <code class="docutils literal"><span class="pre">local_min_limit</span></code> iterations without being replaced by a new parameter set, it is assumed to be stuck in a local minimum, and is replaced with a new random parameter set. The random parameter set is drawn from a &#8220;reserve queue&#8221;, which is initialized at the start of the fitting run to contain <code class="docutils literal"><span class="pre">reserve_size</span></code> Latin hypercube distributed samples. The reserve queue ensures that each time we take a new random parameter set, we are sampling a part of parameter space that we have not sampled previously.</p>
+</div>
+<div class="section" id="id9">
+<h3>Applications<a class="headerlink" href="#id9" title="Permalink to this headline">¶</a></h3>
+<p>We find scatter search is also a good general-purpose fitting algorithm. It performs especially well on fitting problems that are difficult due to a search space that is high dimensional or contains many local minima.</p>
+</div>
+</div>
+<div class="section" id="particle-swarm">
+<span id="alg-pso"></span><h2>Particle Swarm<a class="headerlink" href="#particle-swarm" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="id10">
+<h3>Algorithm<a class="headerlink" href="#id10" title="Permalink to this headline">¶</a></h3>
+<p>In particle swarm optimization, each parameter set is represented by a particle moving through parameter space at some velocity. The acceleration of each particle is set in a way that moves it toward more favorable areas of parameter space: the acceleration has contributions pointing toward both the best parameter set seen so far by the individual particle, and the global best parameter set seen by any particle in the population.</p>
+</div>
+<div class="section" id="id11">
+<h3>Parallelization<a class="headerlink" href="#id11" title="Permalink to this headline">¶</a></h3>
+<p>Particle swarm optimization in PyBNF is an asynchronous, parallel algorithm. As soon as one simulation completes, that particle can calculate its next parameter set and begin a new simulation. Processors will never remain idle.</p>
+</div>
+<div class="section" id="id12">
+<h3>Implementation details<a class="headerlink" href="#id12" title="Permalink to this headline">¶</a></h3>
+<p>The PyBNF implementation is based on the description in <a class="reference internal" href="#moraes2015" id="id13">[Moraes2015]</a>. Each particle keeps track of its current position, velocity, and the best parameter set it has seen during the run.</p>
+<p>After each simulation completes, the velocity of the particle is updated according to the formula <img class="math" src="_images/math/ba78269b1dff39f8a3bc85b63420c2f0bd24ae85.png" alt="v_{i+1} = w*v_i + c_1*u_1*(x_i-x_{\textrm{min}}) + c_2*u_2*(x_i-x_{\textrm{globalmin}})"/>. The constants in the above formula may be set with config keys: <em>w</em> is <code class="docutils literal"><span class="pre">particle_weight</span></code>, <img class="math" src="_images/math/454c8d52c7b36dbdc88b016bb56e5912df877343.png" alt="c_1"/> is <code class="docutils literal"><span class="pre">cognitive</span></code>, and <img class="math" src="_images/math/fc5ec5f6f51270e9a5db3d2065bdf9113f1c895e.png" alt="c_2"/> is <code class="docutils literal"><span class="pre">social</span></code>. <img class="math" src="_images/math/7720e563212e11bf72de255ab82c2a3b97c1a7f5.png" alt="x_i"/> is the current particle position, <img class="math" src="_images/math/fb3c41a9a30bddef43f2e990beafe42151ccc93b.png" alt="v_i"/> is the current velocity, <img class="math" src="_images/math/43374cd9337041d8f940a8a9ba600541b97359cf.png" alt="v_{i+1}"/> is the updated velocity, <img class="math" src="_images/math/f06c2443f9911000396cce499c6ca865af420eb8.png" alt="x_{\textrm{min}}"/> is the best parameter set this particle has seen, and <img class="math" src="_images/math/4b391a9dddb9488759701c3a13a02188a7e9ee87.png" alt="x_{\textrm{globalmin}}"/> is the best parameter set any particle has seen. <img class="math" src="_images/math/cf40a917043ed52a5b1c5bc60daf0128a1b47f64.png" alt="u_1"/> and <img class="math" src="_images/math/5161c86695c6f2c56dcce8d749e9258b1481b6d4.png" alt="u_2"/> are uniform random numbers in the range [0,1]. Following the velocity update, the position of the particle is updated by adding its current velocity.</p>
+<p>We apply a special treatment if a <code class="docutils literal"><span class="pre">uniform_var</span></code> or <code class="docutils literal"><span class="pre">loguniform_var</span></code> moves outside of the specified box constraints. As with other algorithms, the particle position is reflected back inside the boundaries. In addition, the component of the velocity corresponding to the parameter that moved out of bounds is set to zero, to prevent the particle from immediately crossing the same boundary again.</p>
+<p id="pso-adaptive">An optional feature (discussed in <a class="reference internal" href="#moraes2015" id="id14">[Moraes2015]</a>) allows the particle weight <em>w</em> to vary over the course of the simulation. In the original algorithm descirption, <em>w</em> was called &#8220;inertia weight&#8221;, but when <em>w</em> takes a value less than 1, it can be thought of as friction - a force that decelerates particles regardless of the objective function evaluations. The idea is to reduce <em>w</em> (increase friction) over the course of the fitting run, to make the particles come to a stop at a good objective value by the end of the run.</p>
+<p>When using the adaptive friction feature, <em>w</em> starts at <code class="docutils literal"><span class="pre">particle_weight</span></code>, and approaches <code class="docutils literal"><span class="pre">particle_weight_final</span></code> by the end of the simulation. The value of <em>w</em> changes based on how many iterations we deem &#8220;unproductive&#8221; according to the following criterion: An iteration is unproductive if the global best objective function obj_min changes by less than <code class="docutils literal"><span class="pre">adaptive_abs_tol</span></code> + <code class="docutils literal"><span class="pre">adaptive_rel_tol</span></code> * obj_min, where <code class="docutils literal"><span class="pre">adaptive_abs_tol</span></code> and <code class="docutils literal"><span class="pre">adaptive_rel_tol</span></code> can be set in the config. Then, we keep track of N, the total number of unproductive iterations so far. At each iteration we set <em>w</em> = <code class="docutils literal"><span class="pre">particle_weight</span></code> + (<code class="docutils literal"><span class="pre">particle_weight_final</span></code> - <code class="docutils literal"><span class="pre">particle_weight</span></code>) * N / (N + <code class="docutils literal"><span class="pre">adaptive_n_max</span></code>). As can be seen in the above formula, the config key <code class="docutils literal"><span class="pre">adaptive_n_max</span></code> sets the number of unproductive iterations it takes to reach halfway between <code class="docutils literal"><span class="pre">particle_weight</span></code> and <code class="docutils literal"><span class="pre">particle_weight_final</span></code>.</p>
+</div>
+<div class="section" id="id15">
+<h3>Applications<a class="headerlink" href="#id15" title="Permalink to this headline">¶</a></h3>
+<p>Particle swarm optimization tends to be the best-performing algorithm for problems that benefit from asynchronicity, namely, models for which the runtime per simulation can vary greatly depending on the parameter set. Models simulated by SSA or NFsim often fall into this category. In these cases, synchronous algorithms would cause some cores to remain idle while slow-running simulations complete on other cores, whereas asynchronous algorithms like particle swarm  allow you to use all cores at all times.</p>
+</div>
+</div>
+<div class="section" id="markov-chain-monte-carlo">
+<span id="alg-mcmc"></span><h2>Markov Chain Monte Carlo<a class="headerlink" href="#markov-chain-monte-carlo" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="id16">
+<h3>Algorithm<a class="headerlink" href="#id16" title="Permalink to this headline">¶</a></h3>
+<p>Markov chain Monte Carlo is a Bayesian method in which points in parameter space are sampled with a frequency
+proportional to the probability that the parameter set is correct given the data. The result is a probability
+distribution over parameter space that expresses the likelihood of each possible parameter set. With this algorithm, we
+obtain not just a point estimate of the best fit, but a means to quantify the uncertainty in each parameter value.</p>
+<p>When running Markov chain Monte Carlo, PyBNF outputs additional files containing this probability distribution information. The files in <code class="docutils literal"><span class="pre">Results/Histograms/</span></code> give histograms of the marginal probability distributions for each free parameter. The files <code class="docutils literal"><span class="pre">credible##.txt</span></code> (e.g., <code class="docutils literal"><span class="pre">credible95.txt</span></code>) use the marginal histogram for each parameter to calculate a <em>credible interval</em> - an interval in which the parameter value is expected to fall with the specified probability (e.g. 95%).  Finally, <code class="docutils literal"><span class="pre">samples.txt</span></code> contains all parameter sets sampled over the course of the fitting run, allowing the user to perform further custom analysis on the sampled probability distribution.</p>
+</div>
+<div class="section" id="id17">
+<h3>Parallelization<a class="headerlink" href="#id17" title="Permalink to this headline">¶</a></h3>
+<p>Markov chain Monte Carlo is not an inherently parallel algorithm. In the Markov chain, we need to know the current state before proposing the next one. However, PyBNF supports running several independent Markov chains by specifying the number of chains with the <code class="docutils literal"><span class="pre">population_size</span></code> key. All samples from all parallel chains are pooled to obtain a better estimate of the final posterior probability distribution.</p>
+<p>Note that each chain must independently go through the burn-in period, but after the burn-in, your rate of sampling will be improved proportional to the number of parallel chains in your run.</p>
+</div>
+<div class="section" id="id18">
+<h3>Implementation details<a class="headerlink" href="#id18" title="Permalink to this headline">¶</a></h3>
+<p>Our implementation is described in <a class="reference internal" href="examples.html#kozer2013" id="id19">[Kozer2013]</a>. We start at a random point in parameter space, and make a step of size <code class="docutils literal"><span class="pre">step_size</span></code> to move to a new location in parameter space. We take the value of the objective function to be the probability of the data given the parameter set (the <em>likelihood</em> in Bayesian statistics).  We assume a prior distribution based on the parameter definitions in the config file &#8211; a uniform, loguniform, normal, or lognormal distribution, depending on the config key used. Note: If a uniform or loguniform prior is used, the prior does not affect the result other than to confine the distribution within the specified range. If a normal or lognormal prior is used, the prior does affect the probability of accepting each proposed move, and therefore the choice of prior affects the final sampled probability distribution.</p>
+<p>The Bayesian <em>posterior</em> distribution &#8211; the probability of the parameters given the data &#8211; is given by the product of the above likelihood and prior. We use the value of the posterior to determine whether to accept the proposed move.</p>
+<p>Moves are accepted according to the Metropolis criterion. If a move increases the value of the posterior, it is always accepted. If it decreases the value of the posterior, it is accepted with probability <img class="math" src="_images/math/31c3f4bad2aa84ec61ce3da48b757d0916843ea0.png" alt="e^{- \beta \Delta F}"/>, where <img class="math" src="_images/math/e6de504aa3ae032212e53fd18395c570d744029c.png" alt="\Delta F"/> is the change in the posterior, and <img class="math" src="_images/math/410a9d0df9c135dd73b269cba7ef04dcfd932b1f.png" alt="\beta"/> represents the inverse &#8220;temperature&#8221; at which the Metropolis sampling occurs. To generate the true posterior distribution, <img class="math" src="_images/math/410a9d0df9c135dd73b269cba7ef04dcfd932b1f.png" alt="\beta"/> should be set to 1. The sampled distribution becomes more broad with smaller <img class="math" src="_images/math/410a9d0df9c135dd73b269cba7ef04dcfd932b1f.png" alt="\beta"/> and more narrow with a larger <img class="math" src="_images/math/410a9d0df9c135dd73b269cba7ef04dcfd932b1f.png" alt="\beta"/>.</p>
+</div>
+<div class="section" id="id20">
+<h3>Applications<a class="headerlink" href="#id20" title="Permalink to this headline">¶</a></h3>
+<p>Markov chain Monte Carlo is the simplest method available in PyBNF to generate a probability distribution in parameter space.</p>
+</div>
+</div>
+<div class="section" id="simulated-annealing">
+<span id="alg-sa"></span><h2>Simulated Annealing<a class="headerlink" href="#simulated-annealing" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="id21">
+<h3>Algorithm<a class="headerlink" href="#id21" title="Permalink to this headline">¶</a></h3>
+<p>Simulated annealing is another Markov chain-based algorithm, but our goal is not to find a full probability distribution, just find the optimal parameter set. To do so, we start the Markov chain at a high temperature, where unfavorable moves are accepted frequently, and gradually reduce the temperature over the course of the simulation. The idea is that we will explore parameter space broadly at the start of the fitting run, and become more confined to the optimal region of parameter space as the run proceeds.</p>
+</div>
+<div class="section" id="id22">
+<h3>Parallelization<a class="headerlink" href="#id22" title="Permalink to this headline">¶</a></h3>
+<p>Simulated annealing is not an inherently parallel algorithm. The trajectory is a Markov chain in which we need to know the current state before proposing the next one. However, PyBNF supports running several independent simulated annealing chains in parallel. By running many chains simulatenously, we have a better chance that one of the chains achieves a good final fit.</p>
+</div>
+<div class="section" id="id23">
+<h3>Implementation details<a class="headerlink" href="#id23" title="Permalink to this headline">¶</a></h3>
+<p>The Markov chain is implemented in the same way as described above for the Markov chain Monte Carlo algorithm, incorporating both the objective function value and the prior distribution to calculate the posterior probability density.</p>
+<p>The difference is in the Metropolis criterion for acceptance of a proposed move. Here, a move that decreases the value of the posterior is accepted with probability <img class="math" src="_images/math/31c3f4bad2aa84ec61ce3da48b757d0916843ea0.png" alt="e^{- \beta \Delta F}"/>, where <img class="math" src="_images/math/410a9d0df9c135dd73b269cba7ef04dcfd932b1f.png" alt="\beta"/> decreases over the course of the fitting run.</p>
+</div>
+<div class="section" id="id24">
+<h3>Applications<a class="headerlink" href="#id24" title="Permalink to this headline">¶</a></h3>
+<p>We have not found any problems for which simulated annealing is better than the other available algorithms, but provide the functionality with the hope that it proves useful for some specific problems.</p>
+</div>
+</div>
+<div class="section" id="parallel-tempering">
+<span id="alg-pt"></span><h2>Parallel Tempering<a class="headerlink" href="#parallel-tempering" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="id25">
+<h3>Algorithm<a class="headerlink" href="#id25" title="Permalink to this headline">¶</a></h3>
+<p>Parallel tempering is a more sophisticated version of Markov chain Monte Carlo. We run several Markov chains in parallel at different temperatures. At specified iterations during the run, there is an opportunity to exchange replicates between the different temperatures. Only the samples recorded at the lowest temperature count towards our final probability distribution, but the presence of the higher temperature replicates makes it easier to escape local minima and explore the full parameter space.</p>
+<p>When running parallel tempering, PyBNF outputs files containing probability distribution information, the same as with Markov chain Monte Carlo.</p>
+</div>
+<div class="section" id="id26">
+<h3>Parallelization<a class="headerlink" href="#id26" title="Permalink to this headline">¶</a></h3>
+<p>The replicates are run in parallel. Synchronization is required at every iteration in which we attempt replica exchange.</p>
+</div>
+<div class="section" id="id27">
+<h3>Implementation details<a class="headerlink" href="#id27" title="Permalink to this headline">¶</a></h3>
+<p>The PyBNF implementation is based on the description in <a class="reference internal" href="#gupta2018a" id="id28">[Gupta2018a]</a>. Markov chains are run by the same method as in Markov chain Monte Carlo, except that the value of <img class="math" src="_images/math/410a9d0df9c135dd73b269cba7ef04dcfd932b1f.png" alt="\beta"/> in the acceptance probability <img class="math" src="_images/math/31c3f4bad2aa84ec61ce3da48b757d0916843ea0.png" alt="e^{- \beta \Delta F}"/> varies between replicas.</p>
+<p>Every <code class="docutils literal"><span class="pre">exchange_every</span></code> iterations, we attempt replica exchange. We propose moves that consist of swapping two replicas between adjacent temperatures. Moves are accepted with probability <img class="math" src="_images/math/2e5ad32450fab17417c95589d834174ce495dde5.png" alt="\min (1, e^{\Delta \beta \Delta F})"/> where <img class="math" src="_images/math/dd4c49cdc0a40287ab35f6dcc6523cf980ca88f3.png" alt="\Delta \beta"/> is the change in <img class="math" src="_images/math/410a9d0df9c135dd73b269cba7ef04dcfd932b1f.png" alt="\beta"/> = 1/Temperature, and <img class="math" src="_images/math/e6de504aa3ae032212e53fd18395c570d744029c.png" alt="\Delta F"/> is the difference in the objective values of the replicas. In other words, moves that transfer a lower-objective replica to a lower temperature (higher <img class="math" src="_images/math/410a9d0df9c135dd73b269cba7ef04dcfd932b1f.png" alt="\beta"/>) are always accepted, and those that transfer a higher-objective replica to a lower temperature are accepted with a Metropolis-like probability based on the extent of objective difference.</p>
+<p>The list of <img class="math" src="_images/math/410a9d0df9c135dd73b269cba7ef04dcfd932b1f.png" alt="\beta"/>s used is customizable with the <code class="docutils literal"><span class="pre">beta</span></code> or <code class="docutils literal"><span class="pre">beta_range</span></code> key. The number of replicas per temperature is also customizable. To maintain detailed balance, it is required that each temperature contains the same number of replicas.</p>
+</div>
+<div class="section" id="id29">
+<h3>Applications<a class="headerlink" href="#id29" title="Permalink to this headline">¶</a></h3>
+<p>Like ordinary Markov chain Monte Carlo, the goal of parallel tempering is to provide a distribution of possible parameter values rather than a single point estimate.</p>
+<p>Compared to ordinary Markov chain Monte Carlo, parallel tempering offers a trade-off: Parallel tempering generates fewer samples per unit CPU time (because most of the processors run higher temperature simulations that don&#8217;t sample the distribution of interest), but traverses parameter space more efficiently, making each sample more valuable. The decision between parallel tempering and Markov chain Monte Carlo therefore depends on the nature of your parameter space: parallel tempering is expected to perform better when the space is complex, with many local minima that make it challenging to explore.</p>
+<span class="target" id="alg-dream"></span></div>
+</div>
+<div class="section" id="simplex">
+<span id="alg-sim"></span><h2>Simplex<a class="headerlink" href="#simplex" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="id30">
+<h3>Algorithm<a class="headerlink" href="#id30" title="Permalink to this headline">¶</a></h3>
+<p>Simplex is a local search algorithm that operates solely on objective evaluations at single points (i.e. it does not require calculation of gradients). The algorithm maintains a set on N+1 points in N-dimensional parameter space, which are thought of as defining an N-dimensional solid called a <em>simplex</em>. Individual points may be reflected through the lower-dimensional solid defined by the other N points, to obtain a local improvement in objective function value. The simplex algorithm has been nicknamed the &#8220;amoeba&#8221; algorithm because the simplex crawls through parameter space similar to an amoeba, extending protrusions in favorable directions.</p>
+</div>
+<div class="section" id="id31">
+<h3>Parallelization<a class="headerlink" href="#id31" title="Permalink to this headline">¶</a></h3>
+<p>The PyBNF Simplex implementation is parallel and synchronous. Synchronization is required at the end of every iteration. Parallelization is achieved by simultaneously evaluating a subset of the N+1 points in the simplex. Therefore, this parallelization can take advantage of at most N+1 processors, where N is the number of free parameters.</p>
+</div>
+<div class="section" id="id32">
+<h3>Implementation details<a class="headerlink" href="#id32" title="Permalink to this headline">¶</a></h3>
+<p>PyBNF implements the parallelized Simplex algorithm described in <a class="reference internal" href="#lee2007" id="id33">[Lee2007]</a>.</p>
+<p>The initial simplex consists of N+1 points chosen deterministically based on the specified step size (set with the <code class="docutils literal"><span class="pre">simplex_step</span></code> and <code class="docutils literal"><span class="pre">simplex_log_step</span></code> keys, or for individual parameters with the <code class="docutils literal"><span class="pre">var</span></code> and <code class="docutils literal"><span class="pre">log_var</span></code> keys). One point of the simplex is the specified starting point for the search. The other N points are obtained by adding the step size to one parameter, and leaving the other N-1 parameters at the starting values.</p>
+<div class="align-center figure" id="id35">
+<a class="reference internal image-reference" href="_images/simplex.png"><img alt="_images/simplex.png" src="_images/simplex.png" style="width: 200px;" /></a>
+<p class="caption"><span class="caption-text">Illustration of the simplex algorithm, modifying point P on a 3-point simplex in 2 dimensions</span></p>
+</div>
+<p>Each iteration, we operate on the k worst points in the simplex, where k is the number of available processors (<code class="docutils literal"><span class="pre">parallel_count</span></code>). For each point P, we  consider the hyperplane defined by the other N points in the simplex (blue line). Let d be the distance from P to the hyperplane. We evaluate point P<sub>1</sub> obtained by reflecting P through the hyperplane, to a distance of d * <code class="docutils literal"><span class="pre">simplex_reflect</span></code> on the other side. Depending on the resulting objective value, we try another point in the second phase of the iteration. Three cases are possible.</p>
+<ol class="arabic simple">
+<li>The new point is better than the current global minimum: We try a second point continuing in the same direction for a distance of d * <code class="docutils literal"><span class="pre">simplex_expansion</span></code> away from the hyperplane (P<sub>2,1</sub>).</li>
+<li>The new point is worse than the global minimum, but better than the next worst point in the simplex: We don&#8217;t try a second point.</li>
+<li>The new point is worse than the next worst point in the simplex: We try a second point moving closer to the hyperplane. If P was better than P<sub>1</sub>, we try a point a distance of d * <code class="docutils literal"><span class="pre">simplex_contraction</span></code> from the hyperplane in the direction of P (P<sub>2,3a</sub>). If P<sub>1</sub> was better than P, we instead try the same distance from the hyperplane in the direction of P<sub>1</sub> (P<sub>2,3b</sub>).</li>
+</ol>
+<p>In all cases, P in the simplex is set to the best choice among P, P<sub>1</sub>, or whichever second point we tried.</p>
+<p>If in a given iteration, all k points resulted in Case 3 and did not update to P<sub>2,3a</sub> or P<sub>2,3b</sub>, the iteration did not effectively change the state of the simplex. Then, we contract the simplex towards the best point: We set each point P to <code class="docutils literal"><span class="pre">simplex_contract</span></code> * P0 + (1 - <code class="docutils literal"><span class="pre">simplex_contract</span></code>) * P, where P0 is the best point in the simplex.</p>
+</div>
+<div class="section" id="id34">
+<h3>Applications<a class="headerlink" href="#id34" title="Permalink to this headline">¶</a></h3>
+<p>Local optimization with the simplex algorithm is useful for improving on an already known good solution. In PyBNF, the most common application is to apply the simplex algorithm to the best-fit result obtained from one of the other algorithms. You can automatically refine your final result with the simplex algorithm by setting the <code class="docutils literal"><span class="pre">refine</span></code> key to 1, and setting simplex config keys in addition to the config for your main algorithm.</p>
+<p>It is also possible to run the Simplex algorithm on its own, using a custom starting point. In this case, you should use the <code class="docutils literal"><span class="pre">var</span></code> and <code class="docutils literal"><span class="pre">log_var</span></code> keys to specify your known starting point.</p>
+<table class="docutils citation" frame="void" id="egea2009" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id8">[Egea2009]</a></td><td>Egea, J. A.; Balsa-Canto, E.; García, M.-S. G.; Banga, J. R. Dynamic Optimization of Nonlinear Processes with an Enhanced Scatter Search Method. Ind. Eng. Chem. Res. 2009, 48 (9), 4388–4401.</td></tr>
+</tbody>
+</table>
+<table class="docutils citation" frame="void" id="glover2000" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id4">[Glover2000]</a></td><td>Glover, F.; Laguna, M.; Martí, R. Fundamentals of Scatter Search and Path Relinking. Control Cybern. 2000, 29 (3), 652–684.</td></tr>
+</tbody>
+</table>
+<table class="docutils citation" frame="void" id="gupta2018a" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id28">[Gupta2018a]</a></td><td>Gupta, S.; Hainsworth, L.; Hogg, J. S.; Lee, R. E. C.; Faeder, J. R. Evaluation of Parallel Tempering to Accelerate Bayesian Parameter Estimation in Systems Biology. 2018 26th Euromicro International Conference on Parallel, Distributed and Network-based Processing (PDP) 2018, 690–697.</td></tr>
+</tbody>
+</table>
+<table class="docutils citation" frame="void" id="kozer2013" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id19">[Kozer2013]</a></td><td>Kozer, N.; Barua, D.; Orchard, S.; Nice, E. C.; Burgess, A. W.; Hlavacek, W. S.; Clayton, A. H. A. Exploring Higher-Order EGFR Oligomerisation and Phosphorylation—a Combined Experimental and Theoretical Approach. Mol. BioSyst. Mol. BioSyst 2013, 9 (9), 1849–1863.</td></tr>
+</tbody>
+</table>
+<table class="docutils citation" frame="void" id="lee2007" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id33">[Lee2007]</a></td><td>Lee, D.; Wiswall, M. A Parallel Implementation of the Simplex Function Minimization Routine. Comput. Econ. 2007, 30 (2), 171–187.</td></tr>
+</tbody>
+</table>
+<table class="docutils citation" frame="void" id="moraes2015" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label">[Moraes2015]</td><td><em>(<a class="fn-backref" href="#id13">1</a>, <a class="fn-backref" href="#id14">2</a>)</em> Moraes, A. O. S.; Mitre, J. F.; Lage, P. L. C.; Secchi, A. R. A Robust Parallel Algorithm of the Particle Swarm Optimization Method for Large Dimensional Engineering Problems. Appl. Math. Model. 2015, 39 (14), 4223–4241.</td></tr>
+</tbody>
+</table>
+<table class="docutils citation" frame="void" id="penas2015" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label">[Penas2015]</td><td><em>(<a class="fn-backref" href="#id1">1</a>, <a class="fn-backref" href="#id2">2</a>)</em> Penas, D. R.; González, P.; Egea, J. A.; Banga, J. R.; Doallo, R. Parallel Metaheuristics in Computational Biology: An Asynchronous Cooperative Enhanced Scatter Search Method. Procedia Comput. Sci. 2015, 51 (1), 630–639.</td></tr>
+</tbody>
+</table>
+<table class="docutils citation" frame="void" id="penas2017" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id7">[Penas2017]</a></td><td>Penas, D. R.; González, P.; Egea, J. A.; Doallo, R.; Banga, J. R. Parameter Estimation in Large-Scale Systems Biology Models: A Parallel and Self-Adaptive Cooperative Strategy. BMC Bioinformatics 2017, 18 (1), 52.</td></tr>
+</tbody>
+</table>
+<table class="docutils citation" frame="void" id="vrugt2016" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label">[Vrugt2016]</td><td>Vrugt, J. Markov chain Monte Carlo simulation using the DREAM software package: Theory, concepts, and MATLAB implementation. Environmental Modelling and Software 2016, 75, 273-316.</td></tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="advanced.html" title="Advanced Features"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="config_keys.html" title="Configuration Keys"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">PyBNF v0.3.1 documentation</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2018, Ryan Suderman, Eshan Mitra.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.5.6.
+    </div>
+  </body>
+</html>

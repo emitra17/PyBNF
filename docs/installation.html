@@ -1,0 +1,215 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Installation &#8212; PyBNF v0.3.1 documentation</title>
+    
+    <link rel="stylesheet" href="_static/sphinxdoc.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     'v0.3.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Quick Start" href="quickstart.html" />
+    <link rel="prev" title="PyBNF documentation" href="index.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="quickstart.html" title="Quick Start"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="index.html" title="PyBNF documentation"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">PyBNF v0.3.1 documentation</a> &#187;</li> 
+      </ul>
+    </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="index.html">
+              <img class="logo" src="_static/LogoSm.png" alt="Logo"/>
+            </a></p>
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Installation</a><ul>
+<li><a class="reference internal" href="#operating-system">Operating System</a></li>
+<li><a class="reference internal" href="#python">Python</a></li>
+<li><a class="reference internal" href="#pybnf">PyBNF</a><ul>
+<li><a class="reference internal" href="#installing-from-pypi">Installing from PyPI</a></li>
+<li><a class="reference internal" href="#installing-from-source">Installing from source</a></li>
+<li><a class="reference internal" href="#optional-logging-configuration-for-remote-machines">(Optional) Logging configuration for remote machines</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#installation-of-external-simulators">Installation of External Simulators</a><ul>
+<li><a class="reference internal" href="#bionetgen">BioNetGen</a></li>
+<li><a class="reference internal" href="#sbml">SBML</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="index.html"
+                        title="previous chapter">PyBNF documentation</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="quickstart.html"
+                        title="next chapter">Quick Start</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/installation.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="installation">
+<h1>Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="operating-system">
+<h2>Operating System<a class="headerlink" href="#operating-system" title="Permalink to this headline">¶</a></h2>
+<p>PyBNF can be installed on any recent Linux or macOS operating system. Windows is not currently supported.</p>
+</div>
+<div class="section" id="python">
+<h2>Python<a class="headerlink" href="#python" title="Permalink to this headline">¶</a></h2>
+<p>PyBNF requires an installation of Python version 3.5 or higher. This should come built-in with most new Linux and Mac
+operating systems.  However, we recommend installing the <a class="reference external" href="https://www.anaconda.com/download">Anaconda</a> Python distribution for Python v3.5 or higher.
+Installing Anaconda facilitates managing and installing Python packages as well as maintaining multiple Python
+environments. Instructions for installing on various platforms can be found on the <a class="reference external" href="https://www.anaconda.com/download">Anaconda</a> website.</p>
+</div>
+<div class="section" id="pybnf">
+<h2>PyBNF<a class="headerlink" href="#pybnf" title="Permalink to this headline">¶</a></h2>
+<p>The <code class="docutils literal"><span class="pre">pip</span></code> package manager is included with <a class="reference external" href="https://www.anaconda.com/download">Anaconda</a> and should be used to install PyBNF from the command line.</p>
+<p>It is also possible to install <code class="docutils literal"><span class="pre">pip</span></code> alone without Anaconda. If you choose to do this, be sure your <code class="docutils literal"><span class="pre">pip</span></code> is associated with Python 3 (on some systems, this command is <code class="docutils literal"><span class="pre">pip3</span></code>).</p>
+<div class="section" id="installing-from-pypi">
+<h3>Installing from PyPI<a class="headerlink" href="#installing-from-pypi" title="Permalink to this headline">¶</a></h3>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">This option is not yet available</p>
+</div>
+<p>Simply type the following in a terminal:</p>
+<blockquote>
+<div><strong class="command">pip install pybnf</strong></div></blockquote>
+<p>The above command will install the most recent version of PyBNF released on the Python Package Index, along with all required dependencies.</p>
+</div>
+<div class="section" id="installing-from-source">
+<h3>Installing from source<a class="headerlink" href="#installing-from-source" title="Permalink to this headline">¶</a></h3>
+<p>To use bleeding edge PyBNF, the source code may be found on GitHub at <a class="reference external" href="https://github.com/lanl/PyBNF">https://github.com/lanl/PyBNF</a> .  To use,
+simply download or clone the repository and run the following command in the repository&#8217;s root directory:</p>
+<blockquote>
+<div><strong class="command">pip install -e .</strong></div></blockquote>
+<p>This also allows developers to modify the source code while still having access to the commmand line functionality
+anywhere in the filesystem.</p>
+</div>
+<div class="section" id="optional-logging-configuration-for-remote-machines">
+<h3>(Optional) Logging configuration for remote machines<a class="headerlink" href="#optional-logging-configuration-for-remote-machines" title="Permalink to this headline">¶</a></h3>
+<p>By default, PyBNF logs to the file <code class="docutils literal"><span class="pre">bnf_timestamp.log</span></code> to maintain a record of important events in the application.
+When running PyBNF on a cluster, some of the logs may be written while on a node distinct from the main thread. If
+these logs are desired, the user must configure the scheduler to retrieve these logs.</p>
+<p>Upon installation of PyBNF, the dependencies <code class="docutils literal"><span class="pre">dask</span></code> and <code class="docutils literal"><span class="pre">distributed</span></code> should be installed. Installing them will
+create a <code class="docutils literal"><span class="pre">.dask/</span></code> folder in the home directory with a single file: <code class="docutils literal"><span class="pre">config.yaml</span></code>. Open this file to find a
+<code class="docutils literal"><span class="pre">logging:</span></code> block containing information for how distributed outputs logs. Add the following line to the file,
+appropriately indented:</p>
+<blockquote>
+<div><strong class="command">pybnf.algorithms.job: info</strong></div></blockquote>
+<p>where <code class="docutils literal"><span class="pre">info</span></code> can be any string corresponding to a Python logging level (e.g. <code class="docutils literal"><span class="pre">info</span></code>, <code class="docutils literal"><span class="pre">debug</span></code>, <code class="docutils literal"><span class="pre">warning</span></code>)</p>
+</div>
+</div>
+<div class="section" id="installation-of-external-simulators">
+<h2>Installation of External Simulators<a class="headerlink" href="#installation-of-external-simulators" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="bionetgen">
+<h3>BioNetGen<a class="headerlink" href="#bionetgen" title="Permalink to this headline">¶</a></h3>
+<p>PyBNF is designed to work with simulators present in the BioNetGen software suite, version 2.3, available for download from
+the <a class="reference external" href="http://www.bionetgen.org">BioNetGen</a> website. Note that for Linux distributions other than Ubuntu, the pre-built binary is unreliable, and it is
+necessary to rebuild BioNetGen from source. The current BioNetGen distribution includes support for both network-based
+simulations and network-free simulations.</p>
+<p></p>
+<p>PyBNF will need to know the location of BioNetGen – specifically the location of the script <code class="docutils literal"><span class="pre">BNG2.pl</span></code> within the
+BioNetGen installation. This path can be included in the PyBNF configuration file with the <a class="reference internal" href="config_keys.html#bng-command"><span class="std std-ref">bng_command</span></a> key.
+A convenient alternative is to set the environment variable <code class="docutils literal"><span class="pre">BNGPATH</span></code> to the BioNetGen directory using the following command:</p>
+<blockquote>
+<div><strong class="command">export BNGPATH=/path/to/bng2</strong></div></blockquote>
+<p>where <code class="docutils literal"><span class="pre">/path/to/bng2</span></code> is the path to the folder containing <code class="docutils literal"><span class="pre">BNG2.pl</span></code>, not including the &#8220;BNG2.pl&#8221; file name. This
+setting may be made permanent as of your next login, by copying above command into the file <code class="docutils literal"><span class="pre">.bash_profile</span></code>
+in your home directory.</p>
+</div>
+<div class="section" id="sbml">
+<h3>SBML<a class="headerlink" href="#sbml" title="Permalink to this headline">¶</a></h3>
+<p>PyBNF runs simulations of <a class="reference external" href="http://sbml.org/">SBML</a> models using <a class="reference external" href="http://libroadrunner.org/">libroadrunner</a>, which is installed automatically through <code class="docutils literal"><span class="pre">pip</span></code> as part of
+PyBNF installation.</p>
+<p>To work with SBML files, it is useful to install software such as <a class="reference external" href="http://copasi.org/">COPASI</a> that is capable of reading and writing models in
+SBML format.</p>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="quickstart.html" title="Quick Start"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="index.html" title="PyBNF documentation"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">PyBNF v0.3.1 documentation</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2018, Ryan Suderman, Eshan Mitra.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.5.6.
+    </div>
+  </body>
+</html>

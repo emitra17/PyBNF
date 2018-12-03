@@ -1,0 +1,357 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>pybnf.objective &#8212; PyBNF v0.3.1 documentation</title>
+    
+    <link rel="stylesheet" href="../../_static/sphinxdoc.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     'v0.3.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">PyBNF v0.3.1 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" accesskey="U">Module code</a> &#187;</li> 
+      </ul>
+    </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="../../index.html">
+              <img class="logo" src="../../_static/LogoSm.png" alt="Logo"/>
+            </a></p>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for pybnf.objective</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;Classes defining various objective functions used for evaluating points in parameter space&quot;&quot;&quot;</span>
+
+
+<span class="kn">from</span> <span class="nn">.printing</span> <span class="k">import</span> <span class="n">PybnfError</span><span class="p">,</span> <span class="n">print1</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+
+<div class="viewcode-block" id="ObjectiveCalculator"><a class="viewcode-back" href="../../modules/objective.html#pybnf.objective.ObjectiveCalculator">[docs]</a><span class="k">class</span> <span class="nc">ObjectiveCalculator</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Wrapper for all of the objects needed for the workers to calculate the objective function value.</span>
+<span class="sd">    Contains the objective function, exp_data_dict, and constraint tuple</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">objective</span><span class="p">,</span> <span class="n">exp_data_dict</span><span class="p">,</span> <span class="n">constraints</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">objective</span> <span class="o">=</span> <span class="n">objective</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">exp_data_dict</span> <span class="o">=</span> <span class="n">exp_data_dict</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">constraints</span> <span class="o">=</span> <span class="n">constraints</span>
+
+<div class="viewcode-block" id="ObjectiveCalculator.evaluate_objective"><a class="viewcode-back" href="../../modules/objective.html#pybnf.objective.ObjectiveCalculator.evaluate_objective">[docs]</a>    <span class="k">def</span> <span class="nf">evaluate_objective</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sim_data_dict</span><span class="p">,</span> <span class="n">show_warnings</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Evaluate the objective using the input simulation data and the info contained in this object</span>
+<span class="sd">        :param sim_data_dict: Dictionary of the form {modelname: {suffix1: Data1}} containing the simulated data objects</span>
+<span class="sd">        :param show_warnings: If True, print warnings about unused data</span>
+<span class="sd">        :type show_warnings: bool</span>
+<span class="sd">        :return:</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">objective</span><span class="o">.</span><span class="n">evaluate_multiple</span><span class="p">(</span><span class="n">sim_data_dict</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">exp_data_dict</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">constraints</span><span class="p">,</span> <span class="n">show_warnings</span><span class="p">)</span></div></div>
+
+
+
+<div class="viewcode-block" id="ObjectiveFunction"><a class="viewcode-back" href="../../modules/objective.html#pybnf.objective.ObjectiveFunction">[docs]</a><span class="k">class</span> <span class="nc">ObjectiveFunction</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Abstract class representing an objective function</span>
+<span class="sd">    Subclasses customize how the objective value is calculated from the quantitative exp data</span>
+<span class="sd">    The base class includes all the support we need for constraints.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="ObjectiveFunction.evaluate_multiple"><a class="viewcode-back" href="../../modules/objective.html#pybnf.objective.ObjectiveFunction.evaluate_multiple">[docs]</a>    <span class="k">def</span> <span class="nf">evaluate_multiple</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sim_data_dict</span><span class="p">,</span> <span class="n">exp_data_dict</span><span class="p">,</span> <span class="n">constraints</span><span class="o">=</span><span class="p">(),</span> <span class="n">show_warnings</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Compute the value of the objective function on several data sets, and return the total.</span>
+<span class="sd">        Optionally may pass an iterable of ConstraintSets whose penalties will be added to the total</span>
+
+<span class="sd">        :param sim_data_dict: Dictionary of the form {modelname: {suffix1: Data1}} containing the simulated data objects</span>
+<span class="sd">        :type sim_data_dict: dict</span>
+<span class="sd">        :param exp_data_dict: Dictionary of the form {modelname: {suffix1: Data1}} containing experimental Data objects</span>
+<span class="sd">        :type exp_data_dict: dict</span>
+<span class="sd">        :param constraints: Iterable of ConstraintSet objects containing the constraints that we should evaluate using</span>
+<span class="sd">        the simulated data</span>
+<span class="sd">        :type constraints: Iterable of ConstraintSet</span>
+<span class="sd">        :param show_warnings: If True, print warnings about unused data</span>
+<span class="sd">        :type show_warnings: bool</span>
+<span class="sd">        :return:</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">with</span> <span class="n">np</span><span class="o">.</span><span class="n">errstate</span><span class="p">(</span><span class="nb">all</span><span class="o">=</span><span class="s1">&#39;ignore&#39;</span><span class="p">):</span>  <span class="c1"># Suppress numpy warnings printed to terminal</span>
+            <span class="n">total</span> <span class="o">=</span> <span class="mf">0.</span>
+
+            <span class="c1"># Dictionary mapping suffix strings to experimental Data objects</span>
+            <span class="c1"># exp_data_dict = self.conf.exp_data</span>
+
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">sim_data_dict</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">inf</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">model</span> <span class="ow">in</span> <span class="n">sim_data_dict</span><span class="p">:</span>
+                    <span class="k">for</span> <span class="n">suffix</span> <span class="ow">in</span> <span class="n">sim_data_dict</span><span class="p">[</span><span class="n">model</span><span class="p">]:</span>
+                        <span class="c1"># Suffixes might exist in sim_data_dict that do not have experimental data.</span>
+                        <span class="c1"># Need to check for that here.</span>
+                        <span class="k">if</span> <span class="n">suffix</span> <span class="ow">in</span> <span class="n">exp_data_dict</span><span class="p">[</span><span class="n">model</span><span class="p">]:</span>
+                            <span class="n">val</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">evaluate</span><span class="p">(</span><span class="n">sim_data_dict</span><span class="p">[</span><span class="n">model</span><span class="p">][</span><span class="n">suffix</span><span class="p">],</span> <span class="n">exp_data_dict</span><span class="p">[</span><span class="n">model</span><span class="p">][</span><span class="n">suffix</span><span class="p">],</span>
+                                                <span class="n">show_warnings</span><span class="o">=</span><span class="n">show_warnings</span><span class="p">)</span>
+                            <span class="k">if</span> <span class="n">val</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                                <span class="k">return</span> <span class="kc">None</span>
+                            <span class="n">total</span> <span class="o">+=</span> <span class="n">val</span>
+                <span class="k">for</span> <span class="n">cset</span> <span class="ow">in</span> <span class="n">constraints</span><span class="p">:</span>
+                    <span class="n">total</span> <span class="o">+=</span> <span class="n">cset</span><span class="o">.</span><span class="n">total_penalty</span><span class="p">(</span><span class="n">sim_data_dict</span><span class="p">)</span>
+
+                <span class="k">return</span> <span class="n">total</span></div>
+
+<div class="viewcode-block" id="ObjectiveFunction.evaluate"><a class="viewcode-back" href="../../modules/objective.html#pybnf.objective.ObjectiveFunction.evaluate">[docs]</a>    <span class="k">def</span> <span class="nf">evaluate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sim_data</span><span class="p">,</span> <span class="n">exp_data</span><span class="p">,</span> <span class="n">show_warnings</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :param sim_data: A Data object containing simulated data</span>
+<span class="sd">        :type sim_data: Data</span>
+<span class="sd">        :param exp_data: A Data object containing experimental data</span>
+<span class="sd">        :type exp_data: Data</span>
+<span class="sd">        :return: float, value of the objective function, with a lower value indicating a better fit.</span>
+<span class="sd">        :param show_warnings: If True, print warnings about unused data</span>
+<span class="sd">        :type show_warnings: bool</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;Subclasses must override evaluate()&quot;</span><span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="SummationObjective"><a class="viewcode-back" href="../../modules/objective.html#pybnf.objective.SummationObjective">[docs]</a><span class="k">class</span> <span class="nc">SummationObjective</span><span class="p">(</span><span class="n">ObjectiveFunction</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Represents a type of objective function in which we perform some kind of summation over all available experimental</span>
+<span class="sd">    data points.</span>
+<span class="sd">    Currently, this describes all objective functions in PyBNF.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ind_var_rounding</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+        <span class="c1"># Keep track of which warnings we&#39;ve printed, so we only print each one once.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">warned</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">rounding</span> <span class="o">=</span> <span class="n">ind_var_rounding</span>
+
+<div class="viewcode-block" id="SummationObjective.evaluate"><a class="viewcode-back" href="../../modules/objective.html#pybnf.objective.SummationObjective.evaluate">[docs]</a>    <span class="k">def</span> <span class="nf">evaluate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sim_data</span><span class="p">,</span> <span class="n">exp_data</span><span class="p">,</span> <span class="n">show_warnings</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :param sim_data: A Data object containing simulated data</span>
+<span class="sd">        :type sim_data: Data</span>
+<span class="sd">        :param exp_data: A Data object containing experimental data</span>
+<span class="sd">        :type exp_data: Data</span>
+<span class="sd">        :param show_warnings: If True, print warnings about unused data</span>
+<span class="sd">        :type show_warnings: bool</span>
+<span class="sd">        :return: float, value of the objective function, with a lower value indicating a better fit.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">indvar</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">exp_data</span><span class="o">.</span><span class="n">cols</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="n">exp_data</span><span class="o">.</span><span class="n">cols</span><span class="o">.</span><span class="n">get</span><span class="p">)</span>  <span class="c1"># Get the name of column 0, the independent variable</span>
+
+        <span class="n">compare_cols</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">exp_data</span><span class="o">.</span><span class="n">cols</span><span class="p">)</span><span class="o">.</span><span class="n">intersection</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">sim_data</span><span class="o">.</span><span class="n">cols</span><span class="p">))</span>  <span class="c1"># Set of columns to compare</span>
+        <span class="c1"># Warn if experiment columns are going unused</span>
+        <span class="k">if</span> <span class="n">show_warnings</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_check_columns</span><span class="p">(</span><span class="n">exp_data</span><span class="o">.</span><span class="n">cols</span><span class="p">,</span> <span class="n">compare_cols</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">compare_cols</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">indvar</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">PybnfError</span><span class="p">(</span><span class="s1">&#39;The independent variable &quot;</span><span class="si">%s</span><span class="s1">&quot; in your exp file was not found in the simulation data.&#39;</span>
+                             <span class="o">%</span> <span class="n">indvar</span><span class="p">)</span>
+
+        <span class="n">func_value</span> <span class="o">=</span> <span class="mf">0.0</span>
+        <span class="c1"># Iterate through rows of experimental data</span>
+        <span class="k">for</span> <span class="n">rownum</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">exp_data</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]):</span>
+
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">rounding</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="c1"># Figure out the corresponding row number in the simulation data</span>
+                <span class="c1"># Find the row number of sim_data column 0 that is almost equal to exp_data[rownum, 0]</span>
+                <span class="n">sim_row</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">isclose</span><span class="p">(</span><span class="n">sim_data</span><span class="p">[</span><span class="n">indvar</span><span class="p">],</span> <span class="n">exp_data</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="n">rownum</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">atol</span><span class="o">=</span><span class="mf">0.</span><span class="p">))</span>
+                <span class="c1"># If no such column existed, sim_row will come out as 0; need to check for this and skip if it happened</span>
+                <span class="k">if</span> <span class="n">sim_row</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">isclose</span><span class="p">(</span><span class="n">sim_data</span><span class="p">[</span><span class="n">indvar</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span> <span class="n">exp_data</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="n">rownum</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">atol</span><span class="o">=</span><span class="mf">0.</span><span class="p">):</span>
+                    <span class="n">warnstr</span> <span class="o">=</span> <span class="n">indvar</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">exp_data</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="n">rownum</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span>  <span class="c1"># An identifier so we only print the warning once</span>
+                    <span class="k">if</span> <span class="n">show_warnings</span> <span class="ow">and</span> <span class="n">warnstr</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">warned</span><span class="p">:</span>
+                        <span class="n">print1</span><span class="p">(</span><span class="s2">&quot;Warning: Ignored &quot;</span> <span class="o">+</span> <span class="n">indvar</span> <span class="o">+</span> <span class="s2">&quot; &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">exp_data</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="n">rownum</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span> <span class="o">+</span>
+                               <span class="s2">&quot; because that &quot;</span> <span class="o">+</span> <span class="n">indvar</span> <span class="o">+</span> <span class="s2">&quot; was not in the simulation data.&quot;</span><span class="p">)</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">warned</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">warnstr</span><span class="p">)</span>
+                    <span class="k">continue</span>
+            <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">rounding</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="c1"># Take the closest row to the exp data</span>
+                <span class="n">sim_row</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argmin</span><span class="p">(</span><span class="nb">abs</span><span class="p">(</span><span class="n">sim_data</span><span class="p">[</span><span class="n">indvar</span><span class="p">]</span> <span class="o">-</span> <span class="n">exp_data</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="n">rownum</span><span class="p">,</span> <span class="mi">0</span><span class="p">]))</span>
+                <span class="c1"># Warn if there was really nothing close</span>
+                <span class="n">diff</span> <span class="o">=</span> <span class="nb">abs</span><span class="p">(</span><span class="n">sim_data</span><span class="p">[</span><span class="n">indvar</span><span class="p">][</span><span class="n">sim_row</span><span class="p">]</span> <span class="o">-</span> <span class="n">exp_data</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="n">rownum</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span>
+                <span class="k">if</span> <span class="n">diff</span> <span class="o">&gt;</span> <span class="mf">1.</span> <span class="ow">and</span> <span class="n">diff</span> <span class="o">/</span> <span class="n">exp_data</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="n">rownum</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mf">0.1</span><span class="p">:</span>
+                    <span class="n">warnstr</span> <span class="o">=</span> <span class="n">indvar</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">exp_data</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="n">rownum</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span>  <span class="c1"># An identifier so we only print the warning once</span>
+                    <span class="k">if</span> <span class="n">show_warnings</span> <span class="ow">and</span> <span class="n">warnstr</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">warned</span><span class="p">:</span>
+                        <span class="n">print1</span><span class="p">(</span><span class="s2">&quot;Warning: For exp point </span><span class="si">%s</span><span class="s2">=</span><span class="si">%s</span><span class="s2">, used sim data at </span><span class="si">%s</span><span class="s2">=</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span>
+                               <span class="p">(</span><span class="n">indvar</span><span class="p">,</span> <span class="n">exp_data</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="n">rownum</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">indvar</span><span class="p">,</span> <span class="n">sim_data</span><span class="p">[</span><span class="n">indvar</span><span class="p">][</span><span class="n">sim_row</span><span class="p">]))</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">warned</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">warnstr</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">PybnfError</span><span class="p">(</span><span class="s1">&#39;Possible values for ind_var_rounding are 0 or 1.&#39;</span><span class="p">)</span>
+
+            <span class="k">for</span> <span class="n">col_name</span> <span class="ow">in</span> <span class="n">compare_cols</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">exp_data</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="n">rownum</span><span class="p">,</span> <span class="n">exp_data</span><span class="o">.</span><span class="n">cols</span><span class="p">[</span><span class="n">col_name</span><span class="p">]]):</span>
+                    <span class="k">continue</span>
+
+                <span class="n">cur_sim_val</span> <span class="o">=</span> <span class="n">sim_data</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="n">sim_row</span><span class="p">,</span> <span class="n">sim_data</span><span class="o">.</span><span class="n">cols</span><span class="p">[</span><span class="n">col_name</span><span class="p">]]</span>
+
+                <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">cur_sim_val</span><span class="p">)</span> <span class="ow">or</span> <span class="n">np</span><span class="o">.</span><span class="n">isinf</span><span class="p">(</span><span class="n">cur_sim_val</span><span class="p">):</span>
+                    <span class="k">return</span> <span class="kc">None</span>
+                <span class="n">func_value</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">eval_point</span><span class="p">(</span><span class="n">sim_data</span><span class="p">,</span> <span class="n">exp_data</span><span class="p">,</span> <span class="n">sim_row</span><span class="p">,</span> <span class="n">rownum</span><span class="p">,</span> <span class="n">col_name</span><span class="p">)</span> \
+                    <span class="o">*</span> <span class="n">exp_data</span><span class="o">.</span><span class="n">weights</span><span class="p">[</span><span class="n">rownum</span><span class="p">,</span> <span class="n">exp_data</span><span class="o">.</span><span class="n">cols</span><span class="p">[</span><span class="n">col_name</span><span class="p">]]</span>
+
+        <span class="k">return</span> <span class="n">func_value</span></div>
+
+<div class="viewcode-block" id="SummationObjective.eval_point"><a class="viewcode-back" href="../../modules/objective.html#pybnf.objective.SummationObjective.eval_point">[docs]</a>    <span class="k">def</span> <span class="nf">eval_point</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sim_data</span><span class="p">,</span> <span class="n">exp_data</span><span class="p">,</span> <span class="n">sim_row</span><span class="p">,</span> <span class="n">exp_row</span><span class="p">,</span> <span class="n">col_name</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Calculate the objective function for a single point in the data</span>
+
+<span class="sd">        This evaluation is what differentiates the different objective functions.</span>
+
+<span class="sd">        :param sim_data: The simulation Data object</span>
+<span class="sd">        :param exp_data: The experimental Data object</span>
+<span class="sd">        :param sim_row: The row number to look at in sim_data</span>
+<span class="sd">        :param exp_row: The row number to look at in exp_data</span>
+<span class="sd">        :param col_name: The column name to look at  (same for the sim_data and the exp_data)</span>
+<span class="sd">        :return:</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s1">&#39;Subclasses of SummationObjective must override eval_point&#39;</span><span class="p">)</span></div>
+
+    <span class="k">def</span> <span class="nf">_check_columns</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">exp_cols</span><span class="p">,</span> <span class="n">compare_cols</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Check that all exp_cols are being read in compare_cols; give a warning if not.</span>
+<span class="sd">        :param exp_cols: Iterable of all experimental data column names</span>
+<span class="sd">        :param compare_cols: Iterable of the names being used</span>
+<span class="sd">        :return: None</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">missed</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">exp_cols</span><span class="p">)</span><span class="o">.</span><span class="n">difference</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">compare_cols</span><span class="p">))</span>
+        <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">missed</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">warned</span><span class="p">:</span>
+                <span class="n">print1</span><span class="p">(</span><span class="s2">&quot;Warning: Ignoring experimental data column &#39;</span><span class="si">%s</span><span class="s2">&#39; because that name is not in the simulation &quot;</span>
+                       <span class="s2">&quot;output&quot;</span> <span class="o">%</span> <span class="n">name</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">warned</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">name</span><span class="p">)</span></div>
+
+
+<span class="k">class</span> <span class="nc">ChiSquareObjective</span><span class="p">(</span><span class="n">SummationObjective</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="nf">eval_point</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sim_data</span><span class="p">,</span> <span class="n">exp_data</span><span class="p">,</span> <span class="n">sim_row</span><span class="p">,</span> <span class="n">exp_row</span><span class="p">,</span> <span class="n">col_name</span><span class="p">):</span>
+        <span class="n">sim_val</span> <span class="o">=</span> <span class="n">sim_data</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="n">sim_row</span><span class="p">,</span> <span class="n">sim_data</span><span class="o">.</span><span class="n">cols</span><span class="p">[</span><span class="n">col_name</span><span class="p">]]</span>
+        <span class="n">exp_val</span> <span class="o">=</span> <span class="n">exp_data</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="n">exp_row</span><span class="p">,</span> <span class="n">exp_data</span><span class="o">.</span><span class="n">cols</span><span class="p">[</span><span class="n">col_name</span><span class="p">]]</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="c1"># Todo: Check for this and throw the error before all the workers get created.</span>
+            <span class="n">sd_col</span> <span class="o">=</span> <span class="n">exp_data</span><span class="o">.</span><span class="n">cols</span><span class="p">[</span><span class="n">col_name</span> <span class="o">+</span> <span class="s1">&#39;_SD&#39;</span><span class="p">]</span>
+        <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">PybnfError</span><span class="p">(</span><span class="s1">&#39;Column </span><span class="si">%s</span><span class="s1">_SD not found&#39;</span> <span class="o">%</span> <span class="n">col_name</span><span class="p">,</span>
+                 <span class="s2">&quot;Column </span><span class="si">%s</span><span class="s2">_SD was not found in the experimental data. When using the chi_sq objective function, your &quot;</span>
+                 <span class="s2">&quot;data file must include a _SD column corresponding to each experimental variable, giving the standard &quot;</span>
+                 <span class="s2">&quot;deviations of that variable. &quot;</span> <span class="o">%</span> <span class="n">col_name</span><span class="p">)</span>
+        <span class="n">exp_sigma</span> <span class="o">=</span> <span class="n">exp_data</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="n">exp_row</span><span class="p">,</span> <span class="n">sd_col</span><span class="p">]</span>
+        <span class="k">return</span> <span class="mf">1.</span> <span class="o">/</span> <span class="p">(</span><span class="mf">2.</span> <span class="o">*</span> <span class="n">exp_sigma</span> <span class="o">**</span> <span class="mf">2.</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="n">sim_val</span> <span class="o">-</span> <span class="n">exp_val</span><span class="p">)</span> <span class="o">**</span> <span class="mf">2.</span>
+
+    <span class="k">def</span>  <span class="nf">_check_columns</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">exp_cols</span><span class="p">,</span> <span class="n">compare_cols</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Check that all exp_cols are being read in compare_cols; give a warning if not.</span>
+<span class="sd">        :param exp_cols: Iterable of all experimental data column names</span>
+<span class="sd">        :param compare_cols: Iterable of the names being used</span>
+<span class="sd">        :return: None</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">missed</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">exp_cols</span><span class="p">)</span><span class="o">.</span><span class="n">difference</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">compare_cols</span><span class="p">)</span><span class="o">.</span><span class="n">union</span><span class="p">(</span><span class="nb">set</span><span class="p">([</span><span class="s1">&#39;</span><span class="si">%s</span><span class="s1">_SD&#39;</span> <span class="o">%</span> <span class="n">s</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">compare_cols</span><span class="p">])))</span>
+        <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">missed</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">warned</span><span class="p">:</span>
+                <span class="n">print1</span><span class="p">(</span><span class="s2">&quot;Warning: Ignoring experimental data column &#39;</span><span class="si">%s</span><span class="s2">&#39; because that name is not in the simulation &quot;</span>
+                       <span class="s2">&quot;output&quot;</span> <span class="o">%</span> <span class="n">name</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">warned</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+
+
+<span class="k">class</span> <span class="nc">SumOfSquaresObjective</span><span class="p">(</span><span class="n">SummationObjective</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="nf">eval_point</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sim_data</span><span class="p">,</span> <span class="n">exp_data</span><span class="p">,</span> <span class="n">sim_row</span><span class="p">,</span> <span class="n">exp_row</span><span class="p">,</span> <span class="n">col_name</span><span class="p">):</span>
+
+        <span class="n">sim_val</span> <span class="o">=</span> <span class="n">sim_data</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="n">sim_row</span><span class="p">,</span> <span class="n">sim_data</span><span class="o">.</span><span class="n">cols</span><span class="p">[</span><span class="n">col_name</span><span class="p">]]</span>
+        <span class="n">exp_val</span> <span class="o">=</span> <span class="n">exp_data</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="n">exp_row</span><span class="p">,</span> <span class="n">exp_data</span><span class="o">.</span><span class="n">cols</span><span class="p">[</span><span class="n">col_name</span><span class="p">]]</span>
+        <span class="k">return</span> <span class="p">(</span><span class="n">sim_val</span> <span class="o">-</span> <span class="n">exp_val</span><span class="p">)</span> <span class="o">**</span> <span class="mf">2.</span>
+
+
+<div class="viewcode-block" id="NormSumOfSquaresObjective"><a class="viewcode-back" href="../../modules/objective.html#pybnf.objective.NormSumOfSquaresObjective">[docs]</a><span class="k">class</span> <span class="nc">NormSumOfSquaresObjective</span><span class="p">(</span><span class="n">SummationObjective</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Sum of squares where each point is normalized by the y value at that point, ((y-y&#39;)/y)^2</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">eval_point</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sim_data</span><span class="p">,</span> <span class="n">exp_data</span><span class="p">,</span> <span class="n">sim_row</span><span class="p">,</span> <span class="n">exp_row</span><span class="p">,</span> <span class="n">col_name</span><span class="p">):</span>
+
+        <span class="n">sim_val</span> <span class="o">=</span> <span class="n">sim_data</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="n">sim_row</span><span class="p">,</span> <span class="n">sim_data</span><span class="o">.</span><span class="n">cols</span><span class="p">[</span><span class="n">col_name</span><span class="p">]]</span>
+        <span class="n">exp_val</span> <span class="o">=</span> <span class="n">exp_data</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="n">exp_row</span><span class="p">,</span> <span class="n">exp_data</span><span class="o">.</span><span class="n">cols</span><span class="p">[</span><span class="n">col_name</span><span class="p">]]</span>
+        <span class="k">return</span> <span class="p">((</span><span class="n">sim_val</span> <span class="o">-</span> <span class="n">exp_val</span><span class="p">)</span><span class="o">/</span><span class="n">exp_val</span><span class="p">)</span> <span class="o">**</span> <span class="mf">2.</span></div>
+
+
+<div class="viewcode-block" id="AveNormSumOfSquaresObjective"><a class="viewcode-back" href="../../modules/objective.html#pybnf.objective.AveNormSumOfSquaresObjective">[docs]</a><span class="k">class</span> <span class="nc">AveNormSumOfSquaresObjective</span><span class="p">(</span><span class="n">SummationObjective</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Sum of squares where each point is normalized by the average value of that variable,</span>
+<span class="sd">    ((y-y&#39;)/ybar)^2</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">evaluate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sim_data</span><span class="p">,</span> <span class="n">exp_data</span><span class="p">,</span> <span class="n">show_warnings</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="c1"># Precalculate the average of each exp column to use for all points in this call.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">aves</span> <span class="o">=</span> <span class="p">{</span><span class="n">name</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">average</span><span class="p">(</span><span class="n">exp_data</span><span class="p">[</span><span class="n">name</span><span class="p">])</span> <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">exp_data</span><span class="o">.</span><span class="n">cols</span><span class="p">}</span>
+        <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">evaluate</span><span class="p">(</span><span class="n">sim_data</span><span class="p">,</span> <span class="n">exp_data</span><span class="p">,</span> <span class="n">show_warnings</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">eval_point</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sim_data</span><span class="p">,</span> <span class="n">exp_data</span><span class="p">,</span> <span class="n">sim_row</span><span class="p">,</span> <span class="n">exp_row</span><span class="p">,</span> <span class="n">col_name</span><span class="p">):</span>
+        <span class="n">sim_val</span> <span class="o">=</span> <span class="n">sim_data</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="n">sim_row</span><span class="p">,</span> <span class="n">sim_data</span><span class="o">.</span><span class="n">cols</span><span class="p">[</span><span class="n">col_name</span><span class="p">]]</span>
+        <span class="n">exp_val</span> <span class="o">=</span> <span class="n">exp_data</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="n">exp_row</span><span class="p">,</span> <span class="n">exp_data</span><span class="o">.</span><span class="n">cols</span><span class="p">[</span><span class="n">col_name</span><span class="p">]]</span>
+        <span class="k">return</span> <span class="p">((</span><span class="n">sim_val</span> <span class="o">-</span> <span class="n">exp_val</span><span class="p">)</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">aves</span><span class="p">[</span><span class="n">col_name</span><span class="p">])</span> <span class="o">**</span> <span class="mf">2.</span></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">PyBNF v0.3.1 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" >Module code</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2018, Ryan Suderman, Eshan Mitra.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.5.6.
+    </div>
+  </body>
+</html>

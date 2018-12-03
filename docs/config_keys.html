@@ -1,0 +1,1181 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Configuration Keys &#8212; PyBNF v0.3.1 documentation</title>
+    
+    <link rel="stylesheet" href="_static/sphinxdoc.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     'v0.3.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Fitting Algorithms" href="algorithms.html" />
+    <link rel="prev" title="Configuring a Fitting Job" href="config.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="algorithms.html" title="Fitting Algorithms"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="config.html" title="Configuring a Fitting Job"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">PyBNF v0.3.1 documentation</a> &#187;</li> 
+      </ul>
+    </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="index.html">
+              <img class="logo" src="_static/LogoSm.png" alt="Logo"/>
+            </a></p>
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Configuration Keys</a><ul>
+<li><a class="reference internal" href="#required-keys">Required Keys</a></li>
+<li><a class="reference internal" href="#other-path-keys">Other Path Keys</a></li>
+<li><a class="reference internal" href="#parameter-and-model-specification">Parameter and Model Specification</a></li>
+<li><a class="reference internal" href="#simulation-actions">Simulation Actions</a></li>
+<li><a class="reference internal" href="#parallel-computing">Parallel Computing</a></li>
+<li><a class="reference internal" href="#general-options">General Options</a><ul>
+<li><a class="reference internal" href="#output-options">Output Options</a></li>
+<li><a class="reference internal" href="#algorithm-options">Algorithm Options</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#algorithm-specific-options">Algorithm-specific Options</a><ul>
+<li><a class="reference internal" href="#simplex"><code class="docutils literal"><span class="pre">Simplex</span></code></a></li>
+<li><a class="reference internal" href="#differential-evolution"><code class="docutils literal"><span class="pre">Differential</span> <span class="pre">Evolution</span></code></a></li>
+<li><a class="reference internal" href="#scatter-search"><code class="docutils literal"><span class="pre">Scatter</span> <span class="pre">Search</span></code></a></li>
+<li><a class="reference internal" href="#particle-swarm"><code class="docutils literal"><span class="pre">Particle</span> <span class="pre">Swarm</span></code></a></li>
+<li><a class="reference internal" href="#bayesian-algorithms-bmc-pt-sa"><code class="docutils literal"><span class="pre">Bayesian</span> <span class="pre">Algorithms</span> <span class="pre">(bmc,</span> <span class="pre">pt,</span> <span class="pre">sa)</span></code></a><ul>
+<li><a class="reference internal" href="#for-all-bayesian-algorithms">For all Bayesian algorithms</a></li>
+<li><a class="reference internal" href="#for-all-bayesian-algorithms-except-sa">For all Bayesian algorithms except <code class="docutils literal"><span class="pre">sa</span></code></a></li>
+<li><a class="reference internal" href="#for-simulated-annealing">For Simulated Annealing</a></li>
+<li><a class="reference internal" href="#for-parallel-tempering">For Parallel Tempering</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="config.html"
+                        title="previous chapter">Configuring a Fitting Job</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="algorithms.html"
+                        title="next chapter">Fitting Algorithms</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/config_keys.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="configuration-keys">
+<span id="config-keys"></span><h1>Configuration Keys<a class="headerlink" href="#configuration-keys" title="Permalink to this headline">¶</a></h1>
+<p>The following sections give all possible configuration keys that may be used in your .conf file to configure your
+fitting run.  Each line of the .conf file sets the value of a configuration key with the general syntax:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">key</span> <span class="o">=</span> <span class="n">value</span>
+</pre></div>
+</div>
+<div class="section" id="required-keys">
+<h2>Required Keys<a class="headerlink" href="#required-keys" title="Permalink to this headline">¶</a></h2>
+<dl class="docutils">
+<dt><strong>model</strong></dt>
+<dd><p class="first">Specifies the mapping between model files (.bngl or .xml) and data files (.exp or .con). Model paths and files are
+followed by a &#8216;:&#8217; and then a comma-delimited list of experimental data files or constraint files corresponding to the
+model files. If no experimental files are associated with a model write <code class="docutils literal"><span class="pre">none</span></code> instead of a file path.</p>
+<p>Examples:</p>
+<blockquote class="last">
+<div><ul class="simple">
+<li><code class="docutils literal"><span class="pre">model</span> <span class="pre">=</span> <span class="pre">path/to/model1.bngl</span> <span class="pre">:</span> <span class="pre">path/to/data1.exp</span></code></li>
+<li><code class="docutils literal"><span class="pre">model</span> <span class="pre">=</span> <span class="pre">path/to/model2.xml</span> <span class="pre">:</span> <span class="pre">path/to/data2.con,</span> <span class="pre">path/to/data2.exp</span></code></li>
+<li><code class="docutils literal"><span class="pre">model</span> <span class="pre">=</span> <span class="pre">path/to/model3.xml</span> <span class="pre">:</span> <span class="pre">none</span></code></li>
+</ul>
+</div></blockquote>
+</dd>
+<dt><strong>fit_type</strong></dt>
+<dd><p class="first">The choice of fitting algorithm. Options:</p>
+<blockquote>
+<div><ul class="simple">
+<li><code class="docutils literal"><span class="pre">de</span></code> - <a class="reference internal" href="algorithms.html#alg-de"><span class="std std-ref">Differential Evolution</span></a></li>
+<li><code class="docutils literal"><span class="pre">ade</span></code> - <a class="reference internal" href="algorithms.html#alg-de"><span class="std std-ref">Asynchronous Differential Evolution</span></a></li>
+<li><code class="docutils literal"><span class="pre">ss</span></code> - <a class="reference internal" href="algorithms.html#alg-ss"><span class="std std-ref">Scatter Search</span></a></li>
+<li><code class="docutils literal"><span class="pre">pso</span></code> - <a class="reference internal" href="algorithms.html#alg-pso"><span class="std std-ref">Particle Swarm Optimization</span></a></li>
+<li><code class="docutils literal"><span class="pre">bmc</span></code> - <a class="reference internal" href="algorithms.html#alg-mcmc"><span class="std std-ref">Bayesian Markov chain Monte Carlo</span></a></li>
+<li><code class="docutils literal"><span class="pre">sim</span></code> - <a class="reference internal" href="algorithms.html#alg-sim"><span class="std std-ref">Simplex</span></a> local search</li>
+<li><code class="docutils literal"><span class="pre">sa</span></code> - <a class="reference internal" href="algorithms.html#alg-sa"><span class="std std-ref">Simulated Annealing</span></a></li>
+<li><code class="docutils literal"><span class="pre">pt</span></code> - <a class="reference internal" href="algorithms.html#alg-pt"><span class="std std-ref">Parallel tempering</span></a></li>
+</ul>
+</div></blockquote>
+<p>Example:</p>
+<blockquote class="last">
+<div><ul class="simple">
+<li><code class="docutils literal"><span class="pre">fit_type</span> <span class="pre">=</span> <span class="pre">de</span></code></li>
+</ul>
+</div></blockquote>
+</dd>
+<dt><strong>population_size</strong></dt>
+<dd><p class="first">The number parameter sets to maintain in a single iteration of the algorithm. See algorithm descriptions for more
+information.</p>
+<p>Example:</p>
+<blockquote class="last">
+<div><ul class="simple">
+<li><code class="docutils literal"><span class="pre">population_size</span> <span class="pre">=</span> <span class="pre">50</span></code></li>
+</ul>
+</div></blockquote>
+</dd>
+<dt><strong>max_iterations</strong></dt>
+<dd><p class="first">Maximum number of iterations</p>
+<p>Example:</p>
+<blockquote class="last">
+<div><ul class="simple">
+<li><code class="docutils literal"><span class="pre">max_iterations</span> <span class="pre">=</span> <span class="pre">200</span></code></li>
+</ul>
+</div></blockquote>
+</dd>
+</dl>
+</div>
+<div class="section" id="other-path-keys">
+<h2>Other Path Keys<a class="headerlink" href="#other-path-keys" title="Permalink to this headline">¶</a></h2>
+<dl class="docutils" id="bng-command">
+<dt><strong>bng_command</strong></dt>
+<dd><p class="first">Path to BNG2.pl, including the BNG2.pl file name. This key is required if your fitting includes any .bngl files,
+unless the BioNetGen path is specified with the BNGPATH env variable.</p>
+<p>Default: Uses the BNGPATH environmental variable</p>
+<p>Example:</p>
+<blockquote class="last">
+<div><ul class="simple">
+<li><code class="docutils literal"><span class="pre">bng_command</span> <span class="pre">=</span> <span class="pre">path/to/BNG2.pl</span></code></li>
+</ul>
+</div></blockquote>
+</dd>
+<dt><strong>output_dir</strong></dt>
+<dd><p class="first">Directory where we should save the output.</p>
+<p>Default: &#8220;bnf_out&#8221;</p>
+<p>Example:</p>
+<blockquote class="last">
+<div><ul class="simple">
+<li><code class="docutils literal"><span class="pre">output_dir</span> <span class="pre">=</span> <span class="pre">dirname</span></code></li>
+</ul>
+</div></blockquote>
+</dd>
+</dl>
+</div>
+<div class="section" id="parameter-and-model-specification">
+<h2>Parameter and Model Specification<a class="headerlink" href="#parameter-and-model-specification" title="Permalink to this headline">¶</a></h2>
+<dl class="docutils">
+<dt><strong>mutant</strong></dt>
+<dd><p class="first">Declares a model that does not have its own model file, but instead is defined based on another model with some name
+(e.g. <code class="docutils literal"><span class="pre">basemodel</span></code>). Following <code class="docutils literal"><span class="pre">basemodel</span></code> is the name of the mutant model; this name is appended to the suffixes
+of the base model. That is, if the base model has data files <code class="docutils literal"><span class="pre">data1.exp</span></code> and <code class="docutils literal"><span class="pre">data2.exp</span></code>, a corresponding mutant
+model with the name  &#8220;m1&#8221; should use the files <code class="docutils literal"><span class="pre">data1m1.exp</span></code> and <code class="docutils literal"><span class="pre">data2m1.exp</span></code>. <code class="docutils literal"><span class="pre">statement1</span></code>, <code class="docutils literal"><span class="pre">statement2</span></code>,
+etc. specify how to change <code class="docutils literal"><span class="pre">basemodel</span></code> to make the mutant model. The statements have the format
+[variable][operator][value] ; for example <code class="docutils literal"><span class="pre">a__FREE=0</span></code> or <code class="docutils literal"><span class="pre">b__FREE*2</span></code>. Supported operators are <code class="docutils literal"><span class="pre">=</span></code>, <code class="docutils literal"><span class="pre">+</span></code>, <code class="docutils literal"><span class="pre">-</span></code>,
+<code class="docutils literal"><span class="pre">*</span></code>, <code class="docutils literal"><span class="pre">/</span></code>.</p>
+<p>Default: None</p>
+<p>Example:</p>
+<blockquote class="last">
+<div><ul class="simple">
+<li><code class="docutils literal"><span class="pre">mutant</span> <span class="pre">=</span> <span class="pre">model0</span> <span class="pre">no_a</span> <span class="pre">a__FREE=0</span> <span class="pre">:</span> <span class="pre">data1no_a.exp,</span> <span class="pre">data2no_a.exp</span></code></li>
+</ul>
+</div></blockquote>
+</dd>
+<dt><strong>uniform_var</strong></dt>
+<dd><p class="first">A bounded uniformly distributed variable defined by a 3-tuple corresponding to the variable name, minimum
+value, and maximum value. If the tag <code class="docutils literal"><span class="pre">U</span></code> is added to the end, the bounds are enforced only during initialization,
+not during fitting.</p>
+<p>Examples:</p>
+<blockquote class="last">
+<div><ul class="simple">
+<li><code class="docutils literal"><span class="pre">uniform_var</span> <span class="pre">=</span> <span class="pre">k__FREE</span> <span class="pre">10</span> <span class="pre">20</span></code></li>
+<li><code class="docutils literal"><span class="pre">uniform_var</span> <span class="pre">=</span> <span class="pre">k__FREE</span> <span class="pre">10</span> <span class="pre">20</span> <span class="pre">U</span></code></li>
+</ul>
+</div></blockquote>
+</dd>
+<dt><strong>normal_var</strong></dt>
+<dd><p class="first">A normally distributed variable defined by a 3-tuple: the name, mean value, and standard deviation. The distribution
+is truncated at 0 to prevent negative values</p>
+<p>Example:</p>
+<blockquote class="last">
+<div><ul class="simple">
+<li><code class="docutils literal"><span class="pre">normal_var</span> <span class="pre">=</span> <span class="pre">d__FREE</span> <span class="pre">10</span> <span class="pre">1</span></code></li>
+</ul>
+</div></blockquote>
+</dd>
+<dt><strong>loguniform_var</strong></dt>
+<dd><p class="first">A variable distributed uniformly in logarithmic space. The value syntax is identical to the <strong>uniform_var</strong> syntax</p>
+<p>Examples:</p>
+<blockquote class="last">
+<div><ul class="simple">
+<li><code class="docutils literal"><span class="pre">loguniform_var</span> <span class="pre">=</span> <span class="pre">p__FREE</span> <span class="pre">0.001</span> <span class="pre">100</span></code></li>
+<li><code class="docutils literal"><span class="pre">loguniform_var</span> <span class="pre">=</span> <span class="pre">p__FREE</span> <span class="pre">0.001</span> <span class="pre">100</span> <span class="pre">U</span></code></li>
+</ul>
+</div></blockquote>
+</dd>
+<dt><strong>lognormal_var</strong></dt>
+<dd><p class="first">A variable normally distributed in logarithmic space.  The value syntax is a 3-tuple specifying the variable name,
+the base 10 logarithm of the mean, and the base 10 logarithm of the standard deviation</p>
+<p>Example:</p>
+<blockquote class="last">
+<div><ul class="simple">
+<li><code class="docutils literal"><span class="pre">lognormal_var</span> <span class="pre">=</span> <span class="pre">l__FREE</span> <span class="pre">1</span> <span class="pre">0.1</span></code></li>
+</ul>
+</div></blockquote>
+</dd>
+</dl>
+<p>The following two keys (<code class="docutils literal"><span class="pre">var</span></code> and <code class="docutils literal"><span class="pre">logvar</span></code>) are to be used only with the <a class="reference internal" href="algorithms.html#alg-sim"><span class="std std-ref">simplex</span></a> algorithm. Simplex should not use any of the
+other parameter specifications. If you are using another algorithm with the flag <code class="docutils literal"><span class="pre">refine</span></code>, you must set the simplex
+algorithm&#8217;s parameters with <code class="docutils literal"><span class="pre">simplex_step</span></code> or <code class="docutils literal"><span class="pre">simplex_log_step</span></code>.</p>
+<dl class="docutils">
+<dt><strong>var</strong></dt>
+<dd><p class="first">The starting point for a free parameter.  It is defined by a 3-tuple, corresponding to the variable&#8217;s name, its initial
+value and an initial step size (optional).  If not specified, the initial step size defaults to the value specified
+by the simplex-specific parameter <code class="docutils literal"><span class="pre">simplex_step</span></code> (see <a class="reference internal" href="algorithms.html#alg-sim"><span class="std std-ref">simplex</span></a>)</p>
+<p>Examples:</p>
+<blockquote class="last">
+<div><ul class="simple">
+<li><code class="docutils literal"><span class="pre">var</span> <span class="pre">=</span> <span class="pre">k__FREE</span> <span class="pre">10</span></code></li>
+<li><code class="docutils literal"><span class="pre">var</span> <span class="pre">=</span> <span class="pre">d__FREE</span> <span class="pre">2</span> <span class="pre">0.05</span></code></li>
+</ul>
+</div></blockquote>
+</dd>
+<dt><strong>logvar</strong></dt>
+<dd><p class="first">Syntax and sematics are identical to the <code class="docutils literal"><span class="pre">var</span></code> key above, but the initial value and initial step should be specified
+in base 10 logarithmic space.</p>
+<p>Example:</p>
+<blockquote class="last">
+<div><ul class="simple">
+<li><code class="docutils literal"><span class="pre">logvar</span> <span class="pre">=</span> <span class="pre">k__FREE</span> <span class="pre">-3</span> <span class="pre">1</span></code></li>
+</ul>
+</div></blockquote>
+</dd>
+</dl>
+</div>
+<div class="section" id="simulation-actions">
+<h2>Simulation Actions<a class="headerlink" href="#simulation-actions" title="Permalink to this headline">¶</a></h2>
+<p>These keys specify what simulations should be performed with the models. For SBML models, simulation actions are required. For BNGL models, the same information can be specified in the actions block of the BNGL file, so use of these keys is optional.</p>
+<dl class="docutils">
+<dt><strong>time_course</strong></dt>
+<dd><p class="first">Run a time course simulation on the model. Specify a comma-delimited list of <code class="docutils literal"><span class="pre">key:value</span></code> pairs, with the following possible keys:</p>
+<blockquote>
+<div><ul>
+<li><p class="first"><code class="docutils literal"><span class="pre">time</span></code>: The simulation time. Required.</p>
+</li>
+<li><p class="first"><code class="docutils literal"><span class="pre">suffix</span></code>: The suffix of the data file to save. You should map the model to a .exp file of the same name. Default: time_course</p>
+</li>
+<li><p class="first"><code class="docutils literal"><span class="pre">step</span></code>: The simulation time step. Default: 1</p>
+</li>
+<li><p class="first"><code class="docutils literal"><span class="pre">model</span></code>: The name of the model to run (not including the path or .bngl/.xml extension). Default: All models in the fitting run.</p>
+</li>
+<li><p class="first"><code class="docutils literal"><span class="pre">subdivisions</span></code>: Only for use with <code class="docutils literal"><span class="pre">sbml_integrator=euler</span></code>, specifies the number of internal Euler steps to perform between each output step specified by <code class="docutils literal"><span class="pre">step</span></code>. Default: 1</p>
+</li>
+<li><p class="first"><code class="docutils literal"><span class="pre">method</span></code> The simulation method to use. Default is <code class="docutils literal"><span class="pre">ode</span></code>. Options are:</p>
+<blockquote>
+<div><ul class="simple">
+<li><code class="docutils literal"><span class="pre">ode</span></code>: Numerical integration of differential equations</li>
+<li><code class="docutils literal"><span class="pre">ssa</span></code>: Stochastic simulation by Gillespie&#8217;s method</li>
+<li><code class="docutils literal"><span class="pre">pla</span></code>: Partitioned-leaping algorithm (BNGL models only)</li>
+<li><code class="docutils literal"><span class="pre">nf</span></code>: Network-free simulation with NFsim (BNGL models only)</li>
+</ul>
+</div></blockquote>
+</li>
+</ul>
+</div></blockquote>
+<p>Example:</p>
+<blockquote class="last">
+<div><ul class="simple">
+<li><code class="docutils literal"><span class="pre">time_course</span> <span class="pre">=</span> <span class="pre">time:60,</span> <span class="pre">model:model1,</span> <span class="pre">suffix:data1</span></code></li>
+</ul>
+</div></blockquote>
+</dd>
+</dl>
+<dl class="docutils">
+<dt><strong>param_scan</strong></dt>
+<dd><p class="first">Run a parameter scan on the model. Specify a comma-delimited list of <code class="docutils literal"><span class="pre">key:value</span></code> pairs, with the following possible keys:</p>
+<blockquote>
+<div><ul class="simple">
+<li><code class="docutils literal"><span class="pre">param</span></code>: Name of the parameter to scan. Required.</li>
+<li><code class="docutils literal"><span class="pre">min</span></code>: Minimum value of the parameter. Required</li>
+<li><code class="docutils literal"><span class="pre">max</span></code>: Maximum value of the parameter. Required.</li>
+<li><code class="docutils literal"><span class="pre">step</span></code>: Change in the parameter value between consecutive simulations in the scan. Required.</li>
+<li><code class="docutils literal"><span class="pre">time</span></code>: The simulation time. Required.</li>
+<li><code class="docutils literal"><span class="pre">suffix</span></code>: The suffix of the data file to save. You should map the model to a .exp file of the same name. Default: param_scan</li>
+<li><code class="docutils literal"><span class="pre">logspace</span></code>: If 1, scan the parameter in log space. Default: 0</li>
+<li><code class="docutils literal"><span class="pre">model</span></code>: The name of the model to run (not including the path or .bngl/.xml extension). Default: All models in the fitting run.</li>
+<li><code class="docutils literal"><span class="pre">subdivisions</span></code>: Only for use with <code class="docutils literal"><span class="pre">sbml_integrator=euler</span></code>, specifies the number of internal Euler steps to perform for each simulation. Default: 1000</li>
+<li><code class="docutils literal"><span class="pre">method</span></code>: The simulation method to use. Options are the same as in <code class="docutils literal"><span class="pre">time_course</span></code>. Default: ode</li>
+</ul>
+</div></blockquote>
+<p>Example:</p>
+<blockquote class="last">
+<div><ul class="simple">
+<li><code class="docutils literal"><span class="pre">param_scan</span> <span class="pre">=</span> <span class="pre">param:x,</span> <span class="pre">min:1,</span> <span class="pre">max:1000,</span> <span class="pre">step:0.5,</span> <span class="pre">logspace:1,</span> <span class="pre">time:60,</span> <span class="pre">model:model1,</span> <span class="pre">suffix:data1</span></code></li>
+</ul>
+</div></blockquote>
+</dd>
+</dl>
+</div>
+<div class="section" id="parallel-computing">
+<h2>Parallel Computing<a class="headerlink" href="#parallel-computing" title="Permalink to this headline">¶</a></h2>
+<dl class="docutils">
+<dt><strong>parallel_count</strong></dt>
+<dd><p class="first">The number of jobs to run in parallel. This may be set for both local and cluster fitting runs. For cluster runs, this number is divided by the number of available nodes (and rounded up) to determine the number of parallel jobs per node.</p>
+<p>Default: Use all available cores. On a cluster, the number of available cores per node is determined by running <code class="docutils literal"><span class="pre">multiprocessing.cpu_count()</span></code> from the scheduler node.</p>
+<p>Example:</p>
+<blockquote class="last">
+<div><ul class="simple">
+<li><code class="docutils literal"><span class="pre">parallel_count</span> <span class="pre">=</span> <span class="pre">7</span></code></li>
+</ul>
+</div></blockquote>
+</dd>
+<dt><strong>cluster_type</strong></dt>
+<dd><p class="first">Type of cluster used for running the fit. This key may be omitted, and instead specified on the command line with the
+<code class="docutils literal"><span class="pre">-t</span></code> flag. Currently supports <code class="docutils literal"><span class="pre">slurm</span></code> or <code class="docutils literal"><span class="pre">none</span></code>. Will support <code class="docutils literal"><span class="pre">torque</span></code> and <code class="docutils literal"><span class="pre">pbs</span></code> in the future.</p>
+<p>Default: None (local fitting run).</p>
+<p>Example:</p>
+<blockquote class="last">
+<div><ul class="simple">
+<li><code class="docutils literal"><span class="pre">cluster_type</span> <span class="pre">=</span> <span class="pre">slurm</span></code></li>
+</ul>
+</div></blockquote>
+</dd>
+<dt><strong>scheduler_file</strong></dt>
+<dd><p class="first">Provide a scheduler file to link PyBNF to a Dask scheduler already created outside of PyBNF. See Manual configuration with Dask for more information.
+This option may also be specified on the command line with the <code class="docutils literal"><span class="pre">-s</span></code> flag.</p>
+<p>Default: None</p>
+<p>Example:</p>
+<blockquote class="last">
+<div><ul class="simple">
+<li><code class="docutils literal"><span class="pre">scheduler_file</span> <span class="pre">=</span> <span class="pre">cluster.json</span></code></li>
+</ul>
+</div></blockquote>
+</dd>
+<dt><strong>scheduler_node</strong></dt>
+<dd><p class="first">Manually set node used for creating the distributed Client &#8211; takes a string identifying a machine on a network. If
+running on a cluster with SLURM, it is recommended to use <a class="reference internal" href="cluster.html#cluster"><span class="std std-ref">automatic configuration</span></a> with the flag
+<code class="docutils literal"><span class="pre">-t</span> <span class="pre">slurm</span></code> instead of using this key.</p>
+<p>Default: None</p>
+<p>Example:</p>
+<blockquote class="last">
+<div><ul class="simple">
+<li><code class="docutils literal"><span class="pre">scheduler_node</span> <span class="pre">=</span> <span class="pre">cn180</span></code></li>
+</ul>
+</div></blockquote>
+</dd>
+<dt><strong>worker_nodes</strong></dt>
+<dd><p class="first">Manually set nodes used for computation - takes one or more strings separated by whitespace identifying machines on a
+network. If running on a cluster with SLURM, it is recommended to use <a class="reference internal" href="cluster.html#cluster"><span class="std std-ref">automatic configuration</span></a> with
+the flag <code class="docutils literal"><span class="pre">-t</span> <span class="pre">slurm</span></code> instead of using this key.</p>
+<p>Default: None</p>
+<p>Example:</p>
+<blockquote class="last">
+<div><ul class="simple">
+<li><code class="docutils literal"><span class="pre">worker_nodes</span> <span class="pre">=</span> <span class="pre">cn102</span> <span class="pre">cn104</span> <span class="pre">cn10511</span></code></li>
+</ul>
+</div></blockquote>
+</dd>
+</dl>
+</div>
+<div class="section" id="general-options">
+<h2>General Options<a class="headerlink" href="#general-options" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="output-options">
+<h3>Output Options<a class="headerlink" href="#output-options" title="Permalink to this headline">¶</a></h3>
+<dl class="docutils">
+<dt><strong>delete_old_files</strong></dt>
+<dd><p class="first">Takes an integer for a value.  If 1, delete simulation folders immediately after they complete. If 2, delete both
+old simulation folders and old sorted_params.txt result files. If 0, do not delete any files (warning, could consume
+a large amount of disk space).</p>
+<p>Default: 1</p>
+<p>Example:</p>
+<blockquote class="last">
+<div><ul class="simple">
+<li><code class="docutils literal"><span class="pre">delete_old_files</span> <span class="pre">=</span> <span class="pre">2</span></code></li>
+</ul>
+</div></blockquote>
+</dd>
+<dt><strong>num_to_output</strong></dt>
+<dd><p class="first">The maximum number of parameter sets to output when writing the trajectory to file. The parameter sets are ordered
+by their corresponding objective function value to ensure the best fits are outputted.</p>
+<p>Default: 5000</p>
+<p>Example:</p>
+<blockquote class="last">
+<div><ul class="simple">
+<li><code class="docutils literal"><span class="pre">num_to_output</span> <span class="pre">=</span> <span class="pre">100000</span></code></li>
+</ul>
+</div></blockquote>
+</dd>
+<dt><strong>output_every</strong></dt>
+<dd><p class="first">The number of iterations in between consecutive events writing the trajectory to file.</p>
+<p>Default: 20</p>
+<p>Example:</p>
+<blockquote class="last">
+<div><ul class="simple">
+<li><code class="docutils literal"><span class="pre">output_every</span> <span class="pre">=</span> <span class="pre">1000</span></code></li>
+</ul>
+</div></blockquote>
+</dd>
+<dt><strong>save_best_data</strong></dt>
+<dd><p class="first">If 1, run an extra simulation at the end of fitting using the best-fit parameters, and save the best-fit .gdat and .scan files to the Results directory.</p>
+<p>Default: 0</p>
+<p>Example:</p>
+<blockquote class="last">
+<div><ul class="simple">
+<li><code class="docutils literal"><span class="pre">save_best_data</span> <span class="pre">=</span> <span class="pre">1</span></code></li>
+</ul>
+</div></blockquote>
+</dd>
+<dt><strong>verbosity</strong></dt>
+<dd><p class="first">An integer value that specifies the amount of information output to the terminal.</p>
+<blockquote>
+<div><ul class="simple">
+<li>0 - Quiet: User prompts and errors only</li>
+<li>1 - Normal: Warnings and concise progress updates</li>
+<li>2 - Verbose: Information and detailed progress updates</li>
+</ul>
+</div></blockquote>
+<p>Default: 1</p>
+<p>Example:</p>
+<blockquote class="last">
+<div><ul class="simple">
+<li><code class="docutils literal"><span class="pre">verbosity</span> <span class="pre">=</span> <span class="pre">0</span></code></li>
+</ul>
+</div></blockquote>
+</dd>
+</dl>
+</div>
+<div class="section" id="algorithm-options">
+<h3>Algorithm Options<a class="headerlink" href="#algorithm-options" title="Permalink to this headline">¶</a></h3>
+<dl class="docutils">
+<dt><strong>objfunc</strong></dt>
+<dd><p class="first">Which <a class="reference internal" href="algorithms.html#objective"><span class="std std-ref">objective function</span></a> to use.</p>
+<blockquote>
+<div><ul class="simple">
+<li><code class="docutils literal"><span class="pre">chi_sq</span></code> - Chi squared</li>
+<li><code class="docutils literal"><span class="pre">sos</span></code> - Sum of squares</li>
+<li><code class="docutils literal"><span class="pre">norm_sos</span></code> - Sum of squares, normalized by the value at each point,</li>
+<li><code class="docutils literal"><span class="pre">ave_norm_sos</span></code> - Sum of squares, normalized by the average value of the variable.</li>
+</ul>
+</div></blockquote>
+<p>Default: chi_sq</p>
+<p>Example:</p>
+<blockquote class="last">
+<div><ul class="simple">
+<li><code class="docutils literal"><span class="pre">objfunc</span> <span class="pre">=</span> <span class="pre">chi_sq</span></code></li>
+</ul>
+</div></blockquote>
+</dd>
+<dt><strong>bootstrap</strong></dt>
+<dd><p class="first">If assigned a positive value, estimate confidence intervals through a bootstrapping procedure.  The assigned integer is the number of bootstrap replicates to perform.</p>
+<p>Default: 0 (no bootstrapping)</p>
+<p>Example:</p>
+<blockquote class="last">
+<div><ul class="simple">
+<li><code class="docutils literal"><span class="pre">bootstrap</span> <span class="pre">=</span> <span class="pre">10</span></code></li>
+</ul>
+</div></blockquote>
+</dd>
+<dt><strong>bootstrap_max_obj</strong></dt>
+<dd><p class="first">The maximum value of a fitting run&#8217;s objective function to be considered valid in the bootstrapping procedure. If a fit ends with a larger objective value, it is discarded.</p>
+<p>Default: None</p>
+<p>Example:</p>
+<blockquote class="last">
+<div><ul class="simple">
+<li><code class="docutils literal"><span class="pre">bootstrap_max_obj</span> <span class="pre">=</span> <span class="pre">1.5</span></code></li>
+</ul>
+</div></blockquote>
+</dd>
+<dt><strong>constraint_scale</strong></dt>
+<dd><p class="first">Scale all weights in all constraint files by this multiplicative factor. For convenience only: The same thing could be achieved by editing constraint files, but this option is useful for tuning the relative contributions of quantitative and qualitative data.</p>
+<p>Default: 1 (no scaling)</p>
+<p>Example:</p>
+<blockquote class="last">
+<div><ul class="simple">
+<li><code class="docutils literal"><span class="pre">constraint_scale</span> <span class="pre">=</span> <span class="pre">1.5</span></code></li>
+</ul>
+</div></blockquote>
+</dd>
+<dt><strong>ind_var_rounding</strong></dt>
+<dd><p class="first">If 1, make sure every exp row is used by rounding it to the nearest available value of the independent variable in the simulation data. (Be careful with this! Usually, it is better to set up your simulation so that all experimental points are hit exactly)</p>
+<p>Default: 0</p>
+<p>Example:</p>
+<blockquote class="last">
+<div><ul class="simple">
+<li><code class="docutils literal"><span class="pre">ind_var_rounding</span> <span class="pre">=</span> <span class="pre">1</span></code></li>
+</ul>
+</div></blockquote>
+</dd>
+<dt><strong>initialization</strong></dt>
+<dd><p class="first">How to initialize parameters.</p>
+<blockquote>
+<div><ul class="simple">
+<li><code class="docutils literal"><span class="pre">rand</span></code> - initialize params randomly according to the distributions.</li>
+<li><code class="docutils literal"><span class="pre">lh</span></code> - For <code class="docutils literal"><span class="pre">random_var</span></code>s and <code class="docutils literal"><span class="pre">loguniform_var</span></code>s, initialize with a latin hypercube distribution, to more uniformly cover the search space.</li>
+</ul>
+</div></blockquote>
+<p>Default: lh</p>
+<p>Example:</p>
+<blockquote class="last">
+<div><ul class="simple">
+<li><code class="docutils literal"><span class="pre">initialization</span> <span class="pre">=</span> <span class="pre">rand</span></code></li>
+</ul>
+</div></blockquote>
+</dd>
+<dt><strong>local_objective_eval</strong></dt>
+<dd><p class="first">If 1, evaluate the objective function locally, instead of parallelizing this calculation on the workers. This option is automatically enabled when using the <code class="docutils literal"><span class="pre">smoothing</span></code> feature.</p>
+<p>Default: 0 (unless smoothing is enabled)</p>
+<p>Example:</p>
+<blockquote class="last">
+<div><ul class="simple">
+<li><code class="docutils literal"><span class="pre">local_objective_eval</span> <span class="pre">=</span> <span class="pre">1</span></code></li>
+</ul>
+</div></blockquote>
+</dd>
+<dt><strong>min_objective</strong></dt>
+<dd><p class="first">Stop fitting if an objective function lower than this value is reached.</p>
+<p>Default: None; always run for the maximum iterations</p>
+<p>Example:</p>
+<blockquote class="last">
+<div><ul class="simple">
+<li><code class="docutils literal"><span class="pre">min_objective</span> <span class="pre">=</span> <span class="pre">0.01</span></code></li>
+</ul>
+</div></blockquote>
+</dd>
+<dt><strong>normalization</strong></dt>
+<dd><p class="first">Indicates that simulation data must be normalized in order to compare with exp files. Specify one of the following types of normalization:</p>
+<blockquote>
+<div><ul class="simple">
+<li><code class="docutils literal"><span class="pre">init</span></code> - normalize to the initial value</li>
+<li><code class="docutils literal"><span class="pre">peak</span></code> - normalize to the maximum value</li>
+<li><code class="docutils literal"><span class="pre">zero</span></code> - normalize such that each column has a mean of 0 and a standard deviation of 1</li>
+<li><code class="docutils literal"><span class="pre">unit</span></code> - Scales data so that the range of values is between (min-init)/(max-init) and 1 (if the maximum value is 0 (i.e. max == init), then the data is scaled by the minimum value after subtracting the initial value so that the range of values is between 0 and -1).</li>
+</ul>
+</div></blockquote>
+<p>If only the type is specified, the normalization is applied to all exp files. If the type is followed by a &#8216;:&#8217; and a comma-delimited list of exp files, it applies to only those exp files. Additionally, you may enclose an exp file in parentheses, and specify which columns of that exp file get normalized, as in <code class="docutils literal"><span class="pre">(data1.exp:</span> <span class="pre">1,3-5)</span></code> or <code class="docutils literal"><span class="pre">(data1.exp:</span> <span class="pre">var1,var2)</span></code>. Multiple lines with this key can be used.</p>
+<p>Default: No normalization</p>
+<p>Examples:</p>
+<blockquote class="last">
+<div><ul class="simple">
+<li><code class="docutils literal"><span class="pre">normalization</span> <span class="pre">=</span> <span class="pre">init</span></code></li>
+<li><code class="docutils literal"><span class="pre">normalization</span> <span class="pre">=</span> <span class="pre">init:</span> <span class="pre">data1.exp,</span> <span class="pre">data2.exp</span></code></li>
+<li><code class="docutils literal"><span class="pre">normalization</span> <span class="pre">=</span> <span class="pre">init:</span> <span class="pre">(data1.exp:</span> <span class="pre">1,3-5),</span> <span class="pre">(data2.exp:</span> <span class="pre">var1,var2)</span></code></li>
+</ul>
+</div></blockquote>
+</dd>
+</dl>
+<dl class="docutils" id="postproc-key">
+<dt><strong>postprocess</strong></dt>
+<dd><p class="first">Used to specify a custom Python script for postprocessing simulation results before evaluating the objective function. Specify the path to the Python script, followed by a list of all of the simulation suffixes for which that postprocessing script should be applied. For how to set up a postprocessing script, see <a class="reference internal" href="advanced.html#postproc"><span class="std std-ref">Custom Postprocessing</span></a>.</p>
+<p>Default: No postprocessing</p>
+<p>Example:</p>
+<blockquote class="last">
+<div><ul class="simple">
+<li><code class="docutils literal"><span class="pre">postprocess</span> <span class="pre">=</span> <span class="pre">path/to/script.py</span> <span class="pre">suff1</span> <span class="pre">suff2</span></code></li>
+</ul>
+</div></blockquote>
+</dd>
+<dt><strong>refine</strong></dt>
+<dd><p class="first">If 1, after fitting is completed, refine the best fit parameter set by a local search with the simplex algorithm.</p>
+<p>Default: 0</p>
+<p>Example:</p>
+<blockquote class="last">
+<div><ul class="simple">
+<li><code class="docutils literal"><span class="pre">refine</span> <span class="pre">=</span> <span class="pre">1</span></code></li>
+</ul>
+</div></blockquote>
+</dd>
+<dt><strong>sbml_integrator</strong></dt>
+<dd><p class="first">Which integrator to use for SBML models. Options are <code class="docutils literal"><span class="pre">cvode</span></code>, <code class="docutils literal"><span class="pre">rk4</span></code>, <code class="docutils literal"><span class="pre">gillespie</span></code>, or <code class="docutils literal"><span class="pre">euler</span></code>, and are described in the <a class="reference external" href="https://sys-bio.github.io/roadrunner/python_docs/using_roadrunner.html#solvers">libroadrunner documentation</a>. If your <code class="docutils literal"><span class="pre">time_course</span></code> or <code class="docutils literal"><span class="pre">param_scan</span></code> key specifies <code class="docutils literal"><span class="pre">method:</span> <span class="pre">ssa</span></code>, then <code class="docutils literal"><span class="pre">gillespie</span></code> is used for that action, overriding this setting. <code class="docutils literal"><span class="pre">euler</span></code> requires libroadrunner v. 1.5.1 or higher, which currently must be installed explicitly via pip:</p>
+<p><strong class="command">pip uninstall libroadrunner &amp;&amp; pip install --no-cache libroadrunner==1.5.1</strong></p>
+<p>Default: cvode</p>
+<p>Example:</p>
+<blockquote class="last">
+<div><ul class="simple">
+<li><code class="docutils literal"><span class="pre">sbml_integrator</span> <span class="pre">=</span> <span class="pre">rk4</span></code></li>
+</ul>
+</div></blockquote>
+</dd>
+<dt><strong>smoothing</strong></dt>
+<dd><p class="first">Number of replicate runs to average together for each parameter set (useful for stochastic simulations).</p>
+<p>Default: 1</p>
+<p>Example:</p>
+<blockquote class="last">
+<div><ul class="simple">
+<li><code class="docutils literal"><span class="pre">smoothing</span> <span class="pre">=</span> <span class="pre">2</span></code></li>
+</ul>
+</div></blockquote>
+</dd>
+<dt><strong>wall_time_gen</strong></dt>
+<dd><p class="first">Maximum time (in seconds) to wait to generate the network for a BNGL model. Will cause the program to exit if exceeded.</p>
+<p>Default: 3600</p>
+<p>Example:</p>
+<blockquote class="last">
+<div><ul class="simple">
+<li><code class="docutils literal"><span class="pre">wall_time_gen</span> <span class="pre">=</span> <span class="pre">600</span></code></li>
+</ul>
+</div></blockquote>
+</dd>
+<dt><strong>wall_time_sim</strong></dt>
+<dd><p class="first">Maximum time (in seconds) to wait for a simulation to finish.  Exceeding this results in an infinite objective function value. Caution: For SBML models, using this option has an overhead cost, so only use it when needed.</p>
+<p>Default: 3600 for BNGL models; No limit for SMBL models</p>
+<p>Example:</p>
+<blockquote class="last">
+<div><ul class="simple">
+<li><code class="docutils literal"><span class="pre">wall_time_sim</span> <span class="pre">=</span> <span class="pre">600</span></code></li>
+</ul>
+</div></blockquote>
+</dd>
+</dl>
+</div>
+</div>
+<div class="section" id="algorithm-specific-options">
+<h2>Algorithm-specific Options<a class="headerlink" href="#algorithm-specific-options" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="simplex">
+<h3><a class="reference internal" href="algorithms.html#alg-sim"><span class="std std-ref">Simplex</span></a><a class="headerlink" href="#simplex" title="Permalink to this headline">¶</a></h3>
+<p>These settings for the <a class="reference internal" href="algorithms.html#alg-sim"><span class="std std-ref">simplex</span></a> algorithm may also be used when running other algorithms with <code class="docutils literal"><span class="pre">refine</span> <span class="pre">=</span> <span class="pre">1</span></code>.</p>
+<dl class="docutils">
+<dt><strong>simplex_step</strong></dt>
+<dd><p class="first">In initialization, we perturb each parameter by this step size. If you specify a step size for a specific variable via <code class="docutils literal"><span class="pre">var</span></code> or <code class="docutils literal"><span class="pre">logvar</span></code>, it overrides this setting.</p>
+<p>Default: 1</p>
+<p>Example:</p>
+<blockquote class="last">
+<div><ul class="simple">
+<li><code class="docutils literal"><span class="pre">simplex_step</span> <span class="pre">=</span> <span class="pre">0.5</span></code></li>
+</ul>
+</div></blockquote>
+</dd>
+<dt><strong>simplex_log_step</strong></dt>
+<dd><p class="first">Equivalent of <code class="docutils literal"><span class="pre">simplex_step</span></code>, for variables that move in log space.</p>
+<p>Default: Value of <code class="docutils literal"><span class="pre">simplex_step</span></code></p>
+<p>Example:</p>
+<blockquote class="last">
+<div><ul class="simple">
+<li><code class="docutils literal"><span class="pre">simplex_log_step</span> <span class="pre">=</span> <span class="pre">0.5</span></code></li>
+</ul>
+</div></blockquote>
+</dd>
+<dt><strong>simplex_reflection</strong></dt>
+<dd><p class="first">When we reflect a point through the centroid, what is the ratio of dilation on the other side?</p>
+<p>Default: 1.0</p>
+<p>Example:</p>
+<blockquote class="last">
+<div><ul class="simple">
+<li><code class="docutils literal"><span class="pre">simplex_reflection</span> <span class="pre">=</span> <span class="pre">0.5</span></code></li>
+</ul>
+</div></blockquote>
+</dd>
+<dt><strong>simplex_expansion</strong></dt>
+<dd><p class="first">If the reflected point was the global minimum, how far do we keep moving in that direction? (as a ratio to the initial distance to centroid)</p>
+<p>Default: 1.0</p>
+<p>Example:</p>
+<blockquote class="last">
+<div><ul class="simple">
+<li><code class="docutils literal"><span class="pre">simplex_expansion</span> <span class="pre">=</span> <span class="pre">0.5</span></code></li>
+</ul>
+</div></blockquote>
+</dd>
+<dt><strong>simplex_contraction</strong></dt>
+<dd><p class="first">If the reflected point was not an improvement, we retry at what distance from the centroid? (as a ratio of the initial distance to centroid)</p>
+<p>Default: 0.5</p>
+<p>Example:</p>
+<blockquote class="last">
+<div><ul class="simple">
+<li><code class="docutils literal"><span class="pre">simplex_contraction</span> <span class="pre">=</span> <span class="pre">0.3</span></code></li>
+</ul>
+</div></blockquote>
+</dd>
+<dt><strong>simplex_shrink</strong></dt>
+<dd><p class="first">If a whole iteration was unproductive, shrink the simplex by setting simplex point <img class="math" src="_images/math/206bda60e5dfea64b113fa9feb27fae01876df05.png" alt="s[i]"/> to <img class="math" src="_images/math/ebc171d64b1e412758cfacabf89c58e1666f17ed.png" alt="x*s[0] + (1-x)*s[i]"/>, where <em>x</em> is the value of this key and <img class="math" src="_images/math/73fde350a6b78a86f6141d43d9206c7087dcf44b.png" alt="s[0]"/> is the best point in the simplex.</p>
+<p>Default: 0.5</p>
+<p>Example:</p>
+<blockquote class="last">
+<div><ul class="simple">
+<li><code class="docutils literal"><span class="pre">simplex_shrink</span> <span class="pre">=</span> <span class="pre">0.3</span></code></li>
+</ul>
+</div></blockquote>
+</dd>
+<dt><strong>simplex_max_iterations</strong></dt>
+<dd><p class="first">If specified, overrides the <code class="docutils literal"><span class="pre">max_iterations</span></code> setting. Useful if you are using the <code class="docutils literal"><span class="pre">refine</span></code> flag and want <code class="docutils literal"><span class="pre">max_iterations</span></code> to refer to your main algorithm.</p>
+<p>Example:</p>
+<blockquote class="last">
+<div><ul class="simple">
+<li><code class="docutils literal"><span class="pre">simplex_max_iterations</span> <span class="pre">=</span> <span class="pre">20</span></code></li>
+</ul>
+</div></blockquote>
+</dd>
+<dt><strong>simplex_stop_tol</strong></dt>
+<dd><p class="first">Stop the algorithm if all parameters have converged to within this value (specifically, if all reflections in an iteration move the parameter by less than this
+value)</p>
+<p>Default: 0 (don&#8217;t use this criterion)</p>
+<dl class="last docutils">
+<dt>Example:</dt>
+<dd><ul class="first last simple">
+<li><code class="docutils literal"><span class="pre">simplex_stop_tol</span> <span class="pre">=</span> <span class="pre">0.01</span></code></li>
+</ul>
+</dd>
+</dl>
+</dd>
+</dl>
+</div>
+<div class="section" id="differential-evolution">
+<h3><a class="reference internal" href="algorithms.html#alg-de"><span class="std std-ref">Differential Evolution</span></a><a class="headerlink" href="#differential-evolution" title="Permalink to this headline">¶</a></h3>
+<p>PyBNF offers two versions of <a class="reference internal" href="algorithms.html#alg-de"><span class="std std-ref">differential evoltution</span></a>: synchronous differential evolution (<code class="docutils literal"><span class="pre">fit_type</span> <span class="pre">=</span> <span class="pre">de</span></code>) and asynchronous differential evolution (<code class="docutils literal"><span class="pre">fit_type</span> <span class="pre">=</span> <span class="pre">ade</span></code>). Both versions may be configured with the follwing keys.</p>
+<dl class="docutils">
+<dt><strong>mutation_rate</strong></dt>
+<dd><p class="first">When generating a new individual, mutate each parameter with this probability.</p>
+<p>Default: 0.5</p>
+<p>Example:</p>
+<blockquote class="last">
+<div><ul class="simple">
+<li><code class="docutils literal"><span class="pre">mutation_rate</span> <span class="pre">=</span> <span class="pre">0.7</span></code></li>
+</ul>
+</div></blockquote>
+</dd>
+<dt><strong>mutation_factor</strong></dt>
+<dd><p class="first">When mutating a parameter x, change it by mutation_factor*(PS1[x] - PS2[x]) where PS1 and PS2 are random other PSets in the population.</p>
+<p>Default: 1.0</p>
+<p>Example:</p>
+<blockquote class="last">
+<div><ul class="simple">
+<li><code class="docutils literal"><span class="pre">mutation_factor</span> <span class="pre">=</span> <span class="pre">0.7</span></code></li>
+</ul>
+</div></blockquote>
+</dd>
+<dt><strong>stop_tolerance</strong></dt>
+<dd><p class="first">Stop the run if within the current popluation, <img class="math" src="_images/math/7632b8ced8880b3673004ce41ad4aca74b28b59f.png" alt="max\_objective / min\_objective &lt; 1 + e"/>, where <em>e</em> is the value of this key. This criterion triggers when the entire population has converged to roughly the same objective function value.</p>
+<p>Default: 0.002</p>
+<p>Example:</p>
+<blockquote class="last">
+<div><ul class="simple">
+<li><code class="docutils literal"><span class="pre">stop_tolerance</span> <span class="pre">=</span> <span class="pre">0.001</span></code></li>
+</ul>
+</div></blockquote>
+</dd>
+<dt><strong>de_strategy</strong></dt>
+<dd><p class="first">Specifies how new parameter sets are chosen. The following options are available:</p>
+<blockquote>
+<div><ul class="simple">
+<li><code class="docutils literal"><span class="pre">rand1</span></code></li>
+<li><code class="docutils literal"><span class="pre">rand2</span></code></li>
+<li><code class="docutils literal"><span class="pre">best1</span></code></li>
+<li><code class="docutils literal"><span class="pre">best2</span></code></li>
+<li><code class="docutils literal"><span class="pre">all1</span></code></li>
+<li><code class="docutils literal"><span class="pre">all2</span></code></li>
+</ul>
+</div></blockquote>
+<p>The first part of the string determines which parameter set we mutate:</p>
+<blockquote>
+<div><ul class="simple">
+<li><code class="docutils literal"><span class="pre">rand</span></code> - a random one</li>
+<li><code class="docutils literal"><span class="pre">best</span></code> - the one with the lowest objective value</li>
+<li><code class="docutils literal"><span class="pre">all</span></code> - the one we are proposing to replace (so all psets are mutated once per iteration).</li>
+</ul>
+</div></blockquote>
+<p>The second part of the string specifies how we calculate the amount by which to mutate each parameter:</p>
+<blockquote>
+<div><ul class="simple">
+<li><code class="docutils literal"><span class="pre">1</span></code> - Use 1 pair of other parameter sets: <img class="math" src="_images/math/dbf8ee2e91f26d4470338dcbf2bcd828a17cc6a0.png" alt="(p_1-p_2)"/></li>
+<li><code class="docutils literal"><span class="pre">2</span></code> - Use 2 pairs of other parameter sets: <img class="math" src="_images/math/485935254ab24a40ffdd6d51898dcd07aaf39f6f.png" alt="(p1-p2 + p3-p4)"/>.</li>
+</ul>
+</div></blockquote>
+<p>Default: rand1</p>
+<p>Example:</p>
+<blockquote class="last">
+<div><ul class="simple">
+<li><code class="docutils literal"><span class="pre">de_strategy</span> <span class="pre">=</span> <span class="pre">rand2</span></code></li>
+</ul>
+</div></blockquote>
+</dd>
+</dl>
+<p>The following options are only available with <code class="docutils literal"><span class="pre">fit_type</span> <span class="pre">=</span> <span class="pre">de</span></code>, and serve to make the algorithm more asynchronous. If used, these options enable <a class="reference internal" href="algorithms.html#alg-island"><span class="std std-ref">island-based</span></a> differential evolution, which is asynchronous in that each island can independently proceed to the next iteration.</p>
+<dl class="docutils">
+<dt><strong>islands</strong></dt>
+<dd><p class="first">Number of separate populations to evolve.</p>
+<p>Default: 1</p>
+<p>Example:</p>
+<blockquote class="last">
+<div><ul class="simple">
+<li><code class="docutils literal"><span class="pre">islands</span> <span class="pre">=</span> <span class="pre">2</span></code></li>
+</ul>
+</div></blockquote>
+</dd>
+<dt><strong>migrate_every</strong></dt>
+<dd><p class="first">After this number of generations, migrate some individuals between islands.</p>
+<p>Default: 20 (but Infinity if <code class="docutils literal"><span class="pre">islands</span> <span class="pre">=</span> <span class="pre">1</span></code>)</p>
+<p>Example:</p>
+<blockquote class="last">
+<div><ul class="simple">
+<li><code class="docutils literal"><span class="pre">migrate_every</span> <span class="pre">=</span> <span class="pre">10</span></code></li>
+</ul>
+</div></blockquote>
+</dd>
+<dt><strong>num_to_migrate</strong></dt>
+<dd><p class="first">How many individuals to migrate off of each island during migration.</p>
+<p>Default: 3</p>
+<p>Example:</p>
+<blockquote class="last">
+<div><ul class="simple">
+<li><code class="docutils literal"><span class="pre">num_to_migrate</span> <span class="pre">=</span> <span class="pre">5</span></code></li>
+</ul>
+</div></blockquote>
+</dd>
+</dl>
+</div>
+<div class="section" id="scatter-search">
+<h3><a class="reference internal" href="algorithms.html#alg-ss"><span class="std std-ref">Scatter Search</span></a><a class="headerlink" href="#scatter-search" title="Permalink to this headline">¶</a></h3>
+<dl class="docutils">
+<dt><strong>init_size</strong></dt>
+<dd><p class="first">Number of parameter sets to test to generate the initial population.</p>
+<p>Default: 10 * number of parameters</p>
+<p>Example:</p>
+<blockquote class="last">
+<div><ul class="simple">
+<li><code class="docutils literal"><span class="pre">init_size</span> <span class="pre">=</span> <span class="pre">100</span></code></li>
+</ul>
+</div></blockquote>
+</dd>
+<dt><strong>local_min_limit</strong></dt>
+<dd><p class="first">If a point is stuck for this many iterations without improvement, it is assumed to be a local min and replaced with a random parameter set.</p>
+<p>Default: 5</p>
+<p>Example:</p>
+<blockquote class="last">
+<div><ul class="simple">
+<li><code class="docutils literal"><span class="pre">local_min_limit</span> <span class="pre">=</span> <span class="pre">10</span></code></li>
+</ul>
+</div></blockquote>
+</dd>
+<dt><strong>reserve_size</strong></dt>
+<dd><p class="first">Scatter Search maintains a latin-hypercube-distributed &#8220;reserve&#8221; of parameter sets. When it needs to pick a random new parameter set, it takes one from the reserve, so it&#8217;s not similar to a previous random choice. The initial size of the reserve is this value. If the reserve becomes empty, we revert to truly random pset choices.</p>
+<p>Default: Value of <code class="docutils literal"><span class="pre">max_iterations</span></code></p>
+<p>Example:</p>
+<blockquote class="last">
+<div><ul class="simple">
+<li><code class="docutils literal"><span class="pre">reserve_size</span> <span class="pre">=</span> <span class="pre">100</span></code></li>
+</ul>
+</div></blockquote>
+</dd>
+</dl>
+</div>
+<div class="section" id="particle-swarm">
+<h3><a class="reference internal" href="algorithms.html#alg-pso"><span class="std std-ref">Particle Swarm</span></a><a class="headerlink" href="#particle-swarm" title="Permalink to this headline">¶</a></h3>
+<dl class="docutils">
+<dt><strong>cognitive</strong></dt>
+<dd><p class="first">Acceleration toward a particle&#8217;s own best fit</p>
+<p>Default: 1.5</p>
+<p>Example:</p>
+<blockquote class="last">
+<div><ul class="simple">
+<li><code class="docutils literal"><span class="pre">cognitive</span> <span class="pre">=</span> <span class="pre">1.7</span></code></li>
+</ul>
+</div></blockquote>
+</dd>
+<dt><strong>social</strong></dt>
+<dd><p class="first">Acceleration toward the global best fit</p>
+<p>Default: 1.5</p>
+<p>Example:</p>
+<blockquote class="last">
+<div><ul class="simple">
+<li><code class="docutils literal"><span class="pre">social</span> <span class="pre">=</span> <span class="pre">1.7</span></code></li>
+</ul>
+</div></blockquote>
+</dd>
+<dt><strong>particle_weight</strong></dt>
+<dd><p class="first">Inertia weight of particle. A value less than 1 can be thought of as friction that contniuously decelerates the particle.</p>
+<p>Default: 0.7</p>
+<p>Example:</p>
+<blockquote class="last">
+<div><ul class="simple">
+<li><code class="docutils literal"><span class="pre">particle_weight</span> <span class="pre">=</span> <span class="pre">0.9</span></code></li>
+</ul>
+</div></blockquote>
+</dd>
+<dt><strong>v_stop</strong></dt>
+<dd><p class="first">Stop the algorithm if the speeds of all parameters in all particles are less than this value.</p>
+<p>Default: 0 (don&#8217;t use this criterion)</p>
+<p>Example:</p>
+<blockquote class="last">
+<div><ul class="simple">
+<li><code class="docutils literal"><span class="pre">v_stop</span> <span class="pre">=</span> <span class="pre">0.01</span></code></li>
+</ul>
+</div></blockquote>
+</dd>
+</dl>
+<p>A variant of particle swarm that adaptively changes the <code class="docutils literal"><span class="pre">particle_weight</span></code> over the course of the fitting run is configured with the following parameters. See the <a class="reference internal" href="algorithms.html#pso-adaptive"><span class="std std-ref">algorithm documentation</span></a> for more information.</p>
+<dl class="docutils">
+<dt><strong>particle_weight_final</strong></dt>
+<dd><p class="first">The final particle weight after the adaptive weight changing.</p>
+<p>Default: the value of <code class="docutils literal"><span class="pre">particle_weight</span></code>, effectively disabling this feature.</p>
+<p>Example:</p>
+<blockquote class="last">
+<div><ul class="simple">
+<li><code class="docutils literal"><span class="pre">particle_weight_final</span> <span class="pre">=</span> <span class="pre">0.5</span></code></li>
+</ul>
+</div></blockquote>
+</dd>
+<dt><strong>adaptive_n_max</strong></dt>
+<dd><p class="first">After this many &#8220;unproductive&#8221; iterations, we have moved halfway from the initial weight to the final weight.</p>
+<p>Default: 30</p>
+<p>Example:</p>
+<blockquote class="last">
+<div><ul class="simple">
+<li><code class="docutils literal"><span class="pre">adaptive_n_max</span> <span class="pre">=</span> <span class="pre">20</span></code></li>
+</ul>
+</div></blockquote>
+</dd>
+<dt><strong>adaptive_n_stop</strong></dt>
+<dd><p class="first">Afer this many &#8220;unproductive&#8221; iterations, stop the fitting run.</p>
+<p>Default: Inf</p>
+<p>Example:</p>
+<blockquote class="last">
+<div><ul class="simple">
+<li><code class="docutils literal"><span class="pre">adaptive_n_stop</span> <span class="pre">=</span> <span class="pre">50</span></code></li>
+</ul>
+</div></blockquote>
+</dd>
+<dt><strong>adaptive_abs_tol</strong></dt>
+<dd><p class="first">Parameter for checking if an iteration was &#8220;unproductive&#8221;</p>
+<p>Default: 0</p>
+<p>Example:</p>
+<blockquote class="last">
+<div><ul class="simple">
+<li><code class="docutils literal"><span class="pre">adaptive_abs_tol</span> <span class="pre">=</span> <span class="pre">0.01</span></code></li>
+</ul>
+</div></blockquote>
+</dd>
+<dt><strong>adaptive_rel_tol</strong></dt>
+<dd><p class="first">Parameter for checking if an iteration was &#8220;unproductive&#8221;</p>
+<p>Default: 0</p>
+<p>Example:</p>
+<blockquote class="last">
+<div><ul class="simple">
+<li><code class="docutils literal"><span class="pre">adaptive_rel_tol</span> <span class="pre">=</span> <span class="pre">0.01</span></code></li>
+</ul>
+</div></blockquote>
+</dd>
+</dl>
+</div>
+<div class="section" id="bayesian-algorithms-bmc-pt-sa">
+<h3><a class="reference internal" href="algorithms.html#alg-mcmc"><span class="std std-ref">Bayesian Algorithms (bmc, pt, sa)</span></a><a class="headerlink" href="#bayesian-algorithms-bmc-pt-sa" title="Permalink to this headline">¶</a></h3>
+<p>In the family of Bayesian algoritms with Metropolis sampling, PyBNF includes <a class="reference internal" href="algorithms.html#alg-mcmc"><span class="std std-ref">MCMC</span></a> (<code class="docutils literal"><span class="pre">fit_type</span> <span class="pre">=</span> <span class="pre">bmc</span></code>), <a class="reference internal" href="algorithms.html#alg-pt"><span class="std std-ref">Parallel Tempering</span></a> (<code class="docutils literal"><span class="pre">fit_type</span> <span class="pre">=</span> <span class="pre">pt</span></code>), and <a class="reference internal" href="algorithms.html#alg-sa"><span class="std std-ref">Simulated Annealing</span></a> (<code class="docutils literal"><span class="pre">fit_type</span> <span class="pre">=</span> <span class="pre">sa</span></code>). These algorithms have many configuration keys in common, as described below.</p>
+<div class="section" id="for-all-bayesian-algorithms">
+<h4>For all Bayesian algorithms<a class="headerlink" href="#for-all-bayesian-algorithms" title="Permalink to this headline">¶</a></h4>
+<dl class="docutils">
+<dt><strong>step_size</strong></dt>
+<dd><p class="first">When proposing a Monte Carlo step, the step in n-dimensional parameter space has this length.</p>
+<p>Default: 0.2</p>
+<p>Example:</p>
+<blockquote class="last">
+<div><ul class="simple">
+<li><code class="docutils literal"><span class="pre">step_size</span> <span class="pre">=</span> <span class="pre">0.5</span></code></li>
+</ul>
+</div></blockquote>
+</dd>
+<dt><strong>beta</strong></dt>
+<dd><p class="first">Sets the initial beta (1/temperature). A smaller beta corresponds to a more broad exploration of parameter space. If a single value is provided, that beta is used for all replicates. If multiple values are provided, an equal number of replicates uses each value.</p>
+<p>For <code class="docutils literal"><span class="pre">mcmc</span></code>, should be set to 1 (the default) to get the true probability distribution.</p>
+<p>For <code class="docutils literal"><span class="pre">pt</span></code>, should specify multiple values: the number of values should equal <code class="docutils literal"><span class="pre">population_size</span></code>/<code class="docutils literal"><span class="pre">reps_per_beta</span></code>. Or you may instead use the <code class="docutils literal"><span class="pre">beta_range</span></code> key. Only the largest beta value in the list will constribute to statistical samples, and to get the true probability distribution, this maximum value should be 1.</p>
+<p>For <code class="docutils literal"><span class="pre">sa</span></code>, should typically be set to a single, small value which will increase over the course of the fitting run.</p>
+<p>Default: 1</p>
+<p>Examples:</p>
+<blockquote class="last">
+<div><ul class="simple">
+<li><code class="docutils literal"><span class="pre">beta</span> <span class="pre">=</span> <span class="pre">0.9</span></code></li>
+<li><code class="docutils literal"><span class="pre">beta</span> <span class="pre">=</span> <span class="pre">0.7</span> <span class="pre">0.8</span> <span class="pre">0.9</span> <span class="pre">1</span></code></li>
+</ul>
+</div></blockquote>
+</dd>
+</dl>
+</div>
+<div class="section" id="for-all-bayesian-algorithms-except-sa">
+<h4>For all Bayesian algorithms except <code class="docutils literal"><span class="pre">sa</span></code><a class="headerlink" href="#for-all-bayesian-algorithms-except-sa" title="Permalink to this headline">¶</a></h4>
+<dl class="docutils">
+<dt><strong>sample_every</strong></dt>
+<dd><p class="first">Every x iterations, save the current PSet into the sampled population. Default: 100</p>
+<p>Example:</p>
+<blockquote class="last">
+<div><ul class="simple">
+<li><code class="docutils literal"><span class="pre">sample_every</span> <span class="pre">=</span> <span class="pre">20</span></code></li>
+</ul>
+</div></blockquote>
+</dd>
+<dt><strong>burn_in</strong></dt>
+<dd><p class="first">Don&#8217;t sample for this many iterations at the start, to let the system equilibrate.</p>
+<p>Default: 10000</p>
+<p>Example:</p>
+<blockquote class="last">
+<div><ul class="simple">
+<li><code class="docutils literal"><span class="pre">burn_in</span> <span class="pre">=</span> <span class="pre">1000</span></code></li>
+</ul>
+</div></blockquote>
+</dd>
+<dt><strong>output_hist_every</strong></dt>
+<dd><p class="first">Every x samples (i.e every x*sample_every iterations), save a historgram file for each parameter, and the credible interval files, based on what has been sampled so far. Regardless, we also output these files at the end of the run.</p>
+<p>Default: 100</p>
+<p>Example:</p>
+<blockquote class="last">
+<div><ul class="simple">
+<li><code class="docutils literal"><span class="pre">output_hist_every</span> <span class="pre">=</span> <span class="pre">10</span></code></li>
+</ul>
+</div></blockquote>
+</dd>
+<dt><strong>hist_bins</strong></dt>
+<dd><p class="first">Number of bins used when writing the histogram files.</p>
+<p>Default: 10</p>
+<p>Example:</p>
+<blockquote class="last">
+<div><ul class="simple">
+<li><code class="docutils literal"><span class="pre">hist_bins</span> <span class="pre">=</span> <span class="pre">20</span></code></li>
+</ul>
+</div></blockquote>
+</dd>
+<dt><strong>credible_intervals</strong></dt>
+<dd><p class="first">Specify one or more numbers here. For each n, the algorithm will save a file giving bounds for each parameter such that in n% of the samples, the parameter lies within the bounds.</p>
+<p>Default: 68 95</p>
+<p>Examples:</p>
+<blockquote class="last">
+<div><ul class="simple">
+<li><code class="docutils literal"><span class="pre">credible_intervals</span> <span class="pre">=</span> <span class="pre">95</span></code></li>
+<li><code class="docutils literal"><span class="pre">credible_intervals</span> <span class="pre">=</span> <span class="pre">20</span> <span class="pre">68</span> <span class="pre">95</span></code></li>
+</ul>
+</div></blockquote>
+</dd>
+</dl>
+</div>
+<div class="section" id="for-simulated-annealing">
+<h4>For Simulated Annealing<a class="headerlink" href="#for-simulated-annealing" title="Permalink to this headline">¶</a></h4>
+<dl class="docutils">
+<dt><strong>beta_max</strong></dt>
+<dd><p class="first">Stop the algorithm if all replicates reach this beta (1/temperature) value.</p>
+<p>Default: Infinity (don&#8217;t use this stop criterion)</p>
+<p>Example:</p>
+<blockquote class="last">
+<div><ul class="simple">
+<li><code class="docutils literal"><span class="pre">beta_max</span> <span class="pre">=</span> <span class="pre">1.5</span></code></li>
+</ul>
+</div></blockquote>
+</dd>
+<dt><strong>cooling = float</strong></dt>
+<dd><p class="first">Each time a move to a higher energy state is accepted, increase beta (1/temperature) by this value.</p>
+<p>Default: 0.01</p>
+<p>Example:</p>
+<blockquote class="last">
+<div><ul class="simple">
+<li><code class="docutils literal"><span class="pre">cooling</span> <span class="pre">=</span> <span class="pre">0.001</span></code></li>
+</ul>
+</div></blockquote>
+</dd>
+</dl>
+</div>
+<div class="section" id="for-parallel-tempering">
+<h4>For Parallel Tempering<a class="headerlink" href="#for-parallel-tempering" title="Permalink to this headline">¶</a></h4>
+<dl class="docutils">
+<dt><strong>exchange_every</strong></dt>
+<dd><p class="first">Every x iterations, perform replica exchange, swapping replicas that are adjacent in temperature with a statistically correct probability</p>
+<p>Default: 20</p>
+<p>Example:</p>
+<blockquote class="last">
+<div><ul class="simple">
+<li><code class="docutils literal"><span class="pre">exchange_every</span> <span class="pre">=</span> <span class="pre">10</span></code></li>
+</ul>
+</div></blockquote>
+</dd>
+<dt><strong>reps_per_beta</strong></dt>
+<dd><p class="first">How many identical replicas to run at each temperature. Must be a divisor of <code class="docutils literal"><span class="pre">population_size</span></code>.</p>
+<p>Default: 1</p>
+<p>Example:</p>
+<blockquote class="last">
+<div><ul class="simple">
+<li><code class="docutils literal"><span class="pre">reps_per_beta</span> <span class="pre">=</span> <span class="pre">5</span></code></li>
+</ul>
+</div></blockquote>
+</dd>
+<dt><strong>beta_range</strong></dt>
+<dd><p class="first">As an alternative to setting <code class="docutils literal"><span class="pre">beta</span></code>, the range of values of beta to use. Specify the minimum value, followed by the maximum value. The replicates will use <code class="docutils literal"><span class="pre">population_size</span></code>/<code class="docutils literal"><span class="pre">reps_per_beta</span></code> evenly spaced beta values within this range. Only the replicas at the max beta value will be sampled. For the true probability distribution, the maximum value should be 1.</p>
+<p>Default: None (betas are set with the <code class="docutils literal"><span class="pre">beta</span></code> key)</p>
+<p>Example:</p>
+<blockquote class="last">
+<div><ul class="simple">
+<li><code class="docutils literal"><span class="pre">beta_range</span> <span class="pre">=</span> <span class="pre">0.5</span> <span class="pre">1</span></code></li>
+</ul>
+</div></blockquote>
+</dd>
+</dl>
+</div>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="algorithms.html" title="Fitting Algorithms"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="config.html" title="Configuring a Fitting Job"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">PyBNF v0.3.1 documentation</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2018, Ryan Suderman, Eshan Mitra.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.5.6.
+    </div>
+  </body>
+</html>

@@ -1,0 +1,175 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>PyBNF cluster setup (pybnf.cluster) &#8212; PyBNF v0.3.1 documentation</title>
+    
+    <link rel="stylesheet" href="../_static/sphinxdoc.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     'v0.3.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="PyBNF configuration (pybnf.config)" href="config.html" />
+    <link rel="prev" title="PyBNF algorithms (pybnf.algorithms)" href="algorithms.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="config.html" title="PyBNF configuration (pybnf.config)"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="algorithms.html" title="PyBNF algorithms (pybnf.algorithms)"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">PyBNF v0.3.1 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" accesskey="U">PyBNF Module References</a> &#187;</li> 
+      </ul>
+    </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="../index.html">
+              <img class="logo" src="../_static/LogoSm.png" alt="Logo"/>
+            </a></p>
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="algorithms.html"
+                        title="previous chapter">PyBNF algorithms (<code class="docutils literal"><span class="pre">pybnf.algorithms</span></code>)</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="config.html"
+                        title="next chapter">PyBNF configuration (<code class="docutils literal"><span class="pre">pybnf.config</span></code>)</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/modules/cluster.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-pybnf.cluster">
+<span id="pybnf-cluster-setup-pybnf-cluster"></span><h1>PyBNF cluster setup (<a class="reference internal" href="#module-pybnf.cluster" title="pybnf.cluster"><code class="xref py py-mod docutils literal"><span class="pre">pybnf.cluster</span></code></a>)<a class="headerlink" href="#module-pybnf.cluster" title="Permalink to this headline">¶</a></h1>
+<p>Functions for managing dask cluster setup and teardown on distributed computing systems</p>
+<dl class="function">
+<dt id="pybnf.cluster.get_scheduler">
+<code class="descclassname">pybnf.cluster.</code><code class="descname">get_scheduler</code><span class="sig-paren">(</span><em>config</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pybnf/cluster.html#get_scheduler"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pybnf.cluster.get_scheduler" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>config</strong> (<em>pybnf.config.Configuration</em>) &#8211; PyBNF configuration</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">scheduler node, string composed of all available nodes</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="pybnf.cluster.setup_cluster">
+<code class="descclassname">pybnf.cluster.</code><code class="descname">setup_cluster</code><span class="sig-paren">(</span><em>node_string</em>, <em>out_dir</em>, <em>parallel_count=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pybnf/cluster.html#setup_cluster"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pybnf.cluster.setup_cluster" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sets up a Dask cluster using the <cite>dask-ssh</cite> convenience script</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>node_string</strong> &#8211; A string composed of a list of compute nodes</li>
+<li><strong>out_dir</strong> &#8211; A directory for</li>
+<li><strong>parallel_count</strong> &#8211; Total number of parallel threads to use over all nodes. If None, use all available threads</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<p>(the dask-ssh default)
+:return: subprocess.Popen</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pybnf.cluster.teardown_cluster">
+<code class="descclassname">pybnf.cluster.</code><code class="descname">teardown_cluster</code><span class="sig-paren">(</span><em>dsp</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pybnf/cluster.html#teardown_cluster"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pybnf.cluster.teardown_cluster" title="Permalink to this definition">¶</a></dt>
+<dd><p>Terminates the process running the <cite>dask-ssh</cite> script after completion of fitting run</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>dsp</strong> &#8211; subprocess.Popen</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="config.html" title="PyBNF configuration (pybnf.config)"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="algorithms.html" title="PyBNF algorithms (pybnf.algorithms)"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">PyBNF v0.3.1 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" >PyBNF Module References</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2018, Ryan Suderman, Eshan Mitra.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.5.6.
+    </div>
+  </body>
+</html>

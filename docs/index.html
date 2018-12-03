@@ -1,0 +1,223 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>PyBNF documentation &#8212; PyBNF v0.3.1 documentation</title>
+    
+    <link rel="stylesheet" href="_static/sphinxdoc.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     'v0.3.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Installation" href="installation.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="installation.html" title="Installation"
+             accesskey="N">next</a> |</li>
+        <li class="nav-item nav-item-0"><a href="#">PyBNF v0.3.1 documentation</a> &#187;</li> 
+      </ul>
+    </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="#">
+              <img class="logo" src="_static/LogoSm.png" alt="Logo"/>
+            </a></p>
+  <h3><a href="#">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">PyBNF documentation</a><ul>
+<li><a class="reference internal" href="#pybnf-module-reference">PyBNF Module Reference</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Next topic</h4>
+  <p class="topless"><a href="installation.html"
+                        title="next chapter">Installation</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/index.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="pybnf-documentation">
+<h1>PyBNF documentation<a class="headerlink" href="#pybnf-documentation" title="Permalink to this headline">¶</a></h1>
+<p>PyBNF is a tool for parameter fitting of dynamical systems biology models specified using the BioNetGen rule-based
+modeling language (<a class="reference external" href="http://www.bionetgen.org">BNGL</a>) or the Systems Biology Markup Language (<a class="reference external" href="http://sbml.org/Main_Page">SBML</a>). It currently runs on most Linux and macOS
+workstations as well as distributed computing systems using the SLURM queueing manager.</p>
+<div class="toctree-wrapper compound">
+<p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#operating-system">Operating System</a></li>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#python">Python</a></li>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#pybnf">PyBNF</a></li>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#installation-of-external-simulators">Installation of External Simulators</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quick Start</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="quickstart.html#verify-installation-with-simple-examples">Verify installation with simple examples</a></li>
+<li class="toctree-l2"><a class="reference internal" href="quickstart.html#set-up-your-own-fitting-job">Set up your own fitting job</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="config.html">Configuring a Fitting Job</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="config.html#the-configuration-file">The Configuration File</a></li>
+<li class="toctree-l2"><a class="reference internal" href="config.html#model-files">Model Files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="config.html#experimental-data-files">Experimental Data Files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="config.html#constraint-files">Constraint files</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="config_keys.html">Configuration Keys</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="config_keys.html#required-keys">Required Keys</a></li>
+<li class="toctree-l2"><a class="reference internal" href="config_keys.html#other-path-keys">Other Path Keys</a></li>
+<li class="toctree-l2"><a class="reference internal" href="config_keys.html#parameter-and-model-specification">Parameter and Model Specification</a></li>
+<li class="toctree-l2"><a class="reference internal" href="config_keys.html#simulation-actions">Simulation Actions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="config_keys.html#parallel-computing">Parallel Computing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="config_keys.html#general-options">General Options</a></li>
+<li class="toctree-l2"><a class="reference internal" href="config_keys.html#algorithm-specific-options">Algorithm-specific Options</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="algorithms.html">Fitting Algorithms</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="algorithms.html#summary-of-available-algorithms">Summary of Available Algorithms</a></li>
+<li class="toctree-l2"><a class="reference internal" href="algorithms.html#general-implementation-features-for-all-algorithms">General implementation features for all algorithms</a></li>
+<li class="toctree-l2"><a class="reference internal" href="algorithms.html#differential-evolution">Differential Evolution</a></li>
+<li class="toctree-l2"><a class="reference internal" href="algorithms.html#scatter-search">Scatter Search</a></li>
+<li class="toctree-l2"><a class="reference internal" href="algorithms.html#particle-swarm">Particle Swarm</a></li>
+<li class="toctree-l2"><a class="reference internal" href="algorithms.html#markov-chain-monte-carlo">Markov Chain Monte Carlo</a></li>
+<li class="toctree-l2"><a class="reference internal" href="algorithms.html#simulated-annealing">Simulated Annealing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="algorithms.html#parallel-tempering">Parallel Tempering</a></li>
+<li class="toctree-l2"><a class="reference internal" href="algorithms.html#simplex">Simplex</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="advanced.html">Advanced Features</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="advanced.html#bootstrapping">Bootstrapping</a></li>
+<li class="toctree-l2"><a class="reference internal" href="advanced.html#custom-postprocessing">Custom Postprocessing</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="algorithm_development.html">Algorithm Development</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="algorithm_development.html#implementation">Implementation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="algorithm_development.html#adding-configuration-options">Adding configuration options</a></li>
+<li class="toctree-l2"><a class="reference internal" href="algorithm_development.html#pull-requests">Pull requests</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="cluster.html">Running on a cluster</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="cluster.html#slurm">SLURM</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cluster.html#torque-pbs">TORQUE/PBS</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cluster.html#manual-configuration-with-node-names">Manual configuration with node names</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cluster.html#manual-configuration-with-dask">Manual configuration with Dask</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="examples.html">Examples</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="examples.html#list-of-examples-included-in-pybnf">List of examples included in PyBNF</a></li>
+<li class="toctree-l2"><a class="reference internal" href="examples.html#index-of-examples-by-attribute">Index of examples by attribute</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="troubleshooting.html">Troubleshooting</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="troubleshooting.html#failed-simulations">Failed simulations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="troubleshooting.html#timed-out-simulations">Timed out simulations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="troubleshooting.html#unexpected-behavior-when-generating-sbml-files-in-copasi">Unexpected behavior when generating SBML files in COPASI</a></li>
+<li class="toctree-l2"><a class="reference internal" href="troubleshooting.html#too-many-open-files">Too many open files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="troubleshooting.html#too-many-threads">Too many threads</a></li>
+<li class="toctree-l2"><a class="reference internal" href="troubleshooting.html#jobs-still-running-after-pybnf-stops">Jobs still running after PyBNF stops</a></li>
+<li class="toctree-l2"><a class="reference internal" href="troubleshooting.html#an-unknown-error-occurred">An unknown error occurred</a></li>
+<li class="toctree-l2"><a class="reference internal" href="troubleshooting.html#other-issues">Other issues</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="section" id="pybnf-module-reference">
+<h2>PyBNF Module Reference<a class="headerlink" href="#pybnf-module-reference" title="Permalink to this headline">¶</a></h2>
+<p>Detailed documentation of the PyBNF code base for advanced users</p>
+<div class="toctree-wrapper compound">
+<p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="modules/index.html">PyBNF Module References</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="modules/pybnf.html">PyBNF entry point (<code class="docutils literal"><span class="pre">pybnf.pybnf</span></code>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="modules/algorithms.html">PyBNF algorithms (<code class="docutils literal"><span class="pre">pybnf.algorithms</span></code>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="modules/cluster.html">PyBNF cluster setup (<code class="docutils literal"><span class="pre">pybnf.cluster</span></code>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="modules/config.html">PyBNF configuration (<code class="docutils literal"><span class="pre">pybnf.config</span></code>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="modules/constraint.html">PyBNF constraint specification (<code class="docutils literal"><span class="pre">pybnf.constraint</span></code>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="modules/data.html">PyBNF data container (<code class="docutils literal"><span class="pre">pybnf.data</span></code>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="modules/objective.html">PyBNF objective functions (<code class="docutils literal"><span class="pre">pybnf.objective</span></code>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="modules/parse.html">PyBNF configuration parsing (<code class="docutils literal"><span class="pre">pybnf.parse</span></code>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="modules/printing.html">PyBNF printing functions (<code class="docutils literal"><span class="pre">pybnf.printing</span></code>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="modules/pset.html">PyBNF model and parameter containers (<code class="docutils literal"><span class="pre">pybnf.pset</span></code>)</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="installation.html" title="Installation"
+             >next</a> |</li>
+        <li class="nav-item nav-item-0"><a href="#">PyBNF v0.3.1 documentation</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2018, Ryan Suderman, Eshan Mitra.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.5.6.
+    </div>
+  </body>
+</html>

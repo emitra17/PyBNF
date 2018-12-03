@@ -1,0 +1,881 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>PyBNF algorithms (pybnf.algorithms) &#8212; PyBNF v0.3.1 documentation</title>
+    
+    <link rel="stylesheet" href="../_static/sphinxdoc.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     'v0.3.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="PyBNF cluster setup (pybnf.cluster)" href="cluster.html" />
+    <link rel="prev" title="PyBNF entry point (pybnf.pybnf)" href="pybnf.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="cluster.html" title="PyBNF cluster setup (pybnf.cluster)"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="pybnf.html" title="PyBNF entry point (pybnf.pybnf)"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">PyBNF v0.3.1 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" accesskey="U">PyBNF Module References</a> &#187;</li> 
+      </ul>
+    </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="../index.html">
+              <img class="logo" src="../_static/LogoSm.png" alt="Logo"/>
+            </a></p>
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="pybnf.html"
+                        title="previous chapter">PyBNF entry point (<code class="docutils literal"><span class="pre">pybnf.pybnf</span></code>)</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="cluster.html"
+                        title="next chapter">PyBNF cluster setup (<code class="docutils literal"><span class="pre">pybnf.cluster</span></code>)</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/modules/algorithms.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-pybnf.algorithms">
+<span id="pybnf-algorithms-pybnf-algorithms"></span><span id="alg-module"></span><h1>PyBNF algorithms (<a class="reference internal" href="#module-pybnf.algorithms" title="pybnf.algorithms"><code class="xref py py-mod docutils literal"><span class="pre">pybnf.algorithms</span></code></a>)<a class="headerlink" href="#module-pybnf.algorithms" title="Permalink to this headline">¶</a></h1>
+<p>Contains the Algorithm class and subclasses as well as support classes and functions for running simulations</p>
+<dl class="class">
+<dt id="pybnf.algorithms.Algorithm">
+<em class="property">class </em><code class="descclassname">pybnf.algorithms.</code><code class="descname">Algorithm</code><span class="sig-paren">(</span><em>config</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pybnf/algorithms.html#Algorithm"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pybnf.algorithms.Algorithm" title="Permalink to this definition">¶</a></dt>
+<dd><p>A superclass containing the structures common to all metaheuristic and MCMC-based algorithms
+defined in this software suite</p>
+<dl class="method">
+<dt id="pybnf.algorithms.Algorithm.__init__">
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>config</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pybnf/algorithms.html#Algorithm.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pybnf.algorithms.Algorithm.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Instantiates an Algorithm with a Configuration object.  Also initializes a
+Trajectory instance to track the fitting progress, and performs various additional
+configuration that is consistent for all algorithms</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>config</strong> (<em>Configuration</em>) &#8211; The fitting configuration</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pybnf.algorithms.Algorithm.add_iterations">
+<code class="descname">add_iterations</code><span class="sig-paren">(</span><em>n</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pybnf/algorithms.html#Algorithm.add_iterations"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pybnf.algorithms.Algorithm.add_iterations" title="Permalink to this definition">¶</a></dt>
+<dd><p>Adds n additional iterations to the algorithm.
+May be overridden in subclasses that don&#8217;t use self.max_iterations to track the iteration count</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pybnf.algorithms.Algorithm.add_to_trajectory">
+<code class="descname">add_to_trajectory</code><span class="sig-paren">(</span><em>res</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pybnf/algorithms.html#Algorithm.add_to_trajectory"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pybnf.algorithms.Algorithm.add_to_trajectory" title="Permalink to this definition">¶</a></dt>
+<dd><p>Adds the information from a Result to the Trajectory instance</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pybnf.algorithms.Algorithm.backup">
+<code class="descname">backup</code><span class="sig-paren">(</span><em>pending_psets=()</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pybnf/algorithms.html#Algorithm.backup"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pybnf.algorithms.Algorithm.backup" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a backup of this algorithm object that can be reloaded later to resume the run</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>pending_psets</strong> &#8211; Iterable of PSets that are currently submitted as jobs, and will need to get re-submitted</td>
+</tr>
+</tbody>
+</table>
+<p>when resuming the algorithm
+:return:</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pybnf.algorithms.Algorithm.cleanup">
+<code class="descname">cleanup</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pybnf/algorithms.html#Algorithm.cleanup"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pybnf.algorithms.Algorithm.cleanup" title="Permalink to this definition">¶</a></dt>
+<dd><p>Called before the program exits due to an exception.
+:return:</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pybnf.algorithms.Algorithm.get_backup_every">
+<code class="descname">get_backup_every</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pybnf/algorithms.html#Algorithm.get_backup_every"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pybnf.algorithms.Algorithm.get_backup_every" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a number telling after how many individual simulation returns should we back up the algorithm.
+Makes a good guess, but could be overridden in a subclass</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pybnf.algorithms.Algorithm.got_result">
+<code class="descname">got_result</code><span class="sig-paren">(</span><em>res</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pybnf/algorithms.html#Algorithm.got_result"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pybnf.algorithms.Algorithm.got_result" title="Permalink to this definition">¶</a></dt>
+<dd><p>Called by the scheduler when a simulation is completed, with the pset that was run, and the resulting simulation
+data</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>res</strong> (<a class="reference internal" href="#pybnf.algorithms.Result" title="pybnf.algorithms.Result"><em>Result</em></a>) &#8211; result from the completed simulation</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">List of PSet(s) to be run next or &#8216;STOP&#8217; string.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pybnf.algorithms.Algorithm.make_job">
+<code class="descname">make_job</code><span class="sig-paren">(</span><em>params</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pybnf/algorithms.html#Algorithm.make_job"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pybnf.algorithms.Algorithm.make_job" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates a new Job using the specified params, and additional specifications that are already saved in the
+Algorithm object
+If smoothing is turned on, makes n identical Jobs and a JobGroup</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>params</strong> (<a class="reference internal" href="pset.html#pybnf.pset.PSet" title="pybnf.pset.PSet"><em>PSet</em></a>) &#8211; </td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">list of Jobs (of length equal to smoothing setting)</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pybnf.algorithms.Algorithm.output_results">
+<code class="descname">output_results</code><span class="sig-paren">(</span><em>name=''</em>, <em>no_move=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pybnf/algorithms.html#Algorithm.output_results"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pybnf.algorithms.Algorithm.output_results" title="Permalink to this definition">¶</a></dt>
+<dd><p>Tells the Trajectory to output a log file now with the current best fits.</p>
+<p>This should be called periodically by each Algorithm subclass, and is called by the Algorithm class at the end
+of the simulation.
+:return:
+:param name: Custom string to add to the saved filename. If omitted, we just use a running counter of the
+number of times we&#8217;ve outputted.
+:param no_move: If True, overrides the config setting delete_old_files=2, and does not move the result to
+overwrite sorted_params.txt
+:type name: str</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pybnf.algorithms.Algorithm.random_latin_hypercube_psets">
+<code class="descname">random_latin_hypercube_psets</code><span class="sig-paren">(</span><em>n</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pybnf/algorithms.html#Algorithm.random_latin_hypercube_psets"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pybnf.algorithms.Algorithm.random_latin_hypercube_psets" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generates n random PSets with a latin hypercube distribution
+More specifically, the uniform_var and loguniform_var variables follow the latin hypercube distribution,
+while lognorm are randomized normally.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>n</strong> &#8211; Number of psets to generate</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pybnf.algorithms.Algorithm.random_pset">
+<code class="descname">random_pset</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pybnf/algorithms.html#Algorithm.random_pset"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pybnf.algorithms.Algorithm.random_pset" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generates a random PSet based on the distributions and bounds for each parameter specified in the configuration</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pybnf.algorithms.Algorithm.reset">
+<code class="descname">reset</code><span class="sig-paren">(</span><em>bootstrap</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pybnf/algorithms.html#Algorithm.reset"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pybnf.algorithms.Algorithm.reset" title="Permalink to this definition">¶</a></dt>
+<dd><p>Resets the Algorithm, keeping loaded variables and models</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>bootstrap</strong> (<em>int</em><em> or </em><em>None</em>) &#8211; The bootstrap number (None if not bootstrapping)</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pybnf.algorithms.Algorithm.run">
+<code class="descname">run</code><span class="sig-paren">(</span><em>log_prefix</em>, <em>scheduler_node=None</em>, <em>resume=None</em>, <em>debug=False</em>, <em>reuse_client=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pybnf/algorithms.html#Algorithm.run"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pybnf.algorithms.Algorithm.run" title="Permalink to this definition">¶</a></dt>
+<dd><p>Main loop for executing the algorithm</p>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="pybnf.algorithms.Algorithm.should_pickle">
+<em class="property">static </em><code class="descname">should_pickle</code><span class="sig-paren">(</span><em>k</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pybnf/algorithms.html#Algorithm.should_pickle"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pybnf.algorithms.Algorithm.should_pickle" title="Permalink to this definition">¶</a></dt>
+<dd><p>Checks to see if key &#8216;k&#8217; should be included in pickling.  Currently allows all entries in instance dictionary
+except for &#8216;trajectory&#8217;</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>k</strong> &#8211; </td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pybnf.algorithms.Algorithm.start_run">
+<code class="descname">start_run</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pybnf/algorithms.html#Algorithm.start_run"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pybnf.algorithms.Algorithm.start_run" title="Permalink to this definition">¶</a></dt>
+<dd><p>Called by the scheduler at the start of a fitting run.
+Must return a list of PSets that the scheduler should run.</p>
+<p>Algorithm subclasses optionally may set the .name field of the PSet objects to give a meaningful unique
+identifier such as &#8216;gen0ind42&#8217;. If so, they MUST BE UNIQUE, as this determines the folder name.
+Uniqueness will not be checked elsewhere.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">list of PSets</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pybnf.algorithms.AsynchronousDifferentialEvolution">
+<em class="property">class </em><code class="descclassname">pybnf.algorithms.</code><code class="descname">AsynchronousDifferentialEvolution</code><span class="sig-paren">(</span><em>config</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pybnf/algorithms.html#AsynchronousDifferentialEvolution"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pybnf.algorithms.AsynchronousDifferentialEvolution" title="Permalink to this definition">¶</a></dt>
+<dd><p>Implements a simple asynchronous differential evolution algorithm.</p>
+<p>Contains no islands or migrations. Instead, each time a PSet finishes, proposes a new PSet at the same index using
+the standard DE formula and whatever the current population happens to be at the time.</p>
+<dl class="method">
+<dt id="pybnf.algorithms.AsynchronousDifferentialEvolution.__init__">
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>config</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pybnf/algorithms.html#AsynchronousDifferentialEvolution.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pybnf.algorithms.AsynchronousDifferentialEvolution.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initializes algorithm based on the config object.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pybnf.algorithms.AsynchronousDifferentialEvolution.got_result">
+<code class="descname">got_result</code><span class="sig-paren">(</span><em>res</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pybnf/algorithms.html#AsynchronousDifferentialEvolution.got_result"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pybnf.algorithms.AsynchronousDifferentialEvolution.got_result" title="Permalink to this definition">¶</a></dt>
+<dd><p>Called when a simulation run finishes</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>res</strong> &#8211; Result object</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pybnf.algorithms.BasicBayesMCMCAlgorithm">
+<em class="property">class </em><code class="descclassname">pybnf.algorithms.</code><code class="descname">BasicBayesMCMCAlgorithm</code><span class="sig-paren">(</span><em>config</em>, <em>sa=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pybnf/algorithms.html#BasicBayesMCMCAlgorithm"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pybnf.algorithms.BasicBayesMCMCAlgorithm" title="Permalink to this definition">¶</a></dt>
+<dd><p>Implements a Bayesian Markov chain Monte Carlo simulation.</p>
+<p>This is essentially a non-parallel algorithm, but here, we run n instances in parallel, and pool all results.
+This will give you a best fit (which is maybe not great), but more importantly, generates an extra result file
+that gives the probability distribution of each variable.
+This distribution depends on the prior, which is specified according to the variable initialization rules.</p>
+<p>With sa=True, this instead acts as a simulated annealing algorithm with n indepdendent chains.</p>
+<dl class="method">
+<dt id="pybnf.algorithms.BasicBayesMCMCAlgorithm.choose_new_pset">
+<code class="descname">choose_new_pset</code><span class="sig-paren">(</span><em>oldpset</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pybnf/algorithms.html#BasicBayesMCMCAlgorithm.choose_new_pset"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pybnf.algorithms.BasicBayesMCMCAlgorithm.choose_new_pset" title="Permalink to this definition">¶</a></dt>
+<dd><p>Helper function to perturb the old PSet, generating a new proposed PSet
+If the new PSet fails automatically because it violates box constraints, returns None.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>oldpset</strong> (<a class="reference internal" href="pset.html#pybnf.pset.PSet" title="pybnf.pset.PSet"><em>PSet</em></a>) &#8211; The PSet to be changed</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">the new PSet</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pybnf.algorithms.BasicBayesMCMCAlgorithm.cleanup">
+<code class="descname">cleanup</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pybnf/algorithms.html#BasicBayesMCMCAlgorithm.cleanup"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pybnf.algorithms.BasicBayesMCMCAlgorithm.cleanup" title="Permalink to this definition">¶</a></dt>
+<dd><p>Called when quitting due to error.
+Save the histograms in addition to the usual algorithm cleanup</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pybnf.algorithms.BasicBayesMCMCAlgorithm.got_result">
+<code class="descname">got_result</code><span class="sig-paren">(</span><em>res</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pybnf/algorithms.html#BasicBayesMCMCAlgorithm.got_result"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pybnf.algorithms.BasicBayesMCMCAlgorithm.got_result" title="Permalink to this definition">¶</a></dt>
+<dd><p>Called by the scheduler when a simulation is completed, with the pset that was run, and the resulting simulation
+data</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>res</strong> (<a class="reference internal" href="#pybnf.algorithms.Result" title="pybnf.algorithms.Result"><em>Result</em></a>) &#8211; PSet that was run in this simulation</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">List of PSet(s) to be run next.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pybnf.algorithms.BasicBayesMCMCAlgorithm.replica_exchange">
+<code class="descname">replica_exchange</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pybnf/algorithms.html#BasicBayesMCMCAlgorithm.replica_exchange"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pybnf.algorithms.BasicBayesMCMCAlgorithm.replica_exchange" title="Permalink to this definition">¶</a></dt>
+<dd><p>Performs replica exchange for parallel tempering.
+Then proposes n new parameter sets to resume all chains after the exchange.
+:return: List of n PSets to run</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pybnf.algorithms.BasicBayesMCMCAlgorithm.should_sample">
+<code class="descname">should_sample</code><span class="sig-paren">(</span><em>index</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pybnf/algorithms.html#BasicBayesMCMCAlgorithm.should_sample"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pybnf.algorithms.BasicBayesMCMCAlgorithm.should_sample" title="Permalink to this definition">¶</a></dt>
+<dd><p>Checks whether this replica index is one that gets sampled.
+For mcmc, always True. For pt, must be a replica at the max beta</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pybnf.algorithms.BasicBayesMCMCAlgorithm.start_run">
+<code class="descname">start_run</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pybnf/algorithms.html#BasicBayesMCMCAlgorithm.start_run"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pybnf.algorithms.BasicBayesMCMCAlgorithm.start_run" title="Permalink to this definition">¶</a></dt>
+<dd><p>Called by the scheduler at the start of a fitting run.
+Must return a list of PSets that the scheduler should run.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">list of PSets</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pybnf.algorithms.BasicBayesMCMCAlgorithm.try_to_choose_new_pset">
+<code class="descname">try_to_choose_new_pset</code><span class="sig-paren">(</span><em>index</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pybnf/algorithms.html#BasicBayesMCMCAlgorithm.try_to_choose_new_pset"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pybnf.algorithms.BasicBayesMCMCAlgorithm.try_to_choose_new_pset" title="Permalink to this definition">¶</a></dt>
+<dd><p>Helper function
+Advances the iteration number, and tries to choose a new parameter set for chain index i
+If that fails (e.g. due to a box constraint), keeps advancing iteration number and trying again.</p>
+<p>If it hits an iteration where it has to stop and wait (a replica exchange iteration or the end), returns None
+Otherwise returns the new PSet.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>index</strong> &#8211; </td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pybnf.algorithms.BayesianAlgorithm">
+<em class="property">class </em><code class="descclassname">pybnf.algorithms.</code><code class="descname">BayesianAlgorithm</code><span class="sig-paren">(</span><em>config</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pybnf/algorithms.html#BayesianAlgorithm"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pybnf.algorithms.BayesianAlgorithm" title="Permalink to this definition">¶</a></dt>
+<dd><p>Superclass for Bayesian MCMC algorithms</p>
+<dl class="method">
+<dt id="pybnf.algorithms.BayesianAlgorithm.cleanup">
+<code class="descname">cleanup</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pybnf/algorithms.html#BayesianAlgorithm.cleanup"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pybnf.algorithms.BayesianAlgorithm.cleanup" title="Permalink to this definition">¶</a></dt>
+<dd><p>Called when quitting due to error.
+Save the histograms in addition to the usual algorithm cleanup</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pybnf.algorithms.BayesianAlgorithm.ln_prior">
+<code class="descname">ln_prior</code><span class="sig-paren">(</span><em>pset</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pybnf/algorithms.html#BayesianAlgorithm.ln_prior"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pybnf.algorithms.BayesianAlgorithm.ln_prior" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the value of the prior distribution for the given parameter set</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>pset</strong> (<a class="reference internal" href="pset.html#pybnf.pset.PSet" title="pybnf.pset.PSet"><em>PSet</em></a>) &#8211; </td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">float value of ln times the prior distribution</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pybnf.algorithms.BayesianAlgorithm.load_priors">
+<code class="descname">load_priors</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pybnf/algorithms.html#BayesianAlgorithm.load_priors"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pybnf.algorithms.BayesianAlgorithm.load_priors" title="Permalink to this definition">¶</a></dt>
+<dd><p>Builds the data structures for the priors, based on the variables specified in the config.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pybnf.algorithms.BayesianAlgorithm.sample_pset">
+<code class="descname">sample_pset</code><span class="sig-paren">(</span><em>pset</em>, <em>ln_prob</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pybnf/algorithms.html#BayesianAlgorithm.sample_pset"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pybnf.algorithms.BayesianAlgorithm.sample_pset" title="Permalink to this definition">¶</a></dt>
+<dd><p>Adds this pset to the set of sampled psets for the final distribution.
+:param pset:
+:type pset: PSet
+:param ln_prob - The probability of this PSet to record in the samples file.
+:type ln_prob: float</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pybnf.algorithms.BayesianAlgorithm.update_histograms">
+<code class="descname">update_histograms</code><span class="sig-paren">(</span><em>file_ext</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pybnf/algorithms.html#BayesianAlgorithm.update_histograms"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pybnf.algorithms.BayesianAlgorithm.update_histograms" title="Permalink to this definition">¶</a></dt>
+<dd><p>Updates the files that contain histogram points for each variable
+:param file_ext: String to append to the save file names
+:type file_ext: str
+:return:</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pybnf.algorithms.DaskError">
+<em class="property">class </em><code class="descclassname">pybnf.algorithms.</code><code class="descname">DaskError</code><span class="sig-paren">(</span><em>error</em>, <em>tb</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pybnf/algorithms.html#DaskError"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pybnf.algorithms.DaskError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Class representing the result of a job that failed due to a raised exception</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="pybnf.algorithms.DifferentialEvolution">
+<em class="property">class </em><code class="descclassname">pybnf.algorithms.</code><code class="descname">DifferentialEvolution</code><span class="sig-paren">(</span><em>config</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pybnf/algorithms.html#DifferentialEvolution"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pybnf.algorithms.DifferentialEvolution" title="Permalink to this definition">¶</a></dt>
+<dd><p>Implements the parallelized, island-based differential evolution algorithm
+described in Penas et al 2015.</p>
+<p>In some cases, I had to make my own decisions for specifics I couldn&#8217;t find in the original paper. Namely:
+At each migration, a user-defined number of individuals are migrated from each island. For each individual, a
+random index is chosen; the same index for all islands. A random permutation is used to redistribute individuals
+with that index to different islands.</p>
+<p>Each island performs its migration individually, on the first callback when all islands are ready for that
+migration.&nbsp;It receives individuals from the migration iteration, regardless of what the current iteration is.
+This can sometimes lead to wasted effort.
+For example, suppose migration is set to occur at iteration 40, but island 1 has reached iteration 42 by the time
+all islands reach 40. Individual j on island 1 after iteration 42 gets replaced with individual j on island X
+after iteration 40. Some other island Y receives individual j on island 1 after iteration 40.</p>
+<dl class="method">
+<dt id="pybnf.algorithms.DifferentialEvolution.__init__">
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>config</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pybnf/algorithms.html#DifferentialEvolution.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pybnf.algorithms.DifferentialEvolution.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initializes algorithm based on the config object.</p>
+<p>The following config keys specify algorithm parameters. For move information, see config_documentation.txt
+population_size
+num_islands
+max_iterations
+mutation_rate
+mutation_factor
+migrate_every
+num_to_migrate</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pybnf.algorithms.DifferentialEvolution.got_result">
+<code class="descname">got_result</code><span class="sig-paren">(</span><em>res</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pybnf/algorithms.html#DifferentialEvolution.got_result"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pybnf.algorithms.DifferentialEvolution.got_result" title="Permalink to this definition">¶</a></dt>
+<dd><p>Called when a simulation run finishes</p>
+<p>This is not thread safe - the Scheduler must ensure only one process at a time enters
+this function.
+(or, I should rewrite this function to make it thread safe)</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>res</strong> &#8211; Result object</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pybnf.algorithms.Job">
+<em class="property">class </em><code class="descclassname">pybnf.algorithms.</code><code class="descname">Job</code><span class="sig-paren">(</span><em>models</em>, <em>params</em>, <em>job_id</em>, <em>output_dir</em>, <em>timeout</em>, <em>calc_future</em>, <em>norm_settings</em>, <em>postproc_settings</em>, <em>delete_folder=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pybnf/algorithms.html#Job"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pybnf.algorithms.Job" title="Permalink to this definition">¶</a></dt>
+<dd><p>Container for information necessary to perform a single evaluation in the fitting algorithm</p>
+<dl class="method">
+<dt id="pybnf.algorithms.Job.__init__">
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>models</em>, <em>params</em>, <em>job_id</em>, <em>output_dir</em>, <em>timeout</em>, <em>calc_future</em>, <em>norm_settings</em>, <em>postproc_settings</em>, <em>delete_folder=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pybnf/algorithms.html#Job.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pybnf.algorithms.Job.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Instantiates a Job</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>models</strong> (<em>list of Model instances</em>) &#8211; The models to evaluate</li>
+<li><strong>params</strong> (<a class="reference internal" href="pset.html#pybnf.pset.PSet" title="pybnf.pset.PSet"><em>PSet</em></a>) &#8211; The parameter set with which to evaluate the model</li>
+<li><strong>job_id</strong> (<em>str</em>) &#8211; Job identification; also the folder name that the job gets saved to</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<p>:param output_dir path to the directory where I should create my simulation folder
+:type output_dir: str
+:param calc_future: Future for an ObjectiveCalculator containing the objective function and experimental data,
+which we can use to calculate the objective value.
+:type calc_future: Future
+:param norm_settings: Config value for &#8216;normalization&#8217;: a string representing the normalization type, a dict
+mapping exp files to normalization type, or None
+:type norm_settings: Union[str, dict, NoneType]
+:param postproc_settings: dict mapping (model, suffix) tuples to the path of a Python postprocessing file to
+run on the result.
+:param delete_folder: If True, delete the folder and files created after the simulation runs
+:type delete_folder: bool</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pybnf.algorithms.Job.run_simulation">
+<code class="descname">run_simulation</code><span class="sig-paren">(</span><em>debug=False</em>, <em>failed_logs_dir=''</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pybnf/algorithms.html#Job.run_simulation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pybnf.algorithms.Job.run_simulation" title="Permalink to this definition">¶</a></dt>
+<dd><p>Runs the simulation and reads in the result</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pybnf.algorithms.JobGroup">
+<em class="property">class </em><code class="descclassname">pybnf.algorithms.</code><code class="descname">JobGroup</code><span class="sig-paren">(</span><em>job_id</em>, <em>subjob_ids</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pybnf/algorithms.html#JobGroup"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pybnf.algorithms.JobGroup" title="Permalink to this definition">¶</a></dt>
+<dd><p>Represents a group of jobs that are identical replicates to be averaged together for smoothing</p>
+<dl class="method">
+<dt id="pybnf.algorithms.JobGroup.__init__">
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>job_id</em>, <em>subjob_ids</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pybnf/algorithms.html#JobGroup.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pybnf.algorithms.JobGroup.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>job_id</strong> &#8211; The name of the Job this group is representing</li>
+<li><strong>subjob_ids</strong> &#8211; A list of the ids of the identical replicate Jobs.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pybnf.algorithms.JobGroup.average_results">
+<code class="descname">average_results</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pybnf/algorithms.html#JobGroup.average_results"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pybnf.algorithms.JobGroup.average_results" title="Permalink to this definition">¶</a></dt>
+<dd><p>To be called after all results are in for this group.
+Averages the results and returns a new Result object containing the averages</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">New Result object with the job_id of this JobGroup and the averaged Data as the simdata</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pybnf.algorithms.JobGroup.job_finished">
+<code class="descname">job_finished</code><span class="sig-paren">(</span><em>res</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pybnf/algorithms.html#JobGroup.job_finished"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pybnf.algorithms.JobGroup.job_finished" title="Permalink to this definition">¶</a></dt>
+<dd><p>Called when one job in this group has finished
+:param res: Result object for the completed job
+:return: Boolean, whether everything in this job group has finished</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pybnf.algorithms.ParticleSwarm">
+<em class="property">class </em><code class="descclassname">pybnf.algorithms.</code><code class="descname">ParticleSwarm</code><span class="sig-paren">(</span><em>config</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pybnf/algorithms.html#ParticleSwarm"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pybnf.algorithms.ParticleSwarm" title="Permalink to this definition">¶</a></dt>
+<dd><p>Implements particle swarm optimization.</p>
+<p>The implementation roughly follows Moraes et al 2015, although is reorganized to better suit PyBNF&#8217;s format.
+Note the global convergence criterion discussed in that paper is not used (would require too long a
+computation), and instead uses ????</p>
+<dl class="method">
+<dt id="pybnf.algorithms.ParticleSwarm.__init__">
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>config</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pybnf/algorithms.html#ParticleSwarm.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pybnf.algorithms.ParticleSwarm.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initial configuration of particle swarm optimizer
+:param conf_dict: The fitting configuration
+:type conf_dict: Configuration</p>
+<p>The config should contain the following definitions:</p>
+<p>population_size - Number of particles in the swarm
+max_iterations - Maximum number of iterations. More precisely, the max number of simulations run is this times
+the population size.
+cognitive - Acceleration toward the particle&#8217;s own best
+social - Acceleration toward the global best
+particle_weight - Inertia weight of the particle (default 1)</p>
+<p>The following config parameters relate to the complicated method presented is Moraes et al for adjusting the
+inertia weight as you go. These are optional, and this feature will be disabled (by setting
+particle_weight_final = particle_weight) if these are not included.
+It remains to be seen whether this method is at all useful for our applications.</p>
+<p>particle_weight_final -  Inertia weight at the end of the simulation
+adaptive_n_max - Controls how quickly we approach wf - After nmax &#8220;unproductive&#8221; iterations, we are halfway from
+w0 to wf
+adaptive_n_stop - nd the entire run if we have had this many &#8220;unproductive&#8221; iterations (should be more than
+adaptive_n_max)
+adaptive_abs_tol - Tolerance for determining if an iteration was &#8220;unproductive&#8221;. A run is unproductive if the
+change in global_best is less than absolute_tol + relative_tol * global_best
+adaptive_rel_tol - Tolerance 2 for determining if an iteration was &#8220;unproductive&#8221; (see above)</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pybnf.algorithms.ParticleSwarm.got_result">
+<code class="descname">got_result</code><span class="sig-paren">(</span><em>res</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pybnf/algorithms.html#ParticleSwarm.got_result"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pybnf.algorithms.ParticleSwarm.got_result" title="Permalink to this definition">¶</a></dt>
+<dd><p>Updates particle velocity and position after a simulation completes.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>res</strong> &#8211; Result object containing the run PSet and the resulting Data.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pybnf.algorithms.ParticleSwarm.start_run">
+<code class="descname">start_run</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pybnf/algorithms.html#ParticleSwarm.start_run"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pybnf.algorithms.ParticleSwarm.start_run" title="Permalink to this definition">¶</a></dt>
+<dd><p>Start the run by initializing n particles at random positions and velocities
+:return:</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pybnf.algorithms.Result">
+<em class="property">class </em><code class="descclassname">pybnf.algorithms.</code><code class="descname">Result</code><span class="sig-paren">(</span><em>paramset</em>, <em>simdata</em>, <em>name</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pybnf/algorithms.html#Result"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pybnf.algorithms.Result" title="Permalink to this definition">¶</a></dt>
+<dd><p>Container for the results of a single evaluation in the fitting algorithm</p>
+<dl class="method">
+<dt id="pybnf.algorithms.Result.__init__">
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>paramset</em>, <em>simdata</em>, <em>name</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pybnf/algorithms.html#Result.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pybnf.algorithms.Result.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Instantiates a Result</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>paramset</strong> (<a class="reference internal" href="pset.html#pybnf.pset.PSet" title="pybnf.pset.PSet"><em>PSet</em></a>) &#8211; The parameters corresponding to this evaluation</li>
+<li><strong>simdata</strong> &#8211; The simulation results corresponding to this evaluation, as a nested dictionary structure.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<p>Top-level keys are model names and values are dictionaries whose keys are action suffixes and values are
+Data instances
+:type simdata: dict Returns a
+:param log: The stdout + stderr of the simulations
+:type log: list of str</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pybnf.algorithms.Result.normalize">
+<code class="descname">normalize</code><span class="sig-paren">(</span><em>settings</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pybnf/algorithms.html#Result.normalize"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pybnf.algorithms.Result.normalize" title="Permalink to this definition">¶</a></dt>
+<dd><p>Normalizes the Data object in this result, according to settings
+:param settings: Config value for &#8216;normalization&#8217;: a string representing the normalization type, a dict mapping
+exp files to normalization type, or None
+:return:</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pybnf.algorithms.Result.postprocess_data">
+<code class="descname">postprocess_data</code><span class="sig-paren">(</span><em>settings</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pybnf/algorithms.html#Result.postprocess_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pybnf.algorithms.Result.postprocess_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>Postprocess the Data objects in this result with a user-defined Python script
+:param settings: A dict that maps a tuple (model, suffix) to a Python filename to load.
+That file is expected to contain the definition for the function postprocess(data),
+which takes a Data object and returns a processed data object
+:return: None</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pybnf.algorithms.ScatterSearch">
+<em class="property">class </em><code class="descclassname">pybnf.algorithms.</code><code class="descname">ScatterSearch</code><span class="sig-paren">(</span><em>config</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pybnf/algorithms.html#ScatterSearch"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pybnf.algorithms.ScatterSearch" title="Permalink to this definition">¶</a></dt>
+<dd><p>Implements ScatterSearch as described in the introduction of Penas et al 2017 (but not the fancy parallelized
+version from that paper).
+Uses the individual combination method described in Egea et al 2009</p>
+<dl class="method">
+<dt id="pybnf.algorithms.ScatterSearch.get_backup_every">
+<code class="descname">get_backup_every</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pybnf/algorithms.html#ScatterSearch.get_backup_every"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pybnf.algorithms.ScatterSearch.get_backup_every" title="Permalink to this definition">¶</a></dt>
+<dd><p>Overrides base method because Scatter Search runs n*(n-1) PSets per iteration.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pybnf.algorithms.ScatterSearch.got_result">
+<code class="descname">got_result</code><span class="sig-paren">(</span><em>res</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pybnf/algorithms.html#ScatterSearch.got_result"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pybnf.algorithms.ScatterSearch.got_result" title="Permalink to this definition">¶</a></dt>
+<dd><p>Called when a simulation run finishes</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>res</strong> &#8211; </td>
+</tr>
+</tbody>
+</table>
+<p>:type res Result
+:return:</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pybnf.algorithms.SimplexAlgorithm">
+<em class="property">class </em><code class="descclassname">pybnf.algorithms.</code><code class="descname">SimplexAlgorithm</code><span class="sig-paren">(</span><em>config</em>, <em>refine=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pybnf/algorithms.html#SimplexAlgorithm"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pybnf.algorithms.SimplexAlgorithm" title="Permalink to this definition">¶</a></dt>
+<dd><p>Implements a parallelized version of the Simplex local search algorithm, as described in Lee and Wiswall 2007,
+Computational Economics</p>
+<dl class="method">
+<dt id="pybnf.algorithms.SimplexAlgorithm.a_plus_b_times_c_minus_d">
+<code class="descname">a_plus_b_times_c_minus_d</code><span class="sig-paren">(</span><em>a</em>, <em>b</em>, <em>c</em>, <em>d</em>, <em>v</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pybnf/algorithms.html#SimplexAlgorithm.a_plus_b_times_c_minus_d"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pybnf.algorithms.SimplexAlgorithm.a_plus_b_times_c_minus_d" title="Permalink to this definition">¶</a></dt>
+<dd><p>Performs the calculation a + b*(c-d), where a, c, and d are assumed to be in log space if v is in log space,
+and the final result respects the box constraints on v.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>a</strong> &#8211; </li>
+<li><strong>b</strong> &#8211; </li>
+<li><strong>c</strong> &#8211; </li>
+<li><strong>d</strong> &#8211; </li>
+<li><strong>v</strong> (<a class="reference internal" href="pset.html#pybnf.pset.FreeParameter" title="pybnf.pset.FreeParameter"><em>FreeParameter</em></a>) &#8211; </li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"></p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pybnf.algorithms.SimplexAlgorithm.ab_plus_cd">
+<code class="descname">ab_plus_cd</code><span class="sig-paren">(</span><em>a</em>, <em>b</em>, <em>c</em>, <em>d</em>, <em>v</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pybnf/algorithms.html#SimplexAlgorithm.ab_plus_cd"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pybnf.algorithms.SimplexAlgorithm.ab_plus_cd" title="Permalink to this definition">¶</a></dt>
+<dd><p>Performs the calculation ab + cd where b and d are assumed to be in log space if v is in log space,
+and the final result respects the box constraints on v
+:param a:
+:param b:
+:param c:
+:param d:
+:param v:
+:type v: FreeParameter
+:return:</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pybnf.algorithms.SimplexAlgorithm.get_sums">
+<code class="descname">get_sums</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pybnf/algorithms.html#SimplexAlgorithm.get_sums"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pybnf.algorithms.SimplexAlgorithm.get_sums" title="Permalink to this definition">¶</a></dt>
+<dd><p>Simplex helper function
+Returns a dict mapping parameter name p to the sum of the parameter value over the entire current simplex
+:return: dict</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pybnf.algorithms.custom_as_completed">
+<em class="property">class </em><code class="descclassname">pybnf.algorithms.</code><code class="descname">custom_as_completed</code><span class="sig-paren">(</span><em>futures=None</em>, <em>loop=None</em>, <em>with_results=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pybnf/algorithms.html#custom_as_completed"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pybnf.algorithms.custom_as_completed" title="Permalink to this definition">¶</a></dt>
+<dd><p>Subclass created to modify a section of dask.distributed code
+By using this subclass instead of as_completed, if you get an exception in a job,
+that exception is returned as the result, instead of the job disappearing.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pybnf.algorithms.exp10">
+<code class="descclassname">pybnf.algorithms.</code><code class="descname">exp10</code><span class="sig-paren">(</span><em>n</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pybnf/algorithms.html#exp10"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pybnf.algorithms.exp10" title="Permalink to this definition">¶</a></dt>
+<dd><p>Raise 10 to the power of a possibly user-defined value, and raise a helpful error if it overflows
+:param n: A float
+:return: 10.** n</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pybnf.algorithms.latin_hypercube">
+<code class="descclassname">pybnf.algorithms.</code><code class="descname">latin_hypercube</code><span class="sig-paren">(</span><em>nsamples</em>, <em>ndims</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pybnf/algorithms.html#latin_hypercube"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pybnf.algorithms.latin_hypercube" title="Permalink to this definition">¶</a></dt>
+<dd><p>Latin hypercube sampling.</p>
+<p>Returns a nsamples by ndims array, with entries in the range [0,1]
+You&#8217;ll have to rescale them to your actual param ranges.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pybnf.algorithms.run_job">
+<code class="descclassname">pybnf.algorithms.</code><code class="descname">run_job</code><span class="sig-paren">(</span><em>j</em>, <em>debug=False</em>, <em>failed_logs_dir=''</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pybnf/algorithms.html#run_job"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pybnf.algorithms.run_job" title="Permalink to this definition">¶</a></dt>
+<dd><p>Runs the Job j.
+This function is passed to Dask instead of j.run_simulation because if you pass j.run_simulation, Dask leaks memory
+associated with j.</p>
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="cluster.html" title="PyBNF cluster setup (pybnf.cluster)"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="pybnf.html" title="PyBNF entry point (pybnf.pybnf)"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">PyBNF v0.3.1 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" >PyBNF Module References</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2018, Ryan Suderman, Eshan Mitra.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.5.6.
+    </div>
+  </body>
+</html>

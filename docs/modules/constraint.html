@@ -1,0 +1,235 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>PyBNF constraint specification (pybnf.constraint) &#8212; PyBNF v0.3.1 documentation</title>
+    
+    <link rel="stylesheet" href="../_static/sphinxdoc.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     'v0.3.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="PyBNF data container (pybnf.data)" href="data.html" />
+    <link rel="prev" title="PyBNF configuration (pybnf.config)" href="config.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="data.html" title="PyBNF data container (pybnf.data)"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="config.html" title="PyBNF configuration (pybnf.config)"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">PyBNF v0.3.1 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" accesskey="U">PyBNF Module References</a> &#187;</li> 
+      </ul>
+    </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="../index.html">
+              <img class="logo" src="../_static/LogoSm.png" alt="Logo"/>
+            </a></p>
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="config.html"
+                        title="previous chapter">PyBNF configuration (<code class="docutils literal"><span class="pre">pybnf.config</span></code>)</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="data.html"
+                        title="next chapter">PyBNF data container (<code class="docutils literal"><span class="pre">pybnf.data</span></code>)</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/modules/constraint.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-pybnf.constraint">
+<span id="pybnf-constraint-specification-pybnf-constraint"></span><h1>PyBNF constraint specification (<a class="reference internal" href="#module-pybnf.constraint" title="pybnf.constraint"><code class="xref py py-mod docutils literal"><span class="pre">pybnf.constraint</span></code></a>)<a class="headerlink" href="#module-pybnf.constraint" title="Permalink to this headline">¶</a></h1>
+<p>Classes for defining various constraints that can be applied to the fitting run.  Used when incorporating qualitative
+data into the fit</p>
+<dl class="class">
+<dt id="pybnf.constraint.Constraint">
+<em class="property">class </em><code class="descclassname">pybnf.constraint.</code><code class="descname">Constraint</code><span class="sig-paren">(</span><em>quant1</em>, <em>sign</em>, <em>quant2</em>, <em>base_model</em>, <em>base_suffix</em>, <em>weight</em>, <em>altpenalty=None</em>, <em>minpenalty=0.0</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pybnf/constraint.html#Constraint"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pybnf.constraint.Constraint" title="Permalink to this definition">¶</a></dt>
+<dd><p>Abstract class representing an optimization constraint with a penalty for violating the constraint</p>
+<dl class="method">
+<dt id="pybnf.constraint.Constraint.find_keys">
+<code class="descname">find_keys</code><span class="sig-paren">(</span><em>sim_data_dict</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pybnf/constraint.html#Constraint.find_keys"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pybnf.constraint.Constraint.find_keys" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function to be called on the first evaluation of the penalty.
+Read through the data dictionary and figure out what keys I need to use to access each relevant variable.</p>
+<p>This needs to be done kind of by brute force, because we were never told the model file to use, and it&#8217;s even
+possible the input is poorly defined by referring to a suffix that exists in multiple models.
+:param sim_data_dict:
+:return:</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pybnf.constraint.Constraint.get_key">
+<code class="descname">get_key</code><span class="sig-paren">(</span><em>q</em>, <em>sim_data_dict</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pybnf/constraint.html#Constraint.get_key"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pybnf.constraint.Constraint.get_key" title="Permalink to this definition">¶</a></dt>
+<dd><p>Converts a string from a constraint file (&#8216;Observable&#8217; or &#8216;suffix.observable&#8217;) into a tuple of the 3 keys you
+would need to index into the sim_data_dict to get the right column of data.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>q</strong> &#8211; </td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pybnf.constraint.Constraint.get_penalty">
+<code class="descname">get_penalty</code><span class="sig-paren">(</span><em>sim_data_dict</em>, <em>imin</em>, <em>imax</em>, <em>once=False</em>, <em>require_length=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pybnf/constraint.html#Constraint.get_penalty"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pybnf.constraint.Constraint.get_penalty" title="Permalink to this definition">¶</a></dt>
+<dd><p>Helper function for calculating the penalty, that can be called from the subclasses.
+Enforces the constraint for the entire interval unless the once option is set.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>sim_data_dict</strong> &#8211; The dictionary of data objects</li>
+<li><strong>imin</strong> &#8211; First index at which to check the constraint</li>
+<li><strong>imax</strong> &#8211; Last index at which to check the constraint (exclusive)</li>
+<li><strong>once</strong> &#8211; If true, enforce that the constraint holds once at some point during the time interval</li>
+<li><strong>require_length</strong> &#8211; If set to an integer, raise an error if the length of the selected data column(s) is not</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<p>equal to that value. (Used to check that &#8220;at&#8221; and &#8220;between&#8221; constraints are not encountering an unsupported
+case)
+:return:</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pybnf.constraint.Constraint.index">
+<code class="descname">index</code><span class="sig-paren">(</span><em>sim_data_dict</em>, <em>keys</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pybnf/constraint.html#Constraint.index"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pybnf.constraint.Constraint.index" title="Permalink to this definition">¶</a></dt>
+<dd><p>Shortcut function for applying all 3 indices to the data object
+:return:</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pybnf.constraint.Constraint.penalty">
+<code class="descname">penalty</code><span class="sig-paren">(</span><em>sim_data_dict</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pybnf/constraint.html#Constraint.penalty"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pybnf.constraint.Constraint.penalty" title="Permalink to this definition">¶</a></dt>
+<dd><p>penalty function for violating the constraint. Returns 0 if constraint is satisfied, or a positive value
+if the constraint is violated. Implementation depends on the type of constraint.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>sim_data_dict</strong> (<em>dict</em>) &#8211; Dictionary of the form {modelname: {suffix1: Data1}} containing the simulated data objects</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pybnf.constraint.ConstraintSet">
+<em class="property">class </em><code class="descclassname">pybnf.constraint.</code><code class="descname">ConstraintSet</code><span class="sig-paren">(</span><em>base_model</em>, <em>base_suffix</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pybnf/constraint.html#ConstraintSet"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pybnf.constraint.ConstraintSet" title="Permalink to this definition">¶</a></dt>
+<dd><p>Represents the set of all constraints provided in one con file</p>
+<dl class="method">
+<dt id="pybnf.constraint.ConstraintSet.load_constraint_file">
+<code class="descname">load_constraint_file</code><span class="sig-paren">(</span><em>filename</em>, <em>scale=1.0</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pybnf/constraint.html#ConstraintSet.load_constraint_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pybnf.constraint.ConstraintSet.load_constraint_file" title="Permalink to this definition">¶</a></dt>
+<dd><p>Parse the constraint file filename and load them all into my constraint list
+:param filename: Path of constraint file
+:param scale: Factor by which we multiply all constraint weights</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pybnf.constraint.ConstraintSet.total_penalty">
+<code class="descname">total_penalty</code><span class="sig-paren">(</span><em>sim_data_dict</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pybnf/constraint.html#ConstraintSet.total_penalty"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pybnf.constraint.ConstraintSet.total_penalty" title="Permalink to this definition">¶</a></dt>
+<dd><p>Evaluate the sim_data_dict against all constraints, and return the total penalty</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>sim_data_dict</strong> &#8211; Dictionary of the form {modelname: {suffix1: Data1}} containing the simulated data objects</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="data.html" title="PyBNF data container (pybnf.data)"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="config.html" title="PyBNF configuration (pybnf.config)"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">PyBNF v0.3.1 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" >PyBNF Module References</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2018, Ryan Suderman, Eshan Mitra.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.5.6.
+    </div>
+  </body>
+</html>
