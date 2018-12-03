@@ -1,0 +1,188 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Running on a cluster &#8212; PyBNF v0.3.1 documentation</title>
+    
+    <link rel="stylesheet" href="_static/sphinxdoc.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     'v0.3.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Examples" href="examples.html" />
+    <link rel="prev" title="Algorithm Development" href="algorithm_development.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="examples.html" title="Examples"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="algorithm_development.html" title="Algorithm Development"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">PyBNF v0.3.1 documentation</a> &#187;</li> 
+      </ul>
+    </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="index.html">
+              <img class="logo" src="_static/LogoSm.png" alt="Logo"/>
+            </a></p>
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Running on a cluster</a><ul>
+<li><a class="reference internal" href="#slurm">SLURM</a><ul>
+<li><a class="reference internal" href="#interactive-quickstart">Interactive (quickstart)</a></li>
+<li><a class="reference internal" href="#batch">Batch</a></li>
+<li><a class="reference internal" href="#troubleshooting-ssh-access-to-nodes">Troubleshooting: SSH access to nodes</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#torque-pbs">TORQUE/PBS</a></li>
+<li><a class="reference internal" href="#manual-configuration-with-node-names">Manual configuration with node names</a></li>
+<li><a class="reference internal" href="#manual-configuration-with-dask">Manual configuration with Dask</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="algorithm_development.html"
+                        title="previous chapter">Algorithm Development</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="examples.html"
+                        title="next chapter">Examples</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/cluster.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="running-on-a-cluster">
+<span id="cluster"></span><h1>Running on a cluster<a class="headerlink" href="#running-on-a-cluster" title="Permalink to this headline">¶</a></h1>
+<p>PyBNF is designed to run on computing clusters that utilize a shared network filesystem. PyBNF comes with built-in support for clusters running Slurm. It may also be manually configured to run on clusters with other managers (Torque, PBS, etc.).</p>
+<p>The <a class="reference external" href="http://distributed.readthedocs.io/en/latest/index.html">Dask.distributed</a> package, which is installed as a dependency of PyBNF, has a scheduler that we use for handling simulations in distributed computing environments (clusters).</p>
+<p>While users can likely install PyBNF using <code class="docutils literal"><span class="pre">pip</span></code>&#8216;s <code class="docutils literal"><span class="pre">--user</span></code> flag, assistance from the cluster administrators may be helpful</p>
+<div class="section" id="slurm">
+<h2>SLURM<a class="headerlink" href="#slurm" title="Permalink to this headline">¶</a></h2>
+<p>The user may run PyBNF interactively or as a batch job using the <code class="docutils literal"><span class="pre">salloc</span></code> or <code class="docutils literal"><span class="pre">sbatch</span></code> commands respectively.  Note that the user must have set up their Python environment prior to running PyBNF on a cluster.</p>
+<p>To tell PyBNF to use Slurm, pass &#8220;slurm&#8221; with the <code class="docutils literal"><span class="pre">-t</span></code> flag, i.e. <code class="docutils literal"><span class="pre">pybnf</span> <span class="pre">-t</span> <span class="pre">slurm</span></code>. It is also possible to instead specify the <code class="docutils literal"><span class="pre">cluster_type</span></code> key in the config file.</p>
+<div class="section" id="interactive-quickstart">
+<h3>Interactive (quickstart)<a class="headerlink" href="#interactive-quickstart" title="Permalink to this headline">¶</a></h3>
+<p>Execute the <code class="docutils literal"><span class="pre">salloc</span> <span class="pre">-Nx</span></code> command where <cite>x</cite> is an integer denoting the number of nodes the user wishes to allocate</p>
+<p>Log in to one of the nodes with the command <code class="docutils literal"><span class="pre">slogin</span></code></p>
+<p>Load appropriate Python environment</p>
+<p>Initiate a PyBNF fitting run, including the flag <code class="docutils literal"><span class="pre">-t</span> <span class="pre">slurm</span></code></p>
+</div>
+<div class="section" id="batch">
+<h3>Batch<a class="headerlink" href="#batch" title="Permalink to this headline">¶</a></h3>
+<p>Write a shell script specifying the desired nodes and their properties <a class="reference external" href="https://slurm.schedmd.com/sbatch.html">according to SLURM specifications</a>. Be sure that your script includes loading the appropriate Python environment if this step is required for your cluster, and that your call to pybnf includes the flag <code class="docutils literal"><span class="pre">-t</span> <span class="pre">slurm</span></code>. For an example shell script, see examples/tcr/tcr_batch.sh.</p>
+<p>Submit the batch job to the queueing system using the command <code class="docutils literal"><span class="pre">sbatch</span> <span class="pre">script.sh</span></code> where <code class="docutils literal"><span class="pre">script.sh</span></code> is the name of the shell script.</p>
+</div>
+<div class="section" id="troubleshooting-ssh-access-to-nodes">
+<h3>Troubleshooting: SSH access to nodes<a class="headerlink" href="#troubleshooting-ssh-access-to-nodes" title="Permalink to this headline">¶</a></h3>
+<p>The above instructions assume that PyBNF can access all allocated nodes via SSH. For some clusters, additional configuration is necessary to enable SSH access: use <code class="docutils literal"><span class="pre">ssh_keygen</span></code> (documented in many places, such as <a class="reference external" href="https://www.ssh.com/ssh/keygen/">here</a>, or <a class="reference external" href="http://tomdlt.github.io/blog/dask_distributed_joblib.html">here</a> for instructions specific to PyBNF&#8217;s Dask scheduler) to set up SSH keys.</p>
+<p>To confirm that SSH keys are set up correctly, make sure that you are able to SSH into all allocated nodes without needing to enter a password.</p>
+<p>If SSH access is not possible on your cluster, you will have to use <a class="reference internal" href="#manual-configuration-with-dask">Manual configuration with Dask</a>.</p>
+</div>
+</div>
+<div class="section" id="torque-pbs">
+<h2>TORQUE/PBS<a class="headerlink" href="#torque-pbs" title="Permalink to this headline">¶</a></h2>
+<p>Not yet implemented. Please refer to Manual configuration below</p>
+</div>
+<div class="section" id="manual-configuration-with-node-names">
+<h2>Manual configuration with node names<a class="headerlink" href="#manual-configuration-with-node-names" title="Permalink to this headline">¶</a></h2>
+<p>It is possible to run PyBNF on any cluster regardless of resource manager by simply telling PyBNF the names of the nodes it should run on.</p>
+<p>Use manager-specific commands to allocate some number of nodes for your job, and find the names of those nodes. For example, in Torque: <code class="docutils literal"><span class="pre">qsub</span> <span class="pre">-I</span> <span class="pre">&lt;options&gt;</span></code> followed by <code class="docutils literal"><span class="pre">qstat</span> <span class="pre">-u</span> <span class="pre">&lt;username&gt;</span></code>.</p>
+<p>Then set the keys <code class="docutils literal"><span class="pre">scheduler_node</span></code> and <code class="docutils literal"><span class="pre">worker_nodes</span></code> in your PyBNF config file. <code class="docutils literal"><span class="pre">scheduler_node</span></code> should be the name of one of the nodes allocated for your job, and <code class="docutils literal"><span class="pre">worker_nodes</span></code> should be the space-delimited names of all of your nodes (including the one set as <code class="docutils literal"><span class="pre">scheduler_node</span></code>).</p>
+<p>PyBNF will then run this fitting job on the specified cluster nodes.</p>
+</div>
+<div class="section" id="manual-configuration-with-dask">
+<h2>Manual configuration with Dask<a class="headerlink" href="#manual-configuration-with-dask" title="Permalink to this headline">¶</a></h2>
+<p>PyBNF uses <a class="reference external" href="http://distributed.readthedocs.io/en/latest/index.html">Dask.distributed</a> to manage cluster computing. In most cases, it is not necessary for the user to interact directly with Dask. However, if PyBNF&#8217;s automatic Dask setup is unsatisfactory, then the instructions in this section may be helpful to set up Dask manually.</p>
+<p>In the automatic PyBNF setup, the command <code class="docutils literal"><span class="pre">dask-ssh</span></code> is run on one of the available nodes (which becomes the scheduler node), with all available nodes as arguments (which become the worker nodes). <code class="docutils literal"><span class="pre">dask-ssh</span></code> is run with <code class="docutils literal"><span class="pre">--nthreads</span> <span class="pre">1</span></code> and <code class="docutils literal"><span class="pre">--nprocs</span></code> equal to the number of available cores per node. The default number of available processes per core is the value returned by <code class="docutils literal"><span class="pre">multiprocessing.cpu_count()</span></code>; this default can be overridden by specifying the <code class="docutils literal"><span class="pre">parallel_count</span></code> key equal to the total number of processes over all nodes. This entire automatic setup with <code class="docutils literal"><span class="pre">dask-ssh</span></code> can be overridden as described below. If overriding the automatic setup, it is recommended to keep <code class="docutils literal"><span class="pre">nthreads</span></code> equal to 1 for SBML models because the SBML simulator is not thread safe.</p>
+<p>To begin manual configuration, run the command <code class="docutils literal"><span class="pre">dask-scheduler</span></code> on the node you want to use as the scheduler. Pass the argument <code class="docutils literal"><span class="pre">--scheduler-file</span></code> to create a JSON-encoded text file containing connection information. For example:</p>
+<blockquote>
+<div><strong class="command">dask-schduler --scheduler-file cluster.json</strong></div></blockquote>
+<p>On each node you want to use as a worker, run the command <code class="docutils literal"><span class="pre">dask-worker</span></code>. Pass the scheduler file, and also specify the number of processes and threads per process to use on that worker. For example:</p>
+<blockquote>
+<div><strong class="command">dask-worker --scheduler-file cluster.json --nprocs 32 --nthreads 1</strong></div></blockquote>
+<p>Finally, run PyBNF, and pass PyBNF the scheduler file using the <code class="docutils literal"><span class="pre">-s</span></code> command line argument or the <code class="docutils literal"><span class="pre">scheduler_file</span></code> configuration key:</p>
+<blockquote>
+<div><strong class="command">pybnf -c fit.conf -s cluster.json</strong></div></blockquote>
+<p>For additional <code class="docutils literal"><span class="pre">dask-scheduler</span></code> and <code class="docutils literal"><span class="pre">dask-worker</span></code> options, refer to the Dask.distributed documentation.</p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="examples.html" title="Examples"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="algorithm_development.html" title="Algorithm Development"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">PyBNF v0.3.1 documentation</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2018, Ryan Suderman, Eshan Mitra.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.5.6.
+    </div>
+  </body>
+</html>

@@ -1,0 +1,308 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>PyBNF data container (pybnf.data) &#8212; PyBNF v0.3.1 documentation</title>
+    
+    <link rel="stylesheet" href="../_static/sphinxdoc.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     'v0.3.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="PyBNF objective functions (pybnf.objective)" href="objective.html" />
+    <link rel="prev" title="PyBNF constraint specification (pybnf.constraint)" href="constraint.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="objective.html" title="PyBNF objective functions (pybnf.objective)"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="constraint.html" title="PyBNF constraint specification (pybnf.constraint)"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">PyBNF v0.3.1 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" accesskey="U">PyBNF Module References</a> &#187;</li> 
+      </ul>
+    </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="../index.html">
+              <img class="logo" src="../_static/LogoSm.png" alt="Logo"/>
+            </a></p>
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="constraint.html"
+                        title="previous chapter">PyBNF constraint specification (<code class="docutils literal"><span class="pre">pybnf.constraint</span></code>)</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="objective.html"
+                        title="next chapter">PyBNF objective functions (<code class="docutils literal"><span class="pre">pybnf.objective</span></code>)</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/modules/data.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-pybnf.data">
+<span id="pybnf-data-container-pybnf-data"></span><span id="data-module"></span><h1>PyBNF data container (<a class="reference internal" href="#module-pybnf.data" title="pybnf.data"><code class="xref py py-mod docutils literal"><span class="pre">pybnf.data</span></code></a>)<a class="headerlink" href="#module-pybnf.data" title="Permalink to this headline">¶</a></h1>
+<p>Class with methods to manage experimental and simulation data</p>
+<dl class="class">
+<dt id="pybnf.data.Data">
+<em class="property">class </em><code class="descclassname">pybnf.data.</code><code class="descname">Data</code><span class="sig-paren">(</span><em>file_name=None</em>, <em>arr=None</em>, <em>named_arr=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pybnf/data.html#Data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pybnf.data.Data" title="Permalink to this definition">¶</a></dt>
+<dd><p>Top level class for managing data</p>
+<dl class="staticmethod">
+<dt id="pybnf.data.Data.average">
+<em class="property">static </em><code class="descname">average</code><span class="sig-paren">(</span><em>datas</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pybnf/data.html#Data.average"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pybnf.data.Data.average" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculates the average of several data objects.
+The input Data objects should have the same column labels and independent variable values (NOT CURRENTLY
+CHECKED)</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>datas</strong> &#8211; Iterable of Data objects of identical size to be averaged</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">Data object</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pybnf.data.Data.gen_bootstrap_weights">
+<code class="descname">gen_bootstrap_weights</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pybnf/data.html#Data.gen_bootstrap_weights"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pybnf.data.Data.gen_bootstrap_weights" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generates a integer weight for each point in the set of dependent variables.  Equivalent
+to sampling with replacement.  Weights are used when calculating the objective function
+for bootstrapped data.  Used for experimental data sets</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pybnf.data.Data.get_row">
+<code class="descname">get_row</code><span class="sig-paren">(</span><em>col_header</em>, <em>value</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pybnf/data.html#Data.get_row"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pybnf.data.Data.get_row" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the (first) data row in which field col_header is equal to value.
+This should typically be used for col_header as the independent variable.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>col_header</strong> &#8211; Data column name</td>
+</tr>
+</tbody>
+</table>
+<p>:type col_header str
+:param value:
+:type value: str
+:return: 1D numpy array consisting of the requested row</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pybnf.data.Data.load_data">
+<code class="descname">load_data</code><span class="sig-paren">(</span><em>file_name</em>, <em>sep='\\s+'</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pybnf/data.html#Data.load_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pybnf.data.Data.load_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>Loads column data from a text file</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>file_name</strong> (<em>str</em>) &#8211; Name of data file</li>
+<li><strong>sep</strong> (<em>str</em>) &#8211; String that separates columns</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">None</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pybnf.data.Data.load_rr_header">
+<code class="descname">load_rr_header</code><span class="sig-paren">(</span><em>header</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pybnf/data.html#Data.load_rr_header"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pybnf.data.Data.load_rr_header" title="Permalink to this definition">¶</a></dt>
+<dd><p>Loads the header from a RoadRunner NamedArray
+:param header: The colnames attribute of a RoadRunner NamedArray (a list of str)</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pybnf.data.Data.normalize">
+<code class="descname">normalize</code><span class="sig-paren">(</span><em>method</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pybnf/data.html#Data.normalize"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pybnf.data.Data.normalize" title="Permalink to this definition">¶</a></dt>
+<dd><p>Normalize the data according to the specified method: &#8216;init&#8217;, &#8216;peak&#8217;, &#8216;unit&#8217;, or &#8216;zero&#8217;
+The method could also be a list of ordered pairs [(&#8216;init&#8217;, [columns]), (&#8216;peak&#8217;, [columns])], where columns
+is a list of integers or column labels</p>
+<p>Updates the data array in this object, returns none.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pybnf.data.Data.normalize_to_init">
+<code class="descname">normalize_to_init</code><span class="sig-paren">(</span><em>idx=0</em>, <em>cols='all'</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pybnf/data.html#Data.normalize_to_init"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pybnf.data.Data.normalize_to_init" title="Permalink to this definition">¶</a></dt>
+<dd><p>Normalizes all data columns (except the independent variable) to the initial
+value in their respective columns</p>
+<p>Updates the data array in this object, returns none.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>idx</strong> (<em>int</em>) &#8211; Index of independent variable</li>
+<li><strong>cols</strong> &#8211; List of column indices to normalize, or &#8216;all&#8217; for all columns but independent variable</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pybnf.data.Data.normalize_to_peak">
+<code class="descname">normalize_to_peak</code><span class="sig-paren">(</span><em>idx=0</em>, <em>cols='all'</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pybnf/data.html#Data.normalize_to_peak"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pybnf.data.Data.normalize_to_peak" title="Permalink to this definition">¶</a></dt>
+<dd><p>Normalizes all data columns (except the independent variable) to the peak
+value in their respective columns</p>
+<p>Updates the data array in this object, returns none.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>idx</strong> (<em>int</em>) &#8211; Index of independent variable</li>
+<li><strong>cols</strong> &#8211; List of column indices to normalize, or &#8216;all&#8217; for all columns but independent variable</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">Normalized Numpy array (including independent variable column)</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pybnf.data.Data.normalize_to_unit_scale">
+<code class="descname">normalize_to_unit_scale</code><span class="sig-paren">(</span><em>idx=0</em>, <em>cols='all'</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pybnf/data.html#Data.normalize_to_unit_scale"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pybnf.data.Data.normalize_to_unit_scale" title="Permalink to this definition">¶</a></dt>
+<dd><p>Scales data so that the range of values is between (min-init)/(max-init) and 1.  If the maximum value is 0
+(i.e. max == init), then the data is scaled by the minimum value after subtracting the initial value
+so that the range of values is between 0 and -1</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>idx</strong> (<em>int</em>) &#8211; Index of independent variable</li>
+<li><strong>cols</strong> &#8211; List of column indices to normalize, or &#8216;all&#8217; for all columns but independent variable</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Type:</th><td class="field-body"><p class="first">list or str</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"></p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pybnf.data.Data.normalize_to_zero">
+<code class="descname">normalize_to_zero</code><span class="sig-paren">(</span><em>idx=0</em>, <em>bc=True</em>, <em>cols='all'</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pybnf/data.html#Data.normalize_to_zero"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pybnf.data.Data.normalize_to_zero" title="Permalink to this definition">¶</a></dt>
+<dd><p>Normalizes data so that each column&#8217;s mean is 0</p>
+<p>Updates the data array in this object, returns none.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>idx</strong> (<em>int</em>) &#8211; Index of independent variable</li>
+<li><strong>bc</strong> (<em>bool</em>) &#8211; If True, the standard deviation is normalized by 1/(N-1). If False, by 1/N.</li>
+<li><strong>cols</strong> &#8211; List of column indices to normalize, or &#8216;all&#8217; for all columns but independent variable</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="objective.html" title="PyBNF objective functions (pybnf.objective)"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="constraint.html" title="PyBNF constraint specification (pybnf.constraint)"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">PyBNF v0.3.1 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" >PyBNF Module References</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2018, Ryan Suderman, Eshan Mitra.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.5.6.
+    </div>
+  </body>
+</html>

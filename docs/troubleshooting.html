@@ -1,0 +1,248 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Troubleshooting &#8212; PyBNF v0.3.1 documentation</title>
+    
+    <link rel="stylesheet" href="_static/sphinxdoc.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     'v0.3.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="PyBNF Module References" href="modules/index.html" />
+    <link rel="prev" title="Examples" href="examples.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="modules/index.html" title="PyBNF Module References"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="examples.html" title="Examples"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">PyBNF v0.3.1 documentation</a> &#187;</li> 
+      </ul>
+    </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="index.html">
+              <img class="logo" src="_static/LogoSm.png" alt="Logo"/>
+            </a></p>
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Troubleshooting</a><ul>
+<li><a class="reference internal" href="#failed-simulations">Failed simulations</a><ul>
+<li><a class="reference internal" href="#check-the-simulation-logs">Check the simulation logs</a></li>
+<li><a class="reference internal" href="#for-bngl-simulations">For BNGL simulations</a><ul>
+<li><a class="reference internal" href="#confirm-that-the-bionetgen-path-is-set">Confirm that the BioNetGen path is set</a></li>
+<li><a class="reference internal" href="#confirm-that-the-model-runs-in-bionetgen">Confirm that the model runs in BioNetGen</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#for-sbml-simulations">For SBML simulations</a><ul>
+<li><a class="reference internal" href="#confirm-accuracy-of-sbml">Confirm accuracy of SBML</a></li>
+<li><a class="reference internal" href="#cvode-errors">CVODE errors</a></li>
+<li><a class="reference internal" href="#resource-not-available">Resource not available</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#timed-out-simulations">Timed out simulations</a></li>
+<li><a class="reference internal" href="#unexpected-behavior-when-generating-sbml-files-in-copasi">Unexpected behavior when generating SBML files in COPASI</a></li>
+<li><a class="reference internal" href="#too-many-open-files">Too many open files</a></li>
+<li><a class="reference internal" href="#too-many-threads">Too many threads</a></li>
+<li><a class="reference internal" href="#jobs-still-running-after-pybnf-stops">Jobs still running after PyBNF stops</a></li>
+<li><a class="reference internal" href="#an-unknown-error-occurred">An unknown error occurred</a></li>
+<li><a class="reference internal" href="#other-issues">Other issues</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="examples.html"
+                        title="previous chapter">Examples</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="modules/index.html"
+                        title="next chapter">PyBNF Module References</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/troubleshooting.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="troubleshooting">
+<h1>Troubleshooting<a class="headerlink" href="#troubleshooting" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="failed-simulations">
+<h2>Failed simulations<a class="headerlink" href="#failed-simulations" title="Permalink to this headline">¶</a></h2>
+<p>If most or all of your simulations are failing (and generate messages like &#8220;Job init0 failed&#8221;), troubleshooting is necessary at the level of the simulator (BioNetGen or libRoadRunner).</p>
+<div class="section" id="check-the-simulation-logs">
+<h3>Check the simulation logs<a class="headerlink" href="#check-the-simulation-logs" title="Permalink to this headline">¶</a></h3>
+<p>Rerun the fit with the debugging flag <code class="docutils literal"><span class="pre">-d</span></code>.  Failed simulations
+will send their logs (generally stdout and stderr) to a <code class="docutils literal"><span class="pre">FailedSimLogs</span></code> folder in the specified output directory. These logs should usually contain more information about why the simulator failed to run.</p>
+<p>If the fit was run with <code class="docutils literal"><span class="pre">delete_old_files=0</span></code> in the config file, the logs can instead be found in the appropriate folder in the <code class="docutils literal"><span class="pre">Simulations/</span></code> directory.</p>
+</div>
+<div class="section" id="for-bngl-simulations">
+<h3>For BNGL simulations<a class="headerlink" href="#for-bngl-simulations" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="confirm-that-the-bionetgen-path-is-set">
+<h4>Confirm that the BioNetGen path is set<a class="headerlink" href="#confirm-that-the-bionetgen-path-is-set" title="Permalink to this headline">¶</a></h4>
+<p>Confirm that PyBNF is looking for BioNetGen in the right place: it will use the <code class="docutils literal"><span class="pre">bng_command</span></code> specified in your config file if present, and otherwise will use your <code class="docutils literal"><span class="pre">BNGPATH</span></code> environmental variable (we recommend this second option). To check that <code class="docutils literal"><span class="pre">BNGPATH</span></code> is set correctly, run <code class="docutils literal"><span class="pre">$BNGPATH/BNG2.pl</span></code>; you should see a help message including your BioNetGen version number. If not, <a class="reference internal" href="installation.html#set-bng-path"><span class="std std-ref">try setting BNGPATH again</span></a>.</p>
+</div>
+<div class="section" id="confirm-that-the-model-runs-in-bionetgen">
+<h4>Confirm that the model runs in BioNetGen<a class="headerlink" href="#confirm-that-the-model-runs-in-bionetgen" title="Permalink to this headline">¶</a></h4>
+<p>If the simulation logs are not sufficient to diagnose the problem, you may want to check whether you can run BioNetGen on the PyBNF-generated model files by hand. Run the fit with the config key <code class="docutils literal"><span class="pre">delete_old_files=0</span></code>, and refer to the subdirectory of the <code class="docutils literal"><span class="pre">Simulations</span></code> folder corresponding to a job that failed. Try running BioNetGen on that .bngl file and check for errors; also examine the .bngl file and confirm that PyBNF did not introduce any errors to the model.</p>
+<p>If your model is not running in BioNetGen, the best place to find help is the documentation and troubleshooting for BioNetGen, at <a class="reference external" href="http://bionetgen.org">http://bionetgen.org</a></p>
+<dl class="docutils">
+<dt>Known BioNetGen issues:</dt>
+<dd><ul class="first last simple">
+<li>If you are using a Linux distribution other than Ubuntu, it may be necessary to compile BioNetGen from source rather than installing the pre-built binary. Specifically, on CentOS, the binary appears to work at first glance, but fails to parse models containing functions.</li>
+</ul>
+</dd>
+</dl>
+</div>
+</div>
+<div class="section" id="for-sbml-simulations">
+<h3>For SBML simulations<a class="headerlink" href="#for-sbml-simulations" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="confirm-accuracy-of-sbml">
+<h4>Confirm accuracy of SBML<a class="headerlink" href="#confirm-accuracy-of-sbml" title="Permalink to this headline">¶</a></h4>
+<p>If the SBML file was generated in COPASI, refer to <a class="reference internal" href="#unexpected-behavior-when-generating-sbml-files-in-copasi">Unexpected behavior when generating SBML files in COPASI</a>.</p>
+</div>
+<div class="section" id="cvode-errors">
+<h4>CVODE errors<a class="headerlink" href="#cvode-errors" title="Permalink to this headline">¶</a></h4>
+<p>For SBML models, if your logs in <code class="docutils literal"><span class="pre">FailedSimLogs/</span></code> include errors from CVODE such as &#8220;CV_ERR_FAILURE: Error test failures occurred too many times during one internal time step&#8221; or &#8220;CV_TOO_MUCH_WORK: The solver took mxstep internal steps but could not reach tout&#8221;, it means that CVODE, the ODE integrator used in libRoadRunner to simulate SBML models, decided that the model was too difficult to simulate and gave up. This might happen when the solution to the ODE system is not sufficiently smooth.</p>
+<p>Unfortunately, we do not know of a good workaround for this error.</p>
+</div>
+<div class="section" id="resource-not-available">
+<h4>Resource not available<a class="headerlink" href="#resource-not-available" title="Permalink to this headline">¶</a></h4>
+<p>We have seen this error message come up and cause all simulations to fail when some especially badly behaved SBML process is still running from a previous fitting run (see <a class="reference internal" href="#jobs-still-running-after-pybnf-stops">Jobs still running after PyBNF stops</a>). Killing all of the offending processes typically resolves this error.</p>
+</div>
+</div>
+</div>
+<div class="section" id="timed-out-simulations">
+<h2>Timed out simulations<a class="headerlink" href="#timed-out-simulations" title="Permalink to this headline">¶</a></h2>
+<p>PyBNF enforces a maximum run time for simulations, with a default value of 1 hour. If you find a large number of your simulations are timing out, increase this value using the config key <code class="docutils literal"><span class="pre">wall_time_sim</span></code>.</p>
+<p>A time limit is also enforced for network generation in BNGL models. The default value is 1 hour, and this can be modified with the <code class="docutils literal"><span class="pre">wall_time_gen</span></code> key.</p>
+</div>
+<div class="section" id="unexpected-behavior-when-generating-sbml-files-in-copasi">
+<h2>Unexpected behavior when generating SBML files in COPASI<a class="headerlink" href="#unexpected-behavior-when-generating-sbml-files-in-copasi" title="Permalink to this headline">¶</a></h2>
+<p>While COPASI is a useful tool for generating SBML files, it is important to note that some settings in COPASI do not get converted into SBML. This can lead to unexpected model behavior in PyBNF.</p>
+<p>To help confirm that your model is running as expected, you can set <code class="docutils literal"><span class="pre">delete_old_files=0</span></code> in your config file, which causes the model output as it was simulated by libRoadRunner in PyBNF to be saved in the <code class="docutils literal"><span class="pre">Simulations/</span></code> directory.</p>
+<p>The following are known issues in translating from COPASI to SBML / libRoadRunner:</p>
+<blockquote>
+<div><ul class="simple">
+<li>Writing formulas in terms of derivatives of species is possible in COPASI, but does not export to SBML.</li>
+<li>If you rename a parameter or species in COPASI (some time after its creation), the parameter / species is not renamed in the exported SBML, likely causing a PyBNF error about a name not being found. To effectively rename a parameter or species, do a find/replace for <code class="docutils literal"><span class="pre">id=&quot;oldname&quot;</span></code> in the SBML file itself, or delete the object in COPASI and create a new one.</li>
+<li>Defining an &#8220;Initial expression&#8221; for the concentration of a species is supported in COPASI, but does not export to SBML.</li>
+<li>Events are handled differently if the trigger is true at time 0. COPASI provides options for behavior, with the default being that the event does not fire. These options do not export to SBML. In libRoadRunner and PyBNF, the only option is that the event <em>continues to fire as long as the trigger remains true</em>. Note that this is different behavior than for events triggered at time &gt; 0, which will only fire once.</li>
+</ul>
+</div></blockquote>
+</div>
+<div class="section" id="too-many-open-files">
+<h2>Too many open files<a class="headerlink" href="#too-many-open-files" title="Permalink to this headline">¶</a></h2>
+<p>Some highly parallelized runs may encounter the error &#8220;Too many open files&#8221;. This error occurs when PyBNF exceeds the number of open files allowed by the system for a single program. When this error comes up, it prevents PyBNF from saving results and backups of the run, and may also interfere with its ability to run simulations.</p>
+<p><strong>Source of the bug:</strong> Each time that PyBNF submits a job, it uses 2 file handles to keep track of the connection between the scheduler and the worker. These file handles are closed eventually, but remain open for a short time after a job completes. If you have a fast running simulation, you might get ~ 5 iterations&#8217; worth of these handles left open at the same time. If that many handles exceeds your system limit, you will encounter this bug.</p>
+<p><strong>Remedies:</strong> You can check the limit of open files per program on the command line: <code class="docutils literal"><span class="pre">ulimit</span> <span class="pre">-n</span></code> gives you the &#8220;soft&#8221; limit, and <code class="docutils literal"><span class="pre">ulimit</span> <span class="pre">-Hn</span></code> gives you the &#8220;hard&#8221; limit. The soft limit is what is actually enforced. You can increase the soft limit up to the hard limit with, for example <code class="docutils literal"><span class="pre">ulimit</span> <span class="pre">-n</span> <span class="pre">4096</span></code> if your hard limit is 4096 (this only affects the current terminal, so do it in the same terminal where you will run PyBNF). This might give you enough file handles to avoid the bug. If not, the hard limit can be increased with root access to the machine.</p>
+<p>If you are unable to increase the open file handle limit, then you will have to reduce the number of parallel jobs submitted in PyBNF by adjusting the <code class="docutils literal"><span class="pre">num_parallel</span></code> or <code class="docutils literal"><span class="pre">population_size</span></code> settings.</p>
+</div>
+<div class="section" id="too-many-threads">
+<h2>Too many threads<a class="headerlink" href="#too-many-threads" title="Permalink to this headline">¶</a></h2>
+<p>This error can come up in parallelized runs in which simulations are very fast. Similar to the <a class="reference internal" href="#too-many-open-files">Too many open files</a> error, it occurs when PyBNF exceeds the number of threads allowed by the system for a single user.</p>
+<p>You can check the thread limit on the command line with <code class="docutils literal"><span class="pre">ulimit</span> <span class="pre">-u</span></code>. Many operating systems have this limit very high (over 100,000), but if yours has it set on the order of 4096, it could cause this error.</p>
+<p>We recommend having an administrator with root access increase your default thread limit on the machine. Edit the file <code class="docutils literal"><span class="pre">/etc/security/limits.conf</span></code> and add the lines:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">username</span> <span class="n">soft</span> <span class="n">nproc</span> <span class="mi">100000</span>
+<span class="n">username</span> <span class="n">hard</span> <span class="n">nproc</span> <span class="mi">100000</span>
+</pre></div>
+</div>
+<p>where <code class="docutils literal"><span class="pre">username</span></code> is your user name, and <code class="docutils literal"><span class="pre">100000</span></code> is the new thread limit (use any reasonably large value). Restart the system for the changes to take effect.</p>
+<p>We do not recommend increasing the thread limit via the command line as in <a class="reference internal" href="#too-many-open-files">Too many open files</a>: This change would only affect the current terminal, so although PyBNF could keep running, the rest of your system would become unresponsive after the original limit was exceeded.</p>
+</div>
+<div class="section" id="jobs-still-running-after-pybnf-stops">
+<span id="jobs-still-running"></span><h2>Jobs still running after PyBNF stops<a class="headerlink" href="#jobs-still-running-after-pybnf-stops" title="Permalink to this headline">¶</a></h2>
+<p>Ordinarily, PyBNF kills simulation jobs that run longer than the time limit. However, if PyBNF itself exits (terminated by the user, or finished a fitting run with jobs still pending), then it is no longer able to enforce the time limit on any jobs that are still running. Any such jobs will continue until they finish or are killed.</p>
+<p>If the undead jobs become problematic, it is possible to kill them manually. Use the command <code class="docutils literal"><span class="pre">top</span></code> to see if you have any such jobs: the processes will have the name <code class="docutils literal"><span class="pre">run_network</span></code>, <code class="docutils literal"><span class="pre">NFsim</span></code>, or <code class="docutils literal"><span class="pre">python</span></code>, depending on which simulator you are using. Note the PID of the offending process(es), and then run <code class="docutils literal"><span class="pre">kill</span> <span class="pre">&lt;PID&gt;</span></code> on the appropriate PIDs. It is also possible to kill all of the jobs at once by running <code class="docutils literal"><span class="pre">killall</span> <span class="pre">run_network</span></code>, <code class="docutils literal"><span class="pre">killall</span> <span class="pre">NFsim</span></code>, or <code class="docutils literal"><span class="pre">killall</span> <span class="pre">python</span></code>, provided that you have no running processes of the same name that you want to keep.</p>
+</div>
+<div class="section" id="an-unknown-error-occurred">
+<h2>An unknown error occurred<a class="headerlink" href="#an-unknown-error-occurred" title="Permalink to this headline">¶</a></h2>
+<p>If you get this message, you found an error that we did not catch during development. Sorry. It might be an unusual, user-generated situation that we didn&#8217;t think of but is fixable on your end, or could be a bug in the PyBNF source code.</p>
+<p>Refer to the log file to try to diagnose the problem - it will contain the Python traceback of the error that was thrown, which sometimes contains enough information to identify what happened.</p>
+<p>Rerun the fit with the debugging <code class="docutils literal"><span class="pre">-d</span></code> flag to generate a more detailed log file (with a &#8220;debug&#8221; tag).</p>
+<p>If you would like to report the bug to the developers ( <a class="reference external" href="https://github.com/lanl/PyBNF/">https://github.com/lanl/PyBNF/</a> ), it will be helpful for us if you include the debug log file with your bug report.</p>
+</div>
+<div class="section" id="other-issues">
+<h2>Other issues<a class="headerlink" href="#other-issues" title="Permalink to this headline">¶</a></h2>
+<p>If you encounter a bug that is not documented here, or have a request for a new feature, please contact the developers at <a class="reference external" href="https://github.com/lanl/PyBNF/">https://github.com/lanl/PyBNF/</a> .</p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="modules/index.html" title="PyBNF Module References"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="examples.html" title="Examples"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">PyBNF v0.3.1 documentation</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2018, Ryan Suderman, Eshan Mitra.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.5.6.
+    </div>
+  </body>
+</html>

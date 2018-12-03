@@ -1,0 +1,436 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>pybnf.parse &#8212; PyBNF v0.3.1 documentation</title>
+    
+    <link rel="stylesheet" href="../../_static/sphinxdoc.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     'v0.3.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">PyBNF v0.3.1 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" accesskey="U">Module code</a> &#187;</li> 
+      </ul>
+    </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="../../index.html">
+              <img class="logo" src="../../_static/LogoSm.png" alt="Logo"/>
+            </a></p>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for pybnf.parse</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;Grammar and methods for parsing the configuration file&quot;&quot;&quot;</span>
+
+
+<span class="kn">from</span> <span class="nn">.printing</span> <span class="k">import</span> <span class="n">PybnfError</span><span class="p">,</span> <span class="n">print1</span>
+<span class="kn">from</span> <span class="nn">.config</span> <span class="k">import</span> <span class="n">Configuration</span>
+
+<span class="kn">from</span> <span class="nn">string</span> <span class="k">import</span> <span class="n">punctuation</span>
+
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span> <span class="nn">pyparsing</span> <span class="k">as</span> <span class="nn">pp</span>
+<span class="kn">import</span> <span class="nn">re</span>
+
+
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+
+<span class="n">numkeys_int</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;verbosity&#39;</span><span class="p">,</span> <span class="s1">&#39;parallel_count&#39;</span><span class="p">,</span> <span class="s1">&#39;delete_old_files&#39;</span><span class="p">,</span> <span class="s1">&#39;population_size&#39;</span><span class="p">,</span>
+               <span class="s1">&#39;smoothing&#39;</span><span class="p">,</span> <span class="s1">&#39;max_iterations&#39;</span><span class="p">,</span>
+               <span class="s1">&#39;num_to_output&#39;</span><span class="p">,</span> <span class="s1">&#39;output_every&#39;</span><span class="p">,</span> <span class="s1">&#39;islands&#39;</span><span class="p">,</span> <span class="s1">&#39;migrate_every&#39;</span><span class="p">,</span> <span class="s1">&#39;num_to_migrate&#39;</span><span class="p">,</span> <span class="s1">&#39;init_size&#39;</span><span class="p">,</span>
+               <span class="s1">&#39;local_min_limit&#39;</span><span class="p">,</span> <span class="s1">&#39;reserve_size&#39;</span><span class="p">,</span> <span class="s1">&#39;burn_in&#39;</span><span class="p">,</span> <span class="s1">&#39;sample_every&#39;</span><span class="p">,</span> <span class="s1">&#39;output_hist_every&#39;</span><span class="p">,</span>
+               <span class="s1">&#39;hist_bins&#39;</span><span class="p">,</span> <span class="s1">&#39;refine&#39;</span><span class="p">,</span> <span class="s1">&#39;simplex_max_iterations&#39;</span><span class="p">,</span> <span class="s1">&#39;wall_time_sim&#39;</span><span class="p">,</span> <span class="s1">&#39;wall_time_gen&#39;</span><span class="p">,</span> <span class="s1">&#39;verbosity&#39;</span><span class="p">,</span>
+               <span class="s1">&#39;exchange_every&#39;</span><span class="p">,</span> <span class="s1">&#39;backup_every&#39;</span><span class="p">,</span> <span class="s1">&#39;bootstrap&#39;</span><span class="p">,</span> <span class="s1">&#39;crossover_number&#39;</span><span class="p">,</span> <span class="s1">&#39;ind_var_rounding&#39;</span><span class="p">,</span>
+               <span class="s1">&#39;local_objective_eval&#39;</span><span class="p">,</span> <span class="s1">&#39;reps_per_beta&#39;</span><span class="p">,</span> <span class="s1">&#39;save_best_data&#39;</span><span class="p">]</span>
+<span class="n">numkeys_float</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;min_objective&#39;</span><span class="p">,</span> <span class="s1">&#39;cognitive&#39;</span><span class="p">,</span> <span class="s1">&#39;social&#39;</span><span class="p">,</span> <span class="s1">&#39;particle_weight&#39;</span><span class="p">,</span>
+                 <span class="s1">&#39;particle_weight_final&#39;</span><span class="p">,</span> <span class="s1">&#39;adaptive_n_max&#39;</span><span class="p">,</span> <span class="s1">&#39;adaptive_n_stop&#39;</span><span class="p">,</span> <span class="s1">&#39;adaptive_abs_tol&#39;</span><span class="p">,</span> <span class="s1">&#39;adaptive_rel_tol&#39;</span><span class="p">,</span>
+                 <span class="s1">&#39;mutation_rate&#39;</span><span class="p">,</span> <span class="s1">&#39;mutation_factor&#39;</span><span class="p">,</span> <span class="s1">&#39;stop_tolerance&#39;</span><span class="p">,</span> <span class="s1">&#39;step_size&#39;</span><span class="p">,</span> <span class="s1">&#39;simplex_step&#39;</span><span class="p">,</span> <span class="s1">&#39;simplex_log_step&#39;</span><span class="p">,</span>
+                 <span class="s1">&#39;simplex_reflection&#39;</span><span class="p">,</span> <span class="s1">&#39;simplex_expansion&#39;</span><span class="p">,</span> <span class="s1">&#39;simplex_contraction&#39;</span><span class="p">,</span> <span class="s1">&#39;simplex_shrink&#39;</span><span class="p">,</span> <span class="s1">&#39;cooling&#39;</span><span class="p">,</span>
+                 <span class="s1">&#39;beta_max&#39;</span><span class="p">,</span> <span class="s1">&#39;bootstrap_max_obj&#39;</span><span class="p">,</span> <span class="s1">&#39;simplex_stop_tol&#39;</span><span class="p">,</span> <span class="s1">&#39;v_stop&#39;</span><span class="p">,</span> <span class="s1">&#39;gamma_prob&#39;</span><span class="p">,</span> <span class="s1">&#39;zeta&#39;</span><span class="p">,</span> <span class="s1">&#39;lambda&#39;</span><span class="p">,</span>
+                 <span class="s1">&#39;constraint_scale&#39;</span><span class="p">]</span>
+<span class="n">multnumkeys</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;credible_intervals&#39;</span><span class="p">,</span> <span class="s1">&#39;beta&#39;</span><span class="p">,</span> <span class="s1">&#39;beta_range&#39;</span><span class="p">]</span>
+<span class="n">b_var_def_keys</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;uniform_var&#39;</span><span class="p">,</span> <span class="s1">&#39;loguniform_var&#39;</span><span class="p">]</span>
+<span class="n">var_def_keys</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;lognormal_var&#39;</span><span class="p">,</span> <span class="s1">&#39;normal_var&#39;</span><span class="p">]</span>
+<span class="n">var_def_keys_1or2nums</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;var&#39;</span><span class="p">,</span> <span class="s1">&#39;logvar&#39;</span><span class="p">]</span>
+<span class="n">strkeylist</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;bng_command&#39;</span><span class="p">,</span> <span class="s1">&#39;output_dir&#39;</span><span class="p">,</span> <span class="s1">&#39;fit_type&#39;</span><span class="p">,</span> <span class="s1">&#39;objfunc&#39;</span><span class="p">,</span> <span class="s1">&#39;initialization&#39;</span><span class="p">,</span>
+              <span class="s1">&#39;cluster_type&#39;</span><span class="p">,</span> <span class="s1">&#39;scheduler_node&#39;</span><span class="p">,</span> <span class="s1">&#39;scheduler_file&#39;</span><span class="p">,</span> <span class="s1">&#39;de_strategy&#39;</span><span class="p">,</span> <span class="s1">&#39;sbml_integrator&#39;</span><span class="p">]</span>
+<span class="n">multstrkeys</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;worker_nodes&#39;</span><span class="p">,</span> <span class="s1">&#39;postprocess&#39;</span><span class="p">]</span>
+<span class="n">dictkeys</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;time_course&#39;</span><span class="p">,</span> <span class="s1">&#39;param_scan&#39;</span><span class="p">]</span>
+<span class="n">punctuation_safe</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="s1">&#39;[:,]&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">punctuation</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">parse</span><span class="p">(</span><span class="n">s</span><span class="p">):</span>
+    <span class="n">equals</span> <span class="o">=</span> <span class="n">pp</span><span class="o">.</span><span class="n">Suppress</span><span class="p">(</span><span class="s1">&#39;=&#39;</span><span class="p">)</span>
+    <span class="n">colon</span> <span class="o">=</span> <span class="n">pp</span><span class="o">.</span><span class="n">Suppress</span><span class="p">(</span><span class="s1">&#39;:&#39;</span><span class="p">)</span>
+    <span class="n">comment</span> <span class="o">=</span> <span class="n">pp</span><span class="o">.</span><span class="n">Suppress</span><span class="p">(</span><span class="n">pp</span><span class="o">.</span><span class="n">Optional</span><span class="p">(</span><span class="n">pp</span><span class="o">.</span><span class="n">Literal</span><span class="p">(</span><span class="s1">&#39;#&#39;</span><span class="p">)</span> <span class="o">-</span> <span class="n">pp</span><span class="o">.</span><span class="n">ZeroOrMore</span><span class="p">(</span><span class="n">pp</span><span class="o">.</span><span class="n">Word</span><span class="p">(</span><span class="n">pp</span><span class="o">.</span><span class="n">printables</span><span class="p">))))</span>
+    <span class="c1"># set up multiple grammars</span>
+
+    <span class="c1"># single str value</span>
+    <span class="n">strkeys</span> <span class="o">=</span> <span class="n">pp</span><span class="o">.</span><span class="n">oneOf</span><span class="p">(</span><span class="s1">&#39; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">strkeylist</span><span class="p">),</span>
+                       <span class="n">caseless</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">string</span> <span class="o">=</span> <span class="n">pp</span><span class="o">.</span><span class="n">Word</span><span class="p">(</span><span class="n">pp</span><span class="o">.</span><span class="n">alphanums</span> <span class="o">+</span> <span class="n">punctuation</span><span class="p">)</span>
+    <span class="n">strgram</span> <span class="o">=</span> <span class="n">strkeys</span> <span class="o">-</span> <span class="n">equals</span> <span class="o">-</span> <span class="n">string</span> <span class="o">-</span> <span class="n">comment</span>
+
+    <span class="c1"># single num value</span>
+    <span class="n">numkeys</span> <span class="o">=</span> <span class="n">pp</span><span class="o">.</span><span class="n">oneOf</span><span class="p">(</span><span class="s1">&#39; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">numkeys_int</span> <span class="o">+</span> <span class="n">numkeys_float</span><span class="p">),</span> <span class="n">caseless</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">point</span> <span class="o">=</span> <span class="n">pp</span><span class="o">.</span><span class="n">Literal</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">)</span>
+    <span class="n">e</span> <span class="o">=</span> <span class="n">pp</span><span class="o">.</span><span class="n">CaselessLiteral</span><span class="p">(</span><span class="s2">&quot;E&quot;</span><span class="p">)</span>
+    <span class="n">num</span> <span class="o">=</span> <span class="n">pp</span><span class="o">.</span><span class="n">Combine</span><span class="p">(</span><span class="n">pp</span><span class="o">.</span><span class="n">Word</span><span class="p">(</span><span class="s2">&quot;+-&quot;</span> <span class="o">+</span> <span class="n">pp</span><span class="o">.</span><span class="n">nums</span><span class="p">,</span> <span class="n">pp</span><span class="o">.</span><span class="n">nums</span><span class="p">)</span> <span class="o">+</span>
+                         <span class="n">pp</span><span class="o">.</span><span class="n">Optional</span><span class="p">(</span><span class="n">point</span> <span class="o">+</span> <span class="n">pp</span><span class="o">.</span><span class="n">Optional</span><span class="p">(</span><span class="n">pp</span><span class="o">.</span><span class="n">Word</span><span class="p">(</span><span class="n">pp</span><span class="o">.</span><span class="n">nums</span><span class="p">)))</span> <span class="o">+</span>
+                         <span class="n">pp</span><span class="o">.</span><span class="n">Optional</span><span class="p">(</span><span class="n">e</span> <span class="o">+</span> <span class="n">pp</span><span class="o">.</span><span class="n">Word</span><span class="p">(</span><span class="s2">&quot;+-&quot;</span> <span class="o">+</span> <span class="n">pp</span><span class="o">.</span><span class="n">nums</span><span class="p">,</span> <span class="n">pp</span><span class="o">.</span><span class="n">nums</span><span class="p">)))</span>
+    <span class="n">numgram</span> <span class="o">=</span> <span class="n">numkeys</span> <span class="o">-</span> <span class="n">equals</span> <span class="o">-</span> <span class="n">num</span> <span class="o">-</span> <span class="n">comment</span>
+
+    <span class="c1"># variable definition grammar</span>
+    <span class="n">strnumkeys</span> <span class="o">=</span> <span class="n">pp</span><span class="o">.</span><span class="n">oneOf</span><span class="p">(</span><span class="s1">&#39; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">var_def_keys</span> <span class="o">+</span> <span class="n">b_var_def_keys</span><span class="p">),</span> <span class="n">caseless</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">bng_parameter</span> <span class="o">=</span> <span class="n">pp</span><span class="o">.</span><span class="n">Word</span><span class="p">(</span><span class="n">pp</span><span class="o">.</span><span class="n">alphas</span><span class="p">,</span> <span class="n">pp</span><span class="o">.</span><span class="n">alphanums</span> <span class="o">+</span> <span class="s2">&quot;_&quot;</span><span class="p">)</span>
+    <span class="n">varnums</span> <span class="o">=</span> <span class="n">bng_parameter</span> <span class="o">-</span> <span class="n">num</span> <span class="o">-</span> <span class="n">num</span> <span class="o">-</span> <span class="n">pp</span><span class="o">.</span><span class="n">Optional</span><span class="p">(</span><span class="n">pp</span><span class="o">.</span><span class="n">Word</span><span class="p">(</span><span class="s2">&quot;ubBU&quot;</span><span class="p">))</span>
+    <span class="n">strnumgram</span> <span class="o">=</span> <span class="n">strnumkeys</span> <span class="o">-</span> <span class="n">equals</span> <span class="o">-</span> <span class="n">varnums</span> <span class="o">-</span> <span class="n">comment</span>
+
+    <span class="c1"># multiple string value grammar</span>
+    <span class="n">multstrkey</span> <span class="o">=</span> <span class="n">pp</span><span class="o">.</span><span class="n">oneOf</span><span class="p">(</span><span class="s1">&#39; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">multstrkeys</span><span class="p">),</span> <span class="n">caseless</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">multstrgram</span> <span class="o">=</span> <span class="n">multstrkey</span> <span class="o">-</span> <span class="n">equals</span> <span class="o">-</span> <span class="n">pp</span><span class="o">.</span><span class="n">OneOrMore</span><span class="p">(</span><span class="n">string</span><span class="p">)</span>
+
+    <span class="c1"># var and logvar alt grammar (only one number given)</span>
+    <span class="n">varkeys</span> <span class="o">=</span> <span class="n">pp</span><span class="o">.</span><span class="n">oneOf</span><span class="p">(</span><span class="s1">&#39; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">var_def_keys_1or2nums</span><span class="p">),</span> <span class="n">caseless</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">vargram</span> <span class="o">=</span> <span class="n">varkeys</span> <span class="o">-</span> <span class="n">equals</span> <span class="o">-</span> <span class="n">bng_parameter</span> <span class="o">-</span> <span class="n">num</span> <span class="o">-</span> <span class="n">pp</span><span class="o">.</span><span class="n">Optional</span><span class="p">(</span><span class="n">num</span><span class="p">)</span> <span class="o">-</span> <span class="n">comment</span>
+
+    <span class="c1"># multiple num value</span>
+    <span class="n">multnumkey</span> <span class="o">=</span> <span class="n">pp</span><span class="o">.</span><span class="n">oneOf</span><span class="p">(</span><span class="s1">&#39; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">multnumkeys</span><span class="p">),</span> <span class="n">caseless</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">multnumgram</span> <span class="o">=</span> <span class="n">multnumkey</span> <span class="o">-</span> <span class="n">equals</span> <span class="o">-</span> <span class="n">pp</span><span class="o">.</span><span class="n">OneOrMore</span><span class="p">(</span><span class="n">num</span><span class="p">)</span> <span class="o">-</span> <span class="n">comment</span>
+
+    <span class="c1"># model-data mapping grammar</span>
+    <span class="n">mdmkey</span> <span class="o">=</span> <span class="n">pp</span><span class="o">.</span><span class="n">CaselessLiteral</span><span class="p">(</span><span class="s2">&quot;model&quot;</span><span class="p">)</span>
+    <span class="n">nonetoken</span> <span class="o">=</span> <span class="n">pp</span><span class="o">.</span><span class="n">Suppress</span><span class="p">(</span><span class="n">pp</span><span class="o">.</span><span class="n">CaselessLiteral</span><span class="p">(</span><span class="s2">&quot;none&quot;</span><span class="p">))</span>
+    <span class="n">model_file</span> <span class="o">=</span> <span class="n">pp</span><span class="o">.</span><span class="n">Regex</span><span class="p">(</span><span class="s2">&quot;.*?\.(bngl|xml)&quot;</span><span class="p">)</span>
+    <span class="n">exp_file</span> <span class="o">=</span> <span class="n">pp</span><span class="o">.</span><span class="n">Regex</span><span class="p">(</span><span class="s2">&quot;.*?\.(exp|con)&quot;</span><span class="p">)</span>
+    <span class="n">mdmgram</span> <span class="o">=</span> <span class="n">mdmkey</span> <span class="o">-</span> <span class="n">equals</span> <span class="o">-</span> <span class="n">model_file</span> <span class="o">-</span> <span class="n">colon</span> <span class="o">-</span> <span class="p">(</span><span class="n">pp</span><span class="o">.</span><span class="n">delimitedList</span><span class="p">(</span><span class="n">exp_file</span><span class="p">)</span> <span class="o">^</span> <span class="n">nonetoken</span><span class="p">)</span> <span class="o">-</span> <span class="n">comment</span>
+
+    <span class="c1"># normalization mapping grammar</span>
+    <span class="n">normkey</span> <span class="o">=</span> <span class="n">pp</span><span class="o">.</span><span class="n">CaselessLiteral</span><span class="p">(</span><span class="s2">&quot;normalization&quot;</span><span class="p">)</span>
+    <span class="n">anything</span> <span class="o">=</span> <span class="n">pp</span><span class="o">.</span><span class="n">Word</span><span class="p">(</span><span class="n">pp</span><span class="o">.</span><span class="n">alphanums</span><span class="o">+</span><span class="n">punctuation</span><span class="o">+</span><span class="s1">&#39; &#39;</span><span class="p">)</span>
+    <span class="n">normgram</span> <span class="o">=</span> <span class="n">normkey</span> <span class="o">-</span> <span class="n">equals</span> <span class="o">-</span> <span class="n">anything</span>  <span class="c1"># The set of legal grammars for normalization is too complicated,</span>
+    <span class="c1"># Will handle with separate code.</span>
+
+    <span class="c1"># Grammar for dictionary-like specification of simulation actions</span>
+    <span class="c1"># We are intentionally over-permissive here, because the Action class will be able to give more helpful error</span>
+    <span class="c1"># messages than a failed parse.</span>
+    <span class="n">dict_entry</span> <span class="o">=</span> <span class="n">pp</span><span class="o">.</span><span class="n">Word</span><span class="p">(</span><span class="n">pp</span><span class="o">.</span><span class="n">alphas</span><span class="p">)</span> <span class="o">-</span> <span class="n">colon</span> <span class="o">-</span> <span class="n">pp</span><span class="o">.</span><span class="n">Word</span><span class="p">(</span><span class="n">pp</span><span class="o">.</span><span class="n">alphanums</span> <span class="o">+</span> <span class="n">punctuation_safe</span><span class="p">)</span>
+    <span class="n">dict_key</span> <span class="o">=</span> <span class="n">pp</span><span class="o">.</span><span class="n">oneOf</span><span class="p">(</span><span class="s1">&#39; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">dictkeys</span><span class="p">),</span> <span class="n">caseless</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">dictgram</span> <span class="o">=</span> <span class="n">dict_key</span> <span class="o">-</span> <span class="n">equals</span> <span class="o">-</span> <span class="n">pp</span><span class="o">.</span><span class="n">delimitedList</span><span class="p">(</span><span class="n">dict_entry</span><span class="p">)</span> <span class="o">-</span> <span class="n">comment</span>
+
+    <span class="c1"># mutant model grammar</span>
+    <span class="n">mutkey</span> <span class="o">=</span> <span class="n">pp</span><span class="o">.</span><span class="n">CaselessLiteral</span><span class="p">(</span><span class="s1">&#39;mutant&#39;</span><span class="p">)</span>
+    <span class="n">mut_op</span> <span class="o">=</span> <span class="n">pp</span><span class="o">.</span><span class="n">Group</span><span class="p">(</span><span class="n">pp</span><span class="o">.</span><span class="n">Word</span><span class="p">(</span><span class="n">pp</span><span class="o">.</span><span class="n">alphas</span><span class="o">+</span><span class="s1">&#39;_&#39;</span><span class="p">,</span> <span class="n">pp</span><span class="o">.</span><span class="n">alphanums</span><span class="o">+</span><span class="s1">&#39;_&#39;</span><span class="p">)</span> <span class="o">-</span> <span class="n">pp</span><span class="o">.</span><span class="n">oneOf</span><span class="p">(</span><span class="s1">&#39;+ - * / =&#39;</span><span class="p">)</span> <span class="o">-</span> <span class="n">num</span><span class="p">)</span>
+    <span class="n">mutgram</span> <span class="o">=</span> <span class="n">mutkey</span> <span class="o">-</span> <span class="n">equals</span> <span class="o">-</span> <span class="n">string</span> <span class="o">-</span> <span class="n">string</span> <span class="o">-</span> <span class="n">pp</span><span class="o">.</span><span class="n">Group</span><span class="p">(</span><span class="n">pp</span><span class="o">.</span><span class="n">OneOrMore</span><span class="p">(</span><span class="n">mut_op</span><span class="p">))</span> <span class="o">-</span> \
+        <span class="n">pp</span><span class="o">.</span><span class="n">Group</span><span class="p">(</span><span class="n">colon</span> <span class="o">-</span> <span class="p">(</span><span class="n">pp</span><span class="o">.</span><span class="n">delimitedList</span><span class="p">(</span><span class="n">exp_file</span><span class="p">)</span> <span class="o">^</span> <span class="n">nonetoken</span><span class="p">))</span> <span class="o">-</span> <span class="n">comment</span>
+
+    <span class="c1"># check each grammar and output somewhat legible error message</span>
+    <span class="n">line</span> <span class="o">=</span> <span class="p">(</span><span class="n">mdmgram</span> <span class="o">|</span> <span class="n">strgram</span> <span class="o">|</span> <span class="n">numgram</span> <span class="o">|</span> <span class="n">strnumgram</span> <span class="o">|</span> <span class="n">multnumgram</span> <span class="o">|</span> <span class="n">multstrgram</span> <span class="o">|</span> <span class="n">vargram</span> <span class="o">|</span> <span class="n">normgram</span> <span class="o">|</span> <span class="n">dictgram</span>
+            <span class="o">|</span> <span class="n">mutgram</span><span class="p">)</span><span class="o">.</span><span class="n">parseString</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">parseAll</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">asList</span><span class="p">()</span>
+
+    <span class="k">return</span> <span class="n">line</span>
+
+
+<span class="k">def</span> <span class="nf">load_config</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">infile</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">FileNotFoundError</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">PybnfError</span><span class="p">(</span><span class="s1">&#39;Configuration file </span><span class="si">%s</span><span class="s1"> not found&#39;</span> <span class="o">%</span> <span class="n">path</span><span class="p">)</span>
+    <span class="n">param_dict</span> <span class="o">=</span> <span class="n">ploop</span><span class="p">(</span><span class="n">infile</span><span class="o">.</span><span class="n">readlines</span><span class="p">())</span>
+    <span class="n">infile</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">Configuration</span><span class="p">(</span><span class="n">param_dict</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">flatten</span><span class="p">(</span><span class="n">vs</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">vs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">vs</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span> <span class="k">else</span> <span class="n">vs</span>
+
+
+<span class="k">def</span> <span class="nf">ploop</span><span class="p">(</span><span class="n">ls</span><span class="p">):</span>  <span class="c1"># parse loop</span>
+    <span class="n">d</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">models</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+    <span class="n">exp_data</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">line</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">ls</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="s1">&#39;\s*$&#39;</span><span class="p">,</span> <span class="n">line</span><span class="p">)</span> <span class="ow">or</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="s1">&#39;\s*#&#39;</span><span class="p">,</span> <span class="n">line</span><span class="p">):</span>
+            <span class="k">continue</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Parsing line </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">line</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span>
+            <span class="n">l</span> <span class="o">=</span> <span class="n">parse</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+
+            <span class="c1"># Find parameter assignments that reference distinct parameters</span>
+            <span class="k">if</span> <span class="n">l</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">in</span> <span class="n">b_var_def_keys</span><span class="p">:</span>
+                <span class="n">key</span> <span class="o">=</span> <span class="p">(</span><span class="n">l</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">l</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+                <span class="n">values</span> <span class="o">=</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">l</span><span class="p">[</span><span class="mi">2</span><span class="p">:</span><span class="mi">4</span><span class="p">]]</span>
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">l</span><span class="p">)</span> <span class="o">==</span> <span class="mi">5</span><span class="p">:</span>
+                    <span class="n">values</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">re</span><span class="o">.</span><span class="n">fullmatch</span><span class="p">(</span><span class="s1">&#39;b&#39;</span><span class="p">,</span> <span class="n">l</span><span class="p">[</span><span class="mi">4</span><span class="p">],</span> <span class="n">flags</span><span class="o">=</span><span class="n">re</span><span class="o">.</span><span class="n">IGNORECASE</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">values</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="n">l</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">in</span> <span class="n">var_def_keys_1or2nums</span> <span class="ow">or</span> <span class="n">l</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">in</span> <span class="n">var_def_keys</span><span class="p">:</span>
+                <span class="n">key</span> <span class="o">=</span> <span class="p">(</span><span class="n">l</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">l</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+                <span class="n">values</span> <span class="o">=</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">l</span><span class="p">[</span><span class="mi">2</span><span class="p">:]]</span>
+            <span class="k">elif</span> <span class="n">l</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">in</span> <span class="n">numkeys_int</span><span class="p">:</span>
+                <span class="n">key</span> <span class="o">=</span> <span class="n">l</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                <span class="n">values</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">l</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+            <span class="k">elif</span> <span class="n">l</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">in</span> <span class="n">numkeys_float</span><span class="p">:</span>
+                <span class="n">key</span> <span class="o">=</span> <span class="n">l</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                <span class="n">values</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">l</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+            <span class="k">elif</span> <span class="n">l</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">in</span> <span class="n">multnumkeys</span><span class="p">:</span>
+                <span class="n">key</span> <span class="o">=</span> <span class="n">l</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                <span class="n">values</span> <span class="o">=</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">l</span><span class="p">[</span><span class="mi">1</span><span class="p">:]]</span>
+            <span class="k">elif</span> <span class="n">l</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">in</span> <span class="n">multstrkeys</span><span class="p">:</span>
+                <span class="n">key</span> <span class="o">=</span> <span class="n">l</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                <span class="n">values</span> <span class="o">=</span> <span class="n">l</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span>
+            <span class="k">elif</span> <span class="n">l</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="s1">&#39;model&#39;</span><span class="p">:</span>
+                <span class="n">key</span> <span class="o">=</span> <span class="n">l</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                <span class="n">values</span> <span class="o">=</span> <span class="n">flatten</span><span class="p">(</span><span class="n">l</span><span class="p">[</span><span class="mi">1</span><span class="p">:])</span>
+
+            <span class="c1"># Find parameter assignments defining model and experimental data</span>
+            <span class="k">if</span> <span class="n">l</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;model&#39;</span><span class="p">:</span>
+                <span class="n">key</span> <span class="o">=</span> <span class="n">l</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+                <span class="n">values</span> <span class="o">=</span> <span class="n">l</span><span class="p">[</span><span class="mi">2</span><span class="p">:]</span>
+                <span class="n">d</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">values</span>  <span class="c1"># individual data files remain in list</span>
+                <span class="n">models</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+                <span class="n">exp_data</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">values</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="n">l</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">in</span> <span class="n">dictkeys</span><span class="p">:</span>
+                <span class="c1"># Multiple declarations allowed; config dict entry should contain a list of all the declarations.</span>
+                <span class="c1"># Convert the line into a dict of key-value pairs. Keep everything as strings, check later</span>
+                <span class="n">entry</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+                <span class="k">for</span> <span class="n">xi</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">values</span><span class="p">),</span> <span class="mi">2</span><span class="p">):</span>
+                    <span class="k">if</span> <span class="n">values</span><span class="p">[</span><span class="n">xi</span><span class="p">]</span> <span class="ow">in</span> <span class="n">entry</span><span class="p">:</span>
+                        <span class="k">raise</span> <span class="n">PybnfError</span><span class="p">(</span><span class="s1">&#39;For config key </span><span class="si">%s</span><span class="s1">, attribute </span><span class="si">%s</span><span class="s1"> is specified multiple times&#39;</span> <span class="o">%</span>
+                                         <span class="p">(</span><span class="n">l</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">values</span><span class="p">[</span><span class="n">xi</span><span class="p">]))</span>
+                    <span class="n">entry</span><span class="p">[</span><span class="n">values</span><span class="p">[</span><span class="n">xi</span><span class="p">]]</span> <span class="o">=</span> <span class="n">values</span><span class="p">[</span><span class="n">xi</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span>
+                <span class="k">if</span> <span class="n">l</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">in</span> <span class="n">d</span><span class="p">:</span>
+                    <span class="n">d</span><span class="p">[</span><span class="n">l</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">entry</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">d</span><span class="p">[</span><span class="n">l</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[</span><span class="n">entry</span><span class="p">]</span>
+            <span class="k">elif</span> <span class="n">l</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;mutant&#39;</span><span class="p">:</span>
+                <span class="k">if</span> <span class="s1">&#39;mutant&#39;</span> <span class="ow">in</span> <span class="n">d</span><span class="p">:</span>
+                    <span class="n">d</span><span class="p">[</span><span class="s1">&#39;mutant&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">l</span><span class="p">[</span><span class="mi">1</span><span class="p">:])</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">d</span><span class="p">[</span><span class="s1">&#39;mutant&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">l</span><span class="p">[</span><span class="mi">1</span><span class="p">:]]</span>
+                <span class="n">exp_data</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">l</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+            <span class="k">elif</span> <span class="n">l</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;postprocess&#39;</span><span class="p">:</span>
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">values</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="n">PybnfError</span><span class="p">(</span><span class="s2">&quot;Config key &#39;postprocess&#39; should specify a python file, followed by one or more &quot;</span>
+                                     <span class="s2">&quot;suffixes.&quot;</span><span class="p">)</span>
+                <span class="k">if</span> <span class="s1">&#39;postprocess&#39;</span> <span class="ow">in</span> <span class="n">d</span><span class="p">:</span>
+                    <span class="n">d</span><span class="p">[</span><span class="s1">&#39;postprocess&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">values</span><span class="p">])</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">d</span><span class="p">[</span><span class="s1">&#39;postprocess&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">values</span><span class="p">]</span>
+            <span class="k">elif</span> <span class="n">l</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;normalization&#39;</span><span class="p">:</span>
+                <span class="c1"># Normalization defined with way too many possible options</span>
+                <span class="c1"># At the end of all this, the config dict has one of the following formats:</span>
+                <span class="c1"># &#39;normalization&#39; : &#39;type&#39;</span>
+                <span class="c1"># &#39;normalization&#39; : {&#39;expfile&#39;:&#39;type&#39;, &#39;expfile2&#39;:[(&#39;type1&#39;, [numbers]), (&#39;type2&#39;, [colnames]), ...]}</span>
+
+                <span class="n">parsed</span> <span class="o">=</span> <span class="n">parse_normalization_def</span><span class="p">(</span><span class="n">values</span><span class="p">)</span>
+                <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">parsed</span><span class="p">)</span> <span class="o">==</span> <span class="nb">str</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="s1">&#39;normalization&#39;</span> <span class="ow">in</span> <span class="n">d</span><span class="p">:</span>
+                        <span class="k">raise</span> <span class="n">PybnfError</span><span class="p">(</span><span class="s1">&#39;contradictory normalization keys&#39;</span><span class="p">,</span>
+                                         <span class="s2">&quot;Config file contains multiple &#39;normalization&#39; keys, one of which specifies&quot;</span>
+                                         <span class="s2">&quot; no specific exp files, thereby applying to all of them. If you are using &quot;</span>
+                                         <span class="s2">&quot;this option, you should only have one &#39;normalization&#39; key in the config file.&quot;</span><span class="p">)</span>
+                    <span class="n">d</span><span class="p">[</span><span class="s1">&#39;normalization&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">parsed</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="s1">&#39;normalization&#39;</span> <span class="ow">in</span> <span class="n">d</span><span class="p">:</span>
+                        <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s1">&#39;normalization&#39;</span><span class="p">])</span> <span class="o">!=</span> <span class="nb">dict</span><span class="p">:</span>
+                            <span class="k">raise</span> <span class="n">PybnfError</span><span class="p">(</span><span class="s1">&#39;contradictory normalization keys&#39;</span><span class="p">,</span>
+                                             <span class="s2">&quot;Config file contains multiple &#39;normalization&#39; keys, one of which specifies&quot;</span>
+                                             <span class="s2">&quot; no specific exp files, thereby applying to all of them. If you are using &quot;</span>
+                                             <span class="s2">&quot;this option, you should only have one &#39;normalization&#39; key in the config file.&quot;</span><span class="p">)</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">d</span><span class="p">[</span><span class="s1">&#39;normalization&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+                    <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">parsed</span><span class="p">:</span>
+                        <span class="k">if</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">d</span><span class="p">[</span><span class="s1">&#39;normalization&#39;</span><span class="p">]</span> <span class="ow">and</span> <span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">parsed</span><span class="p">[</span><span class="n">k</span><span class="p">])</span> <span class="o">==</span> <span class="nb">str</span> <span class="ow">or</span> <span class="nb">type</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s1">&#39;normalization&#39;</span><span class="p">][</span><span class="n">k</span><span class="p">])</span> <span class="o">==</span> <span class="nb">str</span><span class="p">):</span>
+                            <span class="k">raise</span> <span class="n">PybnfError</span><span class="p">(</span><span class="s1">&#39;contradictory normalization keys for </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">k</span><span class="p">,</span>
+                                             <span class="s2">&quot;File </span><span class="si">%s</span><span class="s2"> has normalization specified multiple times in a way that is &quot;</span>
+                                             <span class="s2">&quot;contradictory.&quot;</span> <span class="o">%</span> <span class="n">k</span><span class="p">)</span>
+                        <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">parsed</span><span class="p">[</span><span class="n">k</span><span class="p">])</span> <span class="o">==</span> <span class="nb">str</span><span class="p">:</span>
+                            <span class="n">d</span><span class="p">[</span><span class="s1">&#39;normalization&#39;</span><span class="p">][</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">parsed</span><span class="p">[</span><span class="n">k</span><span class="p">]</span>
+                        <span class="k">else</span><span class="p">:</span>
+                            <span class="k">if</span> <span class="n">k</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">d</span><span class="p">[</span><span class="s1">&#39;normalization&#39;</span><span class="p">]:</span>
+                                <span class="n">d</span><span class="p">[</span><span class="s1">&#39;normalization&#39;</span><span class="p">][</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+                            <span class="n">d</span><span class="p">[</span><span class="s1">&#39;normalization&#39;</span><span class="p">][</span><span class="n">k</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">parsed</span><span class="p">[</span><span class="n">k</span><span class="p">])</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">d</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">d</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">==</span> <span class="n">values</span><span class="p">:</span>
+                        <span class="n">print1</span><span class="p">(</span><span class="s2">&quot;Warning: Config key &#39;</span><span class="si">%s</span><span class="s2">&#39; is specified multiple times&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">key</span><span class="p">,))</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="k">raise</span> <span class="n">PybnfError</span><span class="p">(</span><span class="s2">&quot;Config key &#39;</span><span class="si">%s</span><span class="s2">&#39; is specified multiple times with different values.&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">key</span><span class="p">,))</span>
+                <span class="n">d</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">values</span>
+
+        <span class="k">except</span> <span class="n">pp</span><span class="o">.</span><span class="n">ParseBaseException</span><span class="p">:</span>
+            <span class="n">key</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;[ =]&#39;</span><span class="p">,</span> <span class="n">line</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+            <span class="n">fmt</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+            <span class="k">if</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">numkeys_int</span><span class="p">:</span>
+                <span class="n">fmt</span> <span class="o">=</span> <span class="s2">&quot;&#39;</span><span class="si">%s</span><span class="s2">=x&#39; where x is an integer&quot;</span> <span class="o">%</span> <span class="n">key</span>
+            <span class="k">elif</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">numkeys_float</span><span class="p">:</span>
+                <span class="n">fmt</span> <span class="o">=</span> <span class="s2">&quot;&#39;</span><span class="si">%s</span><span class="s2">=x&#39; where x is a decimal number&quot;</span> <span class="o">%</span> <span class="n">key</span>
+            <span class="k">elif</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">multnumkeys</span><span class="p">:</span>
+                <span class="n">fmt</span> <span class="o">=</span> <span class="s2">&quot;&#39;</span><span class="si">%s</span><span class="s2">=x1 x2 ...&#39; where x1, x2, ... is a list of numbers&quot;</span> <span class="o">%</span> <span class="n">key</span>
+            <span class="k">elif</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">var_def_keys</span><span class="p">:</span>
+                <span class="n">fmt</span> <span class="o">=</span> <span class="s2">&quot;&#39;</span><span class="si">%s</span><span class="s2">=v x y&#39; where v is a variable name, and x and y are numbers&quot;</span> <span class="o">%</span> <span class="n">key</span>
+            <span class="k">elif</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">b_var_def_keys</span><span class="p">:</span>
+                <span class="n">fmt</span> <span class="o">=</span> <span class="s2">&quot;&#39;</span><span class="si">%s</span><span class="s2">=v x y z&#39; where v is a variable name, x and y are numbers, and z is optional and specifies &quot;</span> \
+                      <span class="s2">&quot;whether or not the variable should be bounded (&#39;u&#39; is unbounded, &#39;b&#39; or left blank is bounded)&quot;</span> <span class="o">%</span> <span class="n">key</span>
+            <span class="k">elif</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">var_def_keys_1or2nums</span><span class="p">:</span>
+                <span class="n">fmt</span> <span class="o">=</span> <span class="s2">&quot;&#39;</span><span class="si">%s</span><span class="s2">=v x&#39; or &#39;</span><span class="si">%s</span><span class="s2">=v x y&#39; where v is a variable name, and x and y are decimal numbers&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">key</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">strkeylist</span><span class="p">:</span>
+                <span class="n">fmt</span> <span class="o">=</span> <span class="s2">&quot;&#39;</span><span class="si">%s</span><span class="s2">=s&#39; where s is a string&quot;</span> <span class="o">%</span> <span class="n">key</span>
+            <span class="k">elif</span> <span class="n">key</span> <span class="o">==</span> <span class="s1">&#39;model&#39;</span><span class="p">:</span>
+                <span class="n">fmt</span> <span class="o">=</span> <span class="s2">&quot;&#39;model=modelfile.bngl : datafile.exp&#39; or &#39;model=modelfile.bngl : datafile1.exp, datafile2.exp&#39;&quot;</span> \
+                      <span class="s2">&quot; Supported modelfile extensions are .bngl and .xml&quot;</span>
+            <span class="k">elif</span> <span class="n">key</span> <span class="o">==</span> <span class="s1">&#39;normalization&#39;</span><span class="p">:</span>
+                <span class="n">fmt</span> <span class="o">=</span> <span class="s2">&quot;&#39;</span><span class="si">%s</span><span class="s2">=s&#39; or &#39;</span><span class="si">%s</span><span class="s2">=s : datafile1.exp, datafile2.exp&#39; where s is a string (&#39;init&#39;, &#39;peak&#39;, &quot;</span> \
+                      <span class="s2">&quot;&#39;unit&#39;, or &#39;zero&#39;)&quot;</span>\
+                    <span class="o">%</span> <span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">key</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">dictkeys</span><span class="p">:</span>
+                <span class="n">fmt</span> <span class="o">=</span> <span class="s2">&quot;&#39;</span><span class="si">%s</span><span class="s2">=key1: value1, key2: value2,...&#39; where key1, key2, etc are attributes of the </span><span class="si">%s</span><span class="s2"> (see &quot;</span> \
+                      <span class="s2">&quot;documentation for available options)&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">key</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="n">key</span> <span class="o">==</span> <span class="s1">&#39;mutant&#39;</span><span class="p">:</span>
+                <span class="n">fmt</span> <span class="o">=</span> <span class="s2">&quot;&#39;mutant=base model var1=val1 var2*val2 ... : datafile1.exp, datafile2.exp&#39; where mutation &quot;</span> \
+                      <span class="s2">&quot;operations (var1=val1 etc) have the format [variable_name][operator][number] and other &quot;</span> \
+                      <span class="s2">&quot;arguments are strings&quot;</span>
+
+            <span class="n">message</span> <span class="o">=</span> <span class="s2">&quot;Parsing configuration key &#39;</span><span class="si">%s</span><span class="s2">&#39; on line </span><span class="si">%s</span><span class="s2">.</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">i</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">fmt</span> <span class="o">==</span> <span class="s1">&#39;&#39;</span><span class="p">:</span>
+                <span class="n">message</span> <span class="o">+=</span> <span class="s1">&#39;</span><span class="si">%s</span><span class="s1"> is not a valid configuration key.&#39;</span> <span class="o">%</span> <span class="n">key</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">message</span> <span class="o">+=</span> <span class="s1">&#39;</span><span class="si">%s</span><span class="s1"> should be specified in the format </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">fmt</span><span class="p">)</span>
+
+            <span class="k">raise</span> <span class="n">PybnfError</span><span class="p">(</span><span class="s2">&quot;Misconfigured config key &#39;</span><span class="si">%s</span><span class="s2">&#39; at line: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">line</span><span class="o">.</span><span class="n">strip</span><span class="p">(),</span> <span class="n">i</span><span class="p">),</span> <span class="n">message</span><span class="p">)</span>
+
+    <span class="n">d</span><span class="p">[</span><span class="s1">&#39;models&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">models</span>
+    <span class="n">d</span><span class="p">[</span><span class="s1">&#39;exp_data&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">exp_data</span>
+    <span class="k">return</span> <span class="n">d</span>
+
+
+<div class="viewcode-block" id="parse_normalization_def"><a class="viewcode-back" href="../../modules/parse.html#pybnf.parse.parse_normalization_def">[docs]</a><span class="k">def</span> <span class="nf">parse_normalization_def</span><span class="p">(</span><span class="n">s</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Parse the complicated normalization grammar</span>
+<span class="sd">    If the grammar is specified incorrectly, it will end up calling something invalid the normalization type or the</span>
+<span class="sd">    exp file, and this error will be caught later.</span>
+
+<span class="sd">    :param s: The string following the equals sign in the normalization key</span>
+<span class="sd">    :return: What to write in the config dictionary: A string, or a dictionary {expfile: string} or</span>
+<span class="sd">    {expfile: (string, index_list)} or {expfile: (string, name_list)}</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">parse_range</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Parse a string as a set of numbers like 10,&quot;&quot;&quot;</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">part</span> <span class="ow">in</span> <span class="n">x</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;,&#39;</span><span class="p">):</span>
+            <span class="k">if</span> <span class="s1">&#39;-&#39;</span> <span class="ow">in</span> <span class="n">part</span><span class="p">:</span>
+                <span class="n">a</span><span class="p">,</span> <span class="n">b</span> <span class="o">=</span> <span class="n">part</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;-&#39;</span><span class="p">)</span>
+                <span class="n">a</span><span class="p">,</span> <span class="n">b</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">a</span><span class="p">),</span> <span class="nb">int</span><span class="p">(</span><span class="n">b</span><span class="p">)</span>
+                <span class="n">result</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">a</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">part</span><span class="p">)</span>
+                <span class="n">result</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">a</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">result</span>
+
+    <span class="c1"># Remove all spaces</span>
+    <span class="n">s</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="s1">&#39;\s&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">s</span><span class="p">)</span>
+    <span class="k">if</span> <span class="s1">&#39;:&#39;</span> <span class="ow">in</span> <span class="n">s</span><span class="p">:</span>
+        <span class="c1"># List of exp files</span>
+        <span class="n">res</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+        <span class="n">i</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="s1">&#39;:&#39;</span><span class="p">)</span>
+        <span class="n">normtype</span> <span class="o">=</span> <span class="n">s</span><span class="p">[:</span><span class="n">i</span><span class="p">]</span>
+        <span class="n">explist</span> <span class="o">=</span> <span class="n">s</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">:]</span>
+        <span class="n">exps</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;,(?![^()]*\))&#39;</span><span class="p">,</span> <span class="n">explist</span><span class="p">)</span> <span class="c1"># Dark magic: split on commas that aren&#39;t inside parentheses</span>
+        <span class="c1"># Achievement unlocked: Use 16 punctuation marks in a row</span>
+        <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">exps</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">e</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;(&#39;</span> <span class="ow">and</span> <span class="n">e</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;)&#39;</span><span class="p">:</span>
+                <span class="c1"># It&#39;s an exp in parentheses with column-wise specs</span>
+                <span class="n">pair</span> <span class="o">=</span> <span class="n">e</span><span class="p">[</span><span class="mi">1</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;:&#39;</span><span class="p">)</span>
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">pair</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                    <span class="n">res</span><span class="p">[</span><span class="n">pair</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span> <span class="o">=</span> <span class="n">normtype</span>
+                <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">pair</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+                    <span class="n">e</span><span class="p">,</span> <span class="n">cols</span> <span class="o">=</span> <span class="n">pair</span>
+                    <span class="k">if</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="s1">&#39;^[\d,\-]+$&#39;</span><span class="p">,</span> <span class="n">cols</span><span class="p">):</span>
+                        <span class="n">col_nums</span> <span class="o">=</span> <span class="n">parse_range</span><span class="p">(</span><span class="n">cols</span><span class="p">)</span>
+                        <span class="n">res</span><span class="p">[</span><span class="n">e</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">normtype</span><span class="p">,</span> <span class="n">col_nums</span><span class="p">)</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">col_names</span> <span class="o">=</span> <span class="n">cols</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;,&#39;</span><span class="p">)</span>
+                        <span class="n">res</span><span class="p">[</span><span class="n">e</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">normtype</span><span class="p">,</span> <span class="n">col_names</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="n">PybnfError</span><span class="p">(</span><span class="s2">&quot;Parsing normalization key - the item &#39;</span><span class="si">%s</span><span class="s2">&#39; has too many colons in it&quot;</span> <span class="o">%</span> <span class="n">e</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="c1"># It&#39;s just an exp</span>
+                <span class="n">res</span><span class="p">[</span><span class="n">e</span><span class="p">]</span> <span class="o">=</span> <span class="n">normtype</span>
+        <span class="k">return</span> <span class="n">res</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="c1"># Single string for all</span>
+        <span class="k">return</span> <span class="n">s</span></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">PyBNF v0.3.1 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" >Module code</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2018, Ryan Suderman, Eshan Mitra.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.5.6.
+    </div>
+  </body>
+</html>

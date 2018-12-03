@@ -1,0 +1,518 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>PyBNF model and parameter containers (pybnf.pset) &#8212; PyBNF v0.3.1 documentation</title>
+    
+    <link rel="stylesheet" href="../_static/sphinxdoc.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     'v0.3.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="prev" title="PyBNF printing functions (pybnf.printing)" href="printing.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="printing.html" title="PyBNF printing functions (pybnf.printing)"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">PyBNF v0.3.1 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" accesskey="U">PyBNF Module References</a> &#187;</li> 
+      </ul>
+    </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="../index.html">
+              <img class="logo" src="../_static/LogoSm.png" alt="Logo"/>
+            </a></p>
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="printing.html"
+                        title="previous chapter">PyBNF printing functions (<code class="docutils literal"><span class="pre">pybnf.printing</span></code>)</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/modules/pset.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-pybnf.pset">
+<span id="pybnf-model-and-parameter-containers-pybnf-pset"></span><h1>PyBNF model and parameter containers (<a class="reference internal" href="#module-pybnf.pset" title="pybnf.pset"><code class="xref py py-mod docutils literal"><span class="pre">pybnf.pset</span></code></a>)<a class="headerlink" href="#module-pybnf.pset" title="Permalink to this headline">¶</a></h1>
+<p>Classes for storing models, parameter sets, and the fitting trajectory</p>
+<dl class="class">
+<dt id="pybnf.pset.Action">
+<em class="property">class </em><code class="descclassname">pybnf.pset.</code><code class="descname">Action</code><a class="reference internal" href="../_modules/pybnf/pset.html#Action"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pybnf.pset.Action" title="Permalink to this definition">¶</a></dt>
+<dd><p>Represents a simulation action performed within a model</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="pybnf.pset.BNGLModel">
+<em class="property">class </em><code class="descclassname">pybnf.pset.</code><code class="descname">BNGLModel</code><span class="sig-paren">(</span><em>bngl_file</em>, <em>pset=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pybnf/pset.html#BNGLModel"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pybnf.pset.BNGLModel" title="Permalink to this definition">¶</a></dt>
+<dd><p>Class representing a BNGL model</p>
+<dl class="method">
+<dt id="pybnf.pset.BNGLModel.copy_with_param_set">
+<code class="descname">copy_with_param_set</code><span class="sig-paren">(</span><em>pset</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pybnf/pset.html#BNGLModel.copy_with_param_set"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pybnf.pset.BNGLModel.copy_with_param_set" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a copy of this model containing the specified parameter set.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>pset</strong> (<a class="reference internal" href="#pybnf.pset.PSet" title="pybnf.pset.PSet"><em>PSet</em></a>) &#8211; A PSet object containing the parameters for the new instance</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">BNGLModel</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pybnf.pset.BNGLModel.execute">
+<code class="descname">execute</code><span class="sig-paren">(</span><em>folder</em>, <em>filename</em>, <em>timeout</em>, <em>with_mutants=True</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pybnf/pset.html#BNGLModel.execute"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pybnf.pset.BNGLModel.execute" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>folder</strong> &#8211; Folder in which to do all the file creation</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">Data object</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pybnf.pset.BNGLModel.get_suffixes">
+<code class="descname">get_suffixes</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pybnf/pset.html#BNGLModel.get_suffixes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pybnf.pset.BNGLModel.get_suffixes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a list of valid data suffixes to use in this model, including all combinations of action suffix +
+mutation name</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pybnf.pset.BNGLModel.model_text">
+<code class="descname">model_text</code><span class="sig-paren">(</span><em>gen_only=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pybnf/pset.html#BNGLModel.model_text"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pybnf.pset.BNGLModel.model_text" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the text of a runnable BNGL file, which includes the contents of the original BNGL file, and also values
+assigned to each __FREE parameter, as determined by this model&#8217;s PSet</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">str</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pybnf.pset.BNGLModel.save">
+<code class="descname">save</code><span class="sig-paren">(</span><em>file_prefix</em>, <em>gen_only=False</em>, <em>pset=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pybnf/pset.html#BNGLModel.save"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pybnf.pset.BNGLModel.save" title="Permalink to this definition">¶</a></dt>
+<dd><p>Saves a runnable BNGL file of the model, including definitions of the __FREE parameter values that are defined
+by this model&#8217;s pset, to the specified location.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>file_prefix</strong> &#8211; str, path where the file should be saved</li>
+<li><strong>gen_only</strong> &#8211; bool, output model with only generate_network action if True</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pybnf.pset.BNGLModel.save_all">
+<code class="descname">save_all</code><span class="sig-paren">(</span><em>file_prefix</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pybnf/pset.html#BNGLModel.save_all"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pybnf.pset.BNGLModel.save_all" title="Permalink to this definition">¶</a></dt>
+<dd><p>Saves BNGL files of the original model and all mutants
+:param file_prefix:</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="exception">
+<dt id="pybnf.pset.FailedSimulationError">
+<em class="property">exception </em><code class="descclassname">pybnf.pset.</code><code class="descname">FailedSimulationError</code><a class="reference internal" href="../_modules/pybnf/pset.html#FailedSimulationError"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pybnf.pset.FailedSimulationError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Raised when a simulation fails that was not a result of a subprocess.run() call (currently only use with
+SbmlModelNoTimeout)</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="pybnf.pset.FreeParameter">
+<em class="property">class </em><code class="descclassname">pybnf.pset.</code><code class="descname">FreeParameter</code><span class="sig-paren">(</span><em>name</em>, <em>type</em>, <em>p1</em>, <em>p2</em>, <em>value=None</em>, <em>bounded=True</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pybnf/pset.html#FreeParameter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pybnf.pset.FreeParameter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Class representing a free parameter in a model</p>
+<dl class="method">
+<dt id="pybnf.pset.FreeParameter.add">
+<code class="descname">add</code><span class="sig-paren">(</span><em>summand</em>, <em>reflect=True</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pybnf/pset.html#FreeParameter.add"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pybnf.pset.FreeParameter.add" title="Permalink to this definition">¶</a></dt>
+<dd><p>Adds a value to the existing value and returns a new FreeParameter instance.  Since free parameters
+can exist in regular or logarithmic space, the value to add is expected to already be transformed
+to the appropriate space</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>summand</strong> &#8211; Value to add</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pybnf.pset.FreeParameter.add_rand">
+<code class="descname">add_rand</code><span class="sig-paren">(</span><em>lb</em>, <em>ub</em>, <em>reflect=True</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pybnf/pset.html#FreeParameter.add_rand"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pybnf.pset.FreeParameter.add_rand" title="Permalink to this definition">¶</a></dt>
+<dd><p>Like FreeParameter.add but instead adds a uniformly distributed random value according to the
+bounds provided</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>lb</strong> &#8211; </li>
+<li><strong>ub</strong> &#8211; </li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"></p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pybnf.pset.FreeParameter.diff">
+<code class="descname">diff</code><span class="sig-paren">(</span><em>other</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pybnf/pset.html#FreeParameter.diff"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pybnf.pset.FreeParameter.diff" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculates the difference between two FreeParameter instances.  Both instances must occupy the same space
+(log or regular) and if they are both in log space, the difference will be calculated based on their
+logarithms.
+:param other: A FreeParameter from which the difference will be calculated
+:return:</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pybnf.pset.FreeParameter.sample_value">
+<code class="descname">sample_value</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pybnf/pset.html#FreeParameter.sample_value"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pybnf.pset.FreeParameter.sample_value" title="Permalink to this definition">¶</a></dt>
+<dd><p>Samples a value for this parameter based on its defined initial distribution</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">new FreeParameter instance or None</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pybnf.pset.FreeParameter.set_value">
+<code class="descname">set_value</code><span class="sig-paren">(</span><em>new_value</em>, <em>reflect=True</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pybnf/pset.html#FreeParameter.set_value"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pybnf.pset.FreeParameter.set_value" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates a copy of the parameter with the given value</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>new_value</strong> (<em>float</em>) &#8211; A numeric value assigned to the FreeParameter</li>
+<li><strong>reflect</strong> (<em>bool</em>) &#8211; Determines whether to reflect the parameter value if it is outside of the defined bounds</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">FreeParameter</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pybnf.pset.Model">
+<em class="property">class </em><code class="descclassname">pybnf.pset.</code><code class="descname">Model</code><a class="reference internal" href="../_modules/pybnf/pset.html#Model"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pybnf.pset.Model" title="Permalink to this definition">¶</a></dt>
+<dd><p>An abstract class representing an executable model</p>
+<dl class="method">
+<dt id="pybnf.pset.Model.add_mutant">
+<code class="descname">add_mutant</code><span class="sig-paren">(</span><em>mut_set</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pybnf/pset.html#Model.add_mutant"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pybnf.pset.Model.add_mutant" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add a mutant to run along with this model
+:param mut_set: MutationSet that should be applied to this mutant
+:type mut_set: MutationSet
+:return:</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pybnf.pset.Model.copy_with_param_set">
+<code class="descname">copy_with_param_set</code><span class="sig-paren">(</span><em>pset</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pybnf/pset.html#Model.copy_with_param_set"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pybnf.pset.Model.copy_with_param_set" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a copy of the model with a new parameter set</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>pset</strong> (<a class="reference internal" href="#pybnf.pset.PSet" title="pybnf.pset.PSet"><em>PSet</em></a>) &#8211; A new parameter set</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">Model</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pybnf.pset.Model.execute">
+<code class="descname">execute</code><span class="sig-paren">(</span><em>folder</em>, <em>filename</em>, <em>timeout</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pybnf/pset.html#Model.execute"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pybnf.pset.Model.execute" title="Permalink to this definition">¶</a></dt>
+<dd><p>Executes the model, working in folder/filename, with a max runtime of timeout.
+Loads the resulting data, and returns a dictionary mapping suffixes to data objects. For model types without a
+notion of suffixes, the dictionary will contain one key mapping to one Data object</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>folder</strong> &#8211; The folder to save to, eg &#8216;Simulations/init22&#8217;</li>
+<li><strong>filename</strong> &#8211; The name of the model file to create, not including the extension, eg &#8216;init22&#8217;</li>
+<li><strong>timeout</strong> &#8211; Maximum runtime in seconds</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">dict of Data</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pybnf.pset.Model.get_suffixes">
+<code class="descname">get_suffixes</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pybnf/pset.html#Model.get_suffixes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pybnf.pset.Model.get_suffixes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a list of valid data suffixes to use in this model, including all combinations of action suffix +
+mutation name</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pybnf.pset.Model.save">
+<code class="descname">save</code><span class="sig-paren">(</span><em>file_prefix</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pybnf/pset.html#Model.save"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pybnf.pset.Model.save" title="Permalink to this definition">¶</a></dt>
+<dd><p>Saves the model to file</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pybnf.pset.MutationSet">
+<em class="property">class </em><code class="descclassname">pybnf.pset.</code><code class="descname">MutationSet</code><span class="sig-paren">(</span><em>mutations=()</em>, <em>suffix=''</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pybnf/pset.html#MutationSet"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pybnf.pset.MutationSet" title="Permalink to this definition">¶</a></dt>
+<dd><p>A set of mutations that represents a mutant model</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="pybnf.pset.PSet">
+<em class="property">class </em><code class="descclassname">pybnf.pset.</code><code class="descname">PSet</code><span class="sig-paren">(</span><em>fps</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pybnf/pset.html#PSet"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pybnf.pset.PSet" title="Permalink to this definition">¶</a></dt>
+<dd><p>Class representing a parameter set</p>
+<dl class="method">
+<dt id="pybnf.pset.PSet.get_param">
+<code class="descname">get_param</code><span class="sig-paren">(</span><em>name</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pybnf/pset.html#PSet.get_param"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pybnf.pset.PSet.get_param" title="Permalink to this definition">¶</a></dt>
+<dd><p>Gets the full FreeParameter based on its name</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>name</strong> &#8211; </td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pybnf.pset.PSet.keys">
+<code class="descname">keys</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pybnf/pset.html#PSet.keys"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pybnf.pset.PSet.keys" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a list of the parameter keys
+:return: list</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pybnf.pset.PSet.keys_to_string">
+<code class="descname">keys_to_string</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pybnf/pset.html#PSet.keys_to_string"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pybnf.pset.PSet.keys_to_string" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the keys (parameter names) in a tab-separated str in alphabetical order</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">str</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pybnf.pset.PSet.values_to_string">
+<code class="descname">values_to_string</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pybnf/pset.html#PSet.values_to_string"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pybnf.pset.PSet.values_to_string" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the parameter values in a tab-separated str, in alphabetical order
+according to the parameter name
+:return: str</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pybnf.pset.Trajectory">
+<em class="property">class </em><code class="descclassname">pybnf.pset.</code><code class="descname">Trajectory</code><span class="sig-paren">(</span><em>max_output</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pybnf/pset.html#Trajectory"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pybnf.pset.Trajectory" title="Permalink to this definition">¶</a></dt>
+<dd><p>Tracks the various PSet instances and the corresponding objective function values</p>
+<dl class="method">
+<dt id="pybnf.pset.Trajectory.add">
+<code class="descname">add</code><span class="sig-paren">(</span><em>pset</em>, <em>obj</em>, <em>name</em>, <em>append_file=None</em>, <em>first=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pybnf/pset.html#Trajectory.add"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pybnf.pset.Trajectory.add" title="Permalink to this definition">¶</a></dt>
+<dd><p>Adds a PSet to the fitting trajectory</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>pset</strong> &#8211; A particular point in parameter space</li>
+<li><strong>obj</strong> &#8211; The objective function value upon executing the model at this point in parameter space</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><p class="first last">Exception</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pybnf.pset.Trajectory.best_fit">
+<code class="descname">best_fit</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pybnf/pset.html#Trajectory.best_fit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pybnf.pset.Trajectory.best_fit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Finds the best fit parameter set</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">PSet</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pybnf.pset.Trajectory.best_fit_name">
+<code class="descname">best_fit_name</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pybnf/pset.html#Trajectory.best_fit_name"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pybnf.pset.Trajectory.best_fit_name" title="Permalink to this definition">¶</a></dt>
+<dd><p>Finds the name of the best fit parameter set (which is also the folder
+where that result is stored)</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">str</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pybnf.pset.Trajectory.best_score">
+<code class="descname">best_score</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pybnf/pset.html#Trajectory.best_score"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pybnf.pset.Trajectory.best_score" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the best objective value in this trajectory
+:return: float</p>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="pybnf.pset.Trajectory.load_trajectory">
+<em class="property">static </em><code class="descname">load_trajectory</code><span class="sig-paren">(</span><em>filename</em>, <em>variables</em>, <em>max_output</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pybnf/pset.html#Trajectory.load_trajectory"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pybnf.pset.Trajectory.load_trajectory" title="Permalink to this definition">¶</a></dt>
+<dd><p>Loads a Trajectory from file given Algorithm.variables information</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pybnf.pset.Trajectory.write_to_file">
+<code class="descname">write_to_file</code><span class="sig-paren">(</span><em>filename</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pybnf/pset.html#Trajectory.write_to_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pybnf.pset.Trajectory.write_to_file" title="Permalink to this definition">¶</a></dt>
+<dd><p>Writes the Trajectory to a specified file</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>filename</strong> &#8211; File to store Trajectory</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="printing.html" title="PyBNF printing functions (pybnf.printing)"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">PyBNF v0.3.1 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" >PyBNF Module References</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2018, Ryan Suderman, Eshan Mitra.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.5.6.
+    </div>
+  </body>
+</html>

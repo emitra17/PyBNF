@@ -1,0 +1,469 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>pybnf.pybnf &#8212; PyBNF v0.3.1 documentation</title>
+    
+    <link rel="stylesheet" href="../../_static/sphinxdoc.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     'v0.3.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">PyBNF v0.3.1 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" accesskey="U">Module code</a> &#187;</li> 
+      </ul>
+    </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="../../index.html">
+              <img class="logo" src="../../_static/LogoSm.png" alt="Logo"/>
+            </a></p>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for pybnf.pybnf</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;The entry point for the PyBNF application containing the main function and version&quot;&quot;&quot;</span>
+
+
+<span class="kn">from</span> <span class="nn">.parse</span> <span class="k">import</span> <span class="n">load_config</span>
+<span class="kn">from</span> <span class="nn">.config</span> <span class="k">import</span> <span class="n">init_logging</span>
+<span class="kn">from</span> <span class="nn">.printing</span> <span class="k">import</span> <span class="n">print0</span><span class="p">,</span> <span class="n">print1</span><span class="p">,</span> <span class="n">print2</span><span class="p">,</span> <span class="n">PybnfError</span>
+<span class="kn">from</span> <span class="nn">.cluster</span> <span class="k">import</span> <span class="n">get_scheduler</span><span class="p">,</span> <span class="n">setup_cluster</span><span class="p">,</span> <span class="n">teardown_cluster</span>
+<span class="kn">from</span> <span class="nn">.pset</span> <span class="k">import</span> <span class="n">Trajectory</span>
+<span class="kn">import</span> <span class="nn">pybnf.algorithms</span> <span class="k">as</span> <span class="nn">algs</span>
+<span class="kn">import</span> <span class="nn">pybnf.printing</span> <span class="k">as</span> <span class="nn">printing</span>
+
+<span class="kn">from</span> <span class="nn">subprocess</span> <span class="k">import</span> <span class="n">run</span>
+<span class="kn">from</span> <span class="nn">numpy</span> <span class="k">import</span> <span class="n">inf</span>
+
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span> <span class="nn">argparse</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">shutil</span>
+<span class="kn">import</span> <span class="nn">time</span>
+<span class="kn">import</span> <span class="nn">traceback</span>
+<span class="kn">import</span> <span class="nn">pickle</span>
+
+
+<span class="n">__version__</span> <span class="o">=</span> <span class="s2">&quot;0.3.1&quot;</span>
+
+
+<div class="viewcode-block" id="main"><a class="viewcode-back" href="../../modules/pybnf.html#pybnf.pybnf.main">[docs]</a><span class="k">def</span> <span class="nf">main</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;The main function for running a fitting job&quot;&quot;&quot;</span>
+    <span class="n">start_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+
+    <span class="n">success</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="n">node_string</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">alg</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="n">parser</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">(</span><span class="n">description</span><span class="o">=</span><span class="s1">&#39;Performs parameter fitting on models defined in BNGL&#39;</span><span class="p">)</span>
+
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;-c&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s1">&#39;store&#39;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s1">&#39;conf_file&#39;</span><span class="p">,</span>
+                        <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Path to the BioNetFit configuration file&#39;</span><span class="p">,</span> <span class="n">metavar</span><span class="o">=</span><span class="s1">&#39;config.conf&#39;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;-o&#39;</span><span class="p">,</span> <span class="s1">&#39;--overwrite&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s1">&#39;store_true&#39;</span><span class="p">,</span>
+                        <span class="n">help</span><span class="o">=</span><span class="s1">&#39;automatically overwrites existing folders if necessary&#39;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;-t&#39;</span><span class="p">,</span> <span class="s1">&#39;--cluster_type&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s1">&#39;store&#39;</span><span class="p">,</span>
+                        <span class="n">help</span><span class="o">=</span><span class="s1">&#39;optional string denoting the type of cluster&#39;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;-s&#39;</span><span class="p">,</span> <span class="s1">&#39;--scheduler_file&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s1">&#39;store&#39;</span><span class="p">,</span>
+                        <span class="n">help</span><span class="o">=</span><span class="s1">&#39;optional file on shared filesystem to get scheduler location, should be same as passed to dask-scheduler and dask-worker.&#39;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;-r&#39;</span><span class="p">,</span> <span class="s1">&#39;--resume&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s1">&#39;store&#39;</span><span class="p">,</span> <span class="n">nargs</span><span class="o">=</span><span class="s1">&#39;?&#39;</span><span class="p">,</span> <span class="n">const</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span>
+                        <span class="n">metavar</span><span class="o">=</span><span class="s1">&#39;iterations&#39;</span><span class="p">,</span>
+                        <span class="n">help</span><span class="o">=</span><span class="s1">&#39;automatically resume the previously stopped fitting run; &#39;</span>
+                             <span class="s1">&#39;if a number is passed with this flag, add that many iterations to the fitting run.&#39;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;-d&#39;</span><span class="p">,</span> <span class="s1">&#39;--debug_logging&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s1">&#39;store_true&#39;</span><span class="p">,</span>
+                        <span class="n">help</span><span class="o">=</span><span class="s1">&#39;outputs debugging log (file could be very large)&#39;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;-l&#39;</span><span class="p">,</span> <span class="s1">&#39;--log_prefix&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s1">&#39;store&#39;</span><span class="p">,</span>
+                        <span class="n">help</span><span class="o">=</span><span class="s1">&#39;specifies a custom prefix for the log files (will overwrite if files already exist&#39;</span><span class="p">)</span>
+    <span class="n">cmdline_args</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">()</span>
+
+    <span class="k">if</span> <span class="n">cmdline_args</span><span class="o">.</span><span class="n">log_prefix</span><span class="p">:</span>
+        <span class="n">log_prefix</span> <span class="o">=</span> <span class="n">cmdline_args</span><span class="o">.</span><span class="n">log_prefix</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">log_prefix</span> <span class="o">=</span> <span class="s1">&#39;bnf_</span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">time</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s1">&#39;%Y%m</span><span class="si">%d</span><span class="s1">-%H%M%S&#39;</span><span class="p">)</span>
+
+    <span class="c1"># Overwrite log file if it exists</span>
+    <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">%s</span><span class="s1">_debug.log&#39;</span> <span class="o">%</span> <span class="n">log_prefix</span><span class="p">):</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">%s</span><span class="s1">_debug.log&#39;</span> <span class="o">%</span> <span class="n">log_prefix</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">%s</span><span class="s1">.log&#39;</span> <span class="o">%</span> <span class="n">log_prefix</span><span class="p">):</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">%s</span><span class="s1">.log&#39;</span> <span class="o">%</span> <span class="n">log_prefix</span><span class="p">)</span>
+
+    <span class="n">init_logging</span><span class="p">(</span><span class="n">log_prefix</span><span class="p">,</span> <span class="n">cmdline_args</span><span class="o">.</span><span class="n">debug_logging</span><span class="p">)</span>
+    <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+    <span class="n">print0</span><span class="p">(</span><span class="s2">&quot;PyBNF v</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">__version__</span><span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Running PyBNF v</span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">__version__</span><span class="p">)</span>
+
+    <span class="k">try</span><span class="p">:</span>
+        <span class="c1"># Load the conf file and create the algorithm</span>
+        <span class="k">if</span> <span class="n">cmdline_args</span><span class="o">.</span><span class="n">conf_file</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">print0</span><span class="p">(</span><span class="s1">&#39;No configuration file given, so I won&#39;&#39;t do anything.</span><span class="se">\n</span><span class="s1">For more information, try pybnf --help&#39;</span><span class="p">)</span>
+            <span class="n">exit</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Loading configuration file: </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">cmdline_args</span><span class="o">.</span><span class="n">conf_file</span><span class="p">)</span>
+
+        <span class="n">config</span> <span class="o">=</span> <span class="n">load_config</span><span class="p">(</span><span class="n">cmdline_args</span><span class="o">.</span><span class="n">conf_file</span><span class="p">)</span>
+        <span class="k">if</span> <span class="s1">&#39;verbosity&#39;</span> <span class="ow">in</span> <span class="n">config</span><span class="o">.</span><span class="n">config</span><span class="p">:</span>
+            <span class="n">printing</span><span class="o">.</span><span class="n">verbosity</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s1">&#39;verbosity&#39;</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="n">cmdline_args</span><span class="o">.</span><span class="n">resume</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">cmdline_args</span><span class="o">.</span><span class="n">overwrite</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">PybnfError</span><span class="p">(</span><span class="s2">&quot;Options --overwrite and --resume are contradictory. Use --resume to continue a previous &quot;</span>
+                             <span class="s2">&quot;run, or --overwrite to overwrite the previous run with a new one.&quot;</span><span class="p">)</span>
+
+        <span class="n">continue_file</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="n">cmdline_args</span><span class="o">.</span><span class="n">resume</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s1">&#39;output_dir&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="s1">&#39;/alg_backup.bp&#39;</span><span class="p">):</span>
+                <span class="n">continue_file</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s1">&#39;output_dir&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="s1">&#39;/alg_backup.bp&#39;</span>
+            <span class="k">elif</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s1">&#39;output_dir&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="s1">&#39;/alg_finished.bp&#39;</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">cmdline_args</span><span class="o">.</span><span class="n">resume</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="n">PybnfError</span><span class="p">(</span><span class="s1">&#39;The fitting run saved in </span><span class="si">%s</span><span class="s1"> already finished. If you want to continue the &#39;</span>
+                                     <span class="s1">&#39;fitting with more iterations, pass a number of iterations with the &#39;</span>
+                                     <span class="s1">&#39;--resume flag.&#39;</span> <span class="o">%</span> <span class="n">config</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s1">&#39;output_dir&#39;</span><span class="p">])</span>
+                <span class="n">continue_file</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s1">&#39;output_dir&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="s1">&#39;/alg_finished.bp&#39;</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">PybnfError</span><span class="p">(</span><span class="s1">&#39;No algorithm found to resume in </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s1">&#39;output_dir&#39;</span><span class="p">]))</span>
+        <span class="k">elif</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s1">&#39;output_dir&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="s1">&#39;/alg_backup.bp&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">cmdline_args</span><span class="o">.</span><span class="n">overwrite</span><span class="p">:</span>
+            <span class="n">ans</span> <span class="o">=</span> <span class="s1">&#39;x&#39;</span>
+            <span class="k">while</span> <span class="n">ans</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;y&#39;</span><span class="p">,</span> <span class="s1">&#39;yes&#39;</span><span class="p">,</span> <span class="s1">&#39;n&#39;</span><span class="p">,</span> <span class="s1">&#39;no&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">]:</span>
+                <span class="n">ans</span> <span class="o">=</span> <span class="nb">input</span><span class="p">(</span><span class="s1">&#39;Your output_dir contains an in-progress run.</span><span class="se">\n</span><span class="s1">Continue that run? [y/n] (y) &#39;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">ans</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">&#39;y&#39;</span><span class="p">,</span> <span class="s1">&#39;yes&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">):</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Resuming a previous run&#39;</span><span class="p">)</span>
+                <span class="n">continue_file</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s1">&#39;output_dir&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="s1">&#39;/alg_backup.bp&#39;</span>
+                <span class="n">cmdline_args</span><span class="o">.</span><span class="n">resume</span> <span class="o">=</span> <span class="mi">0</span>
+
+        <span class="k">if</span> <span class="n">continue_file</span><span class="p">:</span>
+            <span class="c1"># Restart the loaded algorithm</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Reloading algorithm&#39;</span><span class="p">)</span>
+            <span class="n">f</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">continue_file</span><span class="p">,</span> <span class="s1">&#39;rb&#39;</span><span class="p">)</span>
+            <span class="n">alg</span><span class="p">,</span> <span class="n">pending</span> <span class="o">=</span> <span class="n">pickle</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Loaded algorithm is the </span><span class="si">%s</span><span class="s1"> algorithm&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="s1">&#39;refinement&#39;</span> <span class="k">if</span> <span class="n">alg</span><span class="o">.</span><span class="n">refine</span> <span class="k">else</span> <span class="s1">&#39;configured&#39;</span><span class="p">))</span>
+            <span class="n">config</span> <span class="o">=</span> <span class="n">alg</span><span class="o">.</span><span class="n">config</span>
+
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Checking for Simulations directory&#39;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">alg</span><span class="o">.</span><span class="n">sim_dir</span><span class="p">):</span>
+                <span class="n">os</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">alg</span><span class="o">.</span><span class="n">sim_dir</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">alg</span><span class="o">.</span><span class="n">bootstrap_number</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">print0</span><span class="p">(</span><span class="s1">&#39;Resuming a bootstrapping run&#39;</span><span class="p">)</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Resuming a bootstrapping run&#39;</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">cmdline_args</span><span class="o">.</span><span class="n">resume</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">cmdline_args</span><span class="o">.</span><span class="n">resume</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="n">PybnfError</span><span class="p">(</span><span class="s2">&quot;Cannot increase the number of iterations in a boostrapping run&quot;</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">print0</span><span class="p">(</span><span class="s1">&#39;Resuming a fitting run&#39;</span><span class="p">)</span>
+
+            <span class="n">alg</span><span class="o">.</span><span class="n">add_iterations</span><span class="p">(</span><span class="n">cmdline_args</span><span class="o">.</span><span class="n">resume</span><span class="p">)</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">alg</span><span class="p">,</span> <span class="n">algs</span><span class="o">.</span><span class="n">SimplexAlgorithm</span><span class="p">):</span>
+                <span class="c1"># The continuing alg is already on the Simplex stage, so don&#39;t restart simplex after completion</span>
+                <span class="n">alg</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s1">&#39;refine&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># Create output folders, checking for overwrites.</span>
+            <span class="n">subdirs</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;Simulations&#39;</span><span class="p">,</span> <span class="s1">&#39;Results&#39;</span><span class="p">,</span> <span class="s1">&#39;Initialize&#39;</span><span class="p">,</span> <span class="s1">&#39;FailedSimLogs&#39;</span><span class="p">)</span>
+            <span class="n">subfiles</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;alg_backup.bp&#39;</span><span class="p">,</span> <span class="s1">&#39;alg_finished.bp&#39;</span><span class="p">,</span> <span class="s1">&#39;alg_refine_finished.bp&#39;</span><span class="p">)</span>
+            <span class="n">will_overwrite</span> <span class="o">=</span> <span class="p">[</span><span class="n">subdir</span> <span class="k">for</span> <span class="n">subdir</span> <span class="ow">in</span> <span class="n">subdirs</span> <span class="o">+</span> <span class="n">subfiles</span>
+                              <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s1">&#39;output_dir&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="s1">&#39;/&#39;</span> <span class="o">+</span> <span class="n">subdir</span><span class="p">)]</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">will_overwrite</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">cmdline_args</span><span class="o">.</span><span class="n">overwrite</span><span class="p">:</span>
+                    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Output directory already exists... querying user for overwrite permission&quot;</span><span class="p">)</span>
+                    <span class="n">ans</span> <span class="o">=</span> <span class="s1">&#39;x&#39;</span>
+                    <span class="k">while</span> <span class="n">ans</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;y&#39;</span><span class="p">,</span> <span class="s1">&#39;yes&#39;</span><span class="p">,</span> <span class="s1">&#39;n&#39;</span><span class="p">,</span> <span class="s1">&#39;no&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">]:</span>
+                        <span class="n">print0</span><span class="p">(</span><span class="s1">&#39;Your output directory contains files from a previous run: </span><span class="si">%s</span><span class="s1">.&#39;</span> <span class="o">%</span> <span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">will_overwrite</span><span class="p">))</span>
+                        <span class="n">ans</span> <span class="o">=</span> <span class="nb">input</span><span class="p">(</span>
+                            <span class="s1">&#39;Overwrite them with the current run? [y/n] (n) &#39;</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="ow">not</span><span class="p">(</span><span class="n">ans</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s1">&#39;y&#39;</span> <span class="ow">or</span> <span class="n">ans</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s1">&#39;yes&#39;</span><span class="p">):</span>
+                        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Overwrite rejected... exiting&quot;</span><span class="p">)</span>
+                        <span class="n">print0</span><span class="p">(</span><span class="s1">&#39;Quitting&#39;</span><span class="p">)</span>
+                        <span class="n">exit</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+                <span class="c1"># If we get here, safe to overwrite files</span>
+                <span class="k">for</span> <span class="n">subdir</span> <span class="ow">in</span> <span class="n">subdirs</span><span class="p">:</span>
+                    <span class="k">try</span><span class="p">:</span>
+                        <span class="n">shutil</span><span class="o">.</span><span class="n">rmtree</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s1">&#39;output_dir&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="s1">&#39;/&#39;</span> <span class="o">+</span> <span class="n">subdir</span><span class="p">)</span>
+                        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Deleted old directory </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">config</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s1">&#39;output_dir&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="s1">&#39;/&#39;</span> <span class="o">+</span> <span class="n">subdir</span><span class="p">)</span>
+                    <span class="k">except</span> <span class="ne">OSError</span><span class="p">:</span>
+                        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Directory </span><span class="si">%s</span><span class="s1"> does not already exist&#39;</span> <span class="o">%</span> <span class="n">config</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s1">&#39;output_dir&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="s1">&#39;/&#39;</span> <span class="o">+</span> <span class="n">subdir</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">subfile</span> <span class="ow">in</span> <span class="n">subfiles</span><span class="p">:</span>
+                    <span class="k">try</span><span class="p">:</span>
+                        <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s1">&#39;output_dir&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="s1">&#39;/&#39;</span> <span class="o">+</span> <span class="n">subfile</span><span class="p">)</span>
+                        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Deleted old file </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">config</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s1">&#39;output_dir&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="s1">&#39;/&#39;</span> <span class="o">+</span> <span class="n">subfile</span><span class="p">)</span>
+                    <span class="k">except</span> <span class="ne">OSError</span><span class="p">:</span>
+                        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;File </span><span class="si">%s</span><span class="s1"> does not already exist&#39;</span> <span class="o">%</span> <span class="n">config</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s1">&#39;output_dir&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="s1">&#39;/&#39;</span> <span class="o">+</span> <span class="n">subfile</span><span class="p">)</span>
+
+            <span class="c1"># Create new directories for the current run.</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s1">&#39;output_dir&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="s1">&#39;/Results&#39;</span><span class="p">)</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s1">&#39;output_dir&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="s1">&#39;/Simulations&#39;</span><span class="p">)</span>
+            <span class="n">shutil</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">cmdline_args</span><span class="o">.</span><span class="n">conf_file</span><span class="p">,</span> <span class="n">config</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s1">&#39;output_dir&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="s1">&#39;/Results&#39;</span><span class="p">)</span>
+            <span class="n">pending</span> <span class="o">=</span> <span class="kc">None</span>
+    
+            <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s1">&#39;fit_type&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;pso&#39;</span><span class="p">:</span>
+                <span class="n">alg</span> <span class="o">=</span> <span class="n">algs</span><span class="o">.</span><span class="n">ParticleSwarm</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="n">config</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s1">&#39;fit_type&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;de&#39;</span><span class="p">:</span>
+                <span class="n">alg</span> <span class="o">=</span> <span class="n">algs</span><span class="o">.</span><span class="n">DifferentialEvolution</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="n">config</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s1">&#39;fit_type&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;ss&#39;</span><span class="p">:</span>
+                <span class="n">alg</span> <span class="o">=</span> <span class="n">algs</span><span class="o">.</span><span class="n">ScatterSearch</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="n">config</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s1">&#39;fit_type&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;bmc&#39;</span> <span class="ow">or</span> <span class="n">config</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s1">&#39;fit_type&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;pt&#39;</span><span class="p">:</span>
+                <span class="c1"># Note: bmc vs pt difference is handled in Config by setting or not setting the exchange_every key.</span>
+                <span class="n">alg</span> <span class="o">=</span> <span class="n">algs</span><span class="o">.</span><span class="n">BasicBayesMCMCAlgorithm</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="n">config</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s1">&#39;fit_type&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;sa&#39;</span><span class="p">:</span>
+                <span class="n">alg</span> <span class="o">=</span> <span class="n">algs</span><span class="o">.</span><span class="n">BasicBayesMCMCAlgorithm</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">sa</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="n">config</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s1">&#39;fit_type&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;sim&#39;</span><span class="p">:</span>
+                <span class="n">alg</span> <span class="o">=</span> <span class="n">algs</span><span class="o">.</span><span class="n">SimplexAlgorithm</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="n">config</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s1">&#39;fit_type&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;ade&#39;</span><span class="p">:</span>
+                <span class="n">alg</span> <span class="o">=</span> <span class="n">algs</span><span class="o">.</span><span class="n">AsynchronousDifferentialEvolution</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="n">config</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s1">&#39;fit_type&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;dream&#39;</span><span class="p">:</span>
+                <span class="n">alg</span> <span class="o">=</span> <span class="n">algs</span><span class="o">.</span><span class="n">DreamAlgorithm</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">PybnfError</span><span class="p">(</span><span class="s1">&#39;Invalid fit_type </span><span class="si">%s</span><span class="s1">. Options are: pso, de, ade, ss, bmc, pt, sa, sim&#39;</span> <span class="o">%</span> <span class="n">config</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s1">&#39;fit_type&#39;</span><span class="p">])</span>
+
+        <span class="c1"># Override configuration values if provided on command line</span>
+        <span class="k">if</span> <span class="n">cmdline_args</span><span class="o">.</span><span class="n">cluster_type</span><span class="p">:</span>
+            <span class="n">config</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s1">&#39;cluster_type&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">cmdline_args</span><span class="o">.</span><span class="n">cluster_type</span>
+        <span class="k">if</span> <span class="n">cmdline_args</span><span class="o">.</span><span class="n">scheduler_file</span><span class="p">:</span>
+            <span class="n">config</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s1">&#39;scheduler_file&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">cmdline_args</span><span class="o">.</span><span class="n">scheduler_file</span>
+
+        <span class="c1"># Set up cluster</span>
+        <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s1">&#39;scheduler_file&#39;</span><span class="p">]:</span>
+            <span class="c1"># Scheduler node will be read in from scheduler file stored on shared file system</span>
+            <span class="n">node_string</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="n">scheduler_node</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">elif</span> <span class="n">config</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s1">&#39;scheduler_node&#39;</span><span class="p">]</span> <span class="ow">and</span> <span class="n">config</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s1">&#39;worker_nodes&#39;</span><span class="p">]:</span>
+            <span class="n">scheduler_node</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s1">&#39;scheduler_node&#39;</span><span class="p">]</span>
+            <span class="n">node_string</span> <span class="o">=</span> <span class="s1">&#39; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s1">&#39;worker_nodes&#39;</span><span class="p">])</span>
+        <span class="k">elif</span> <span class="n">config</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s1">&#39;scheduler_node&#39;</span><span class="p">]:</span>
+            <span class="n">dummy</span><span class="p">,</span> <span class="n">node_string</span> <span class="o">=</span> <span class="n">get_scheduler</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
+            <span class="n">scheduler_node</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s1">&#39;scheduler_node&#39;</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">scheduler_node</span><span class="p">,</span> <span class="n">node_string</span> <span class="o">=</span> <span class="n">get_scheduler</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">node_string</span><span class="p">:</span>
+            <span class="n">dask_ssh_proc</span> <span class="o">=</span> <span class="n">setup_cluster</span><span class="p">(</span><span class="n">node_string</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">(),</span> <span class="n">config</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s1">&#39;parallel_count&#39;</span><span class="p">])</span>
+
+        <span class="c1"># Run the algorithm!</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Algorithm initialization&#39;</span><span class="p">)</span>
+        <span class="n">saved_client</span> <span class="o">=</span> <span class="n">alg</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">log_prefix</span><span class="p">,</span> <span class="n">scheduler_node</span><span class="p">,</span> <span class="n">resume</span><span class="o">=</span><span class="n">pending</span><span class="p">,</span> <span class="n">debug</span><span class="o">=</span><span class="n">cmdline_args</span><span class="o">.</span><span class="n">debug_logging</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s1">&#39;refine&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Refinement requested for best fit parameter set&#39;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s1">&#39;fit_type&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;sim&#39;</span><span class="p">:</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Cannot refine further if Simplex algorithm was used for original fit&#39;</span><span class="p">)</span>
+                <span class="n">print1</span><span class="p">(</span><span class="s2">&quot;You specified refine=1, but refine uses the Simplex algorithm, which you already just ran.&quot;</span>
+                      <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Skipping refine.&quot;</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Refining further using the Simplex algorithm&#39;</span><span class="p">)</span>
+                <span class="n">print1</span><span class="p">(</span><span class="s2">&quot;Refining the best fit by the Simplex algorithm&quot;</span><span class="p">)</span>
+                <span class="n">config</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s1">&#39;simplex_start_point&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">alg</span><span class="o">.</span><span class="n">trajectory</span><span class="o">.</span><span class="n">best_fit</span><span class="p">()</span>
+                <span class="n">simplex</span> <span class="o">=</span> <span class="n">algs</span><span class="o">.</span><span class="n">SimplexAlgorithm</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">refine</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+                <span class="n">simplex</span><span class="o">.</span><span class="n">trajectory</span> <span class="o">=</span> <span class="n">alg</span><span class="o">.</span><span class="n">trajectory</span>  <span class="c1"># Reuse existing trajectory; don&#39;t start a new one.</span>
+                <span class="n">simplex</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">log_prefix</span><span class="p">,</span> <span class="n">scheduler_node</span><span class="p">,</span> <span class="n">reuse_client</span><span class="o">=</span><span class="n">saved_client</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">alg</span><span class="o">.</span><span class="n">bootstrap_number</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">print0</span><span class="p">(</span><span class="s1">&#39;Fitting complete&#39;</span><span class="p">)</span>
+
+        <span class="c1"># Bootstrapping (optional)</span>
+        <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s1">&#39;bootstrap&#39;</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+
+            <span class="c1"># Bootstrapping setup</span>
+            <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s1">&#39;bootstrap_max_obj&#39;</span><span class="p">]:</span>
+                <span class="n">bootstrap_max_obj</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s1">&#39;bootstrap_max_obj&#39;</span><span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">bootstrap_max_obj</span> <span class="o">=</span> <span class="n">inf</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;No bootstrap_max_obj specified; set to infinity&#39;</span><span class="p">)</span>
+                <span class="n">print1</span><span class="p">(</span><span class="s1">&#39;No bootstrap_max_obj specified. All bootstrap replicates will be accepted regardless of &#39;</span>
+                       <span class="s1">&#39;objective value.&#39;</span><span class="p">)</span>
+
+            <span class="n">num_to_bootstrap</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s1">&#39;bootstrap&#39;</span><span class="p">]</span>
+            <span class="n">completed_bootstrap_runs</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="k">if</span> <span class="n">alg</span><span class="o">.</span><span class="n">bootstrap_number</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">bootstrapped_psets</span> <span class="o">=</span> <span class="n">Trajectory</span><span class="p">(</span><span class="n">num_to_bootstrap</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>  <span class="c1"># Check if finished a resumed bootstrap fitting run</span>
+                <span class="n">completed_bootstrap_runs</span> <span class="o">+=</span> <span class="n">alg</span><span class="o">.</span><span class="n">bootstrap_number</span>
+                <span class="k">if</span> <span class="n">completed_bootstrap_runs</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="n">bootstrapped_psets</span> <span class="o">=</span> <span class="n">Trajectory</span><span class="p">(</span><span class="n">num_to_bootstrap</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">completed_bootstrap_runs</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                        <span class="n">bootstrapped_psets</span> <span class="o">=</span> <span class="n">Trajectory</span><span class="o">.</span><span class="n">load_trajectory</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s1">&#39;output_dir&#39;</span><span class="p">]</span> <span class="o">+</span>
+                                                                        <span class="s1">&#39;/Results/bootstrapped_parameter_sets.txt&#39;</span><span class="p">,</span>
+                                                                        <span class="n">config</span><span class="o">.</span><span class="n">variables</span><span class="p">,</span>
+                                                                        <span class="n">config</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s1">&#39;num_to_output&#39;</span><span class="p">])</span>
+
+                <span class="k">if</span> <span class="n">alg</span><span class="o">.</span><span class="n">best_fit_obj</span> <span class="o">&lt;=</span> <span class="n">bootstrap_max_obj</span><span class="p">:</span>
+                    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Bootstrap run </span><span class="si">%s</span><span class="s1"> complete&#39;</span> <span class="o">%</span> <span class="n">completed_bootstrap_runs</span><span class="p">)</span>
+                    <span class="n">bootstrapped_psets</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">alg</span><span class="o">.</span><span class="n">trajectory</span><span class="o">.</span><span class="n">best_fit</span><span class="p">(),</span> <span class="n">alg</span><span class="o">.</span><span class="n">best_fit_obj</span><span class="p">,</span>
+                                           <span class="s1">&#39;bootstrap_run_</span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">completed_bootstrap_runs</span><span class="p">,</span>
+                                           <span class="n">config</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s1">&#39;output_dir&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="s1">&#39;/Results/bootstrapped_parameter_sets.txt&#39;</span><span class="p">,</span>
+                                           <span class="n">completed_bootstrap_runs</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span>
+                    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Succesfully completed resumed bootstrapping run </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">completed_bootstrap_runs</span><span class="p">)</span>
+                    <span class="n">completed_bootstrap_runs</span> <span class="o">+=</span> <span class="mi">1</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">shutil</span><span class="o">.</span><span class="n">rmtree</span><span class="p">(</span><span class="n">alg</span><span class="o">.</span><span class="n">res_dir</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">alg</span><span class="o">.</span><span class="n">sim_dir</span><span class="p">):</span>
+                        <span class="n">shutil</span><span class="o">.</span><span class="n">rmtree</span><span class="p">(</span><span class="n">alg</span><span class="o">.</span><span class="n">sim_dir</span><span class="p">)</span>
+                    <span class="n">print0</span><span class="p">(</span><span class="s2">&quot;Bootstrap run did not achieve maximum allowable objective function value.  Retrying&quot;</span><span class="p">)</span>
+                    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Resumed bootstrapping run </span><span class="si">%s</span><span class="s1"> did not achieve maximum allowable objective function &#39;</span>
+                                <span class="s1">&#39;value.  Retrying&#39;</span> <span class="o">%</span> <span class="n">completed_bootstrap_runs</span><span class="p">)</span>
+
+            <span class="c1"># Run bootstrapping</span>
+            <span class="n">consec_failed_bootstrap_runs</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="k">while</span> <span class="n">completed_bootstrap_runs</span> <span class="o">&lt;</span> <span class="n">num_to_bootstrap</span><span class="p">:</span>
+                <span class="n">alg</span><span class="o">.</span><span class="n">reset</span><span class="p">(</span><span class="n">bootstrap</span><span class="o">=</span><span class="n">completed_bootstrap_runs</span><span class="p">)</span>
+
+                <span class="k">for</span> <span class="n">model</span> <span class="ow">in</span> <span class="n">alg</span><span class="o">.</span><span class="n">exp_data</span><span class="p">:</span>
+                    <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">data</span> <span class="ow">in</span> <span class="n">alg</span><span class="o">.</span><span class="n">exp_data</span><span class="p">[</span><span class="n">model</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                        <span class="n">data</span><span class="o">.</span><span class="n">gen_bootstrap_weights</span><span class="p">()</span>
+                        <span class="n">data</span><span class="o">.</span><span class="n">weights_to_file</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">%s</span><span class="s1">/</span><span class="si">%s</span><span class="s1">_weights_</span><span class="si">%s</span><span class="s1">.txt&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">alg</span><span class="o">.</span><span class="n">res_dir</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">completed_bootstrap_runs</span><span class="p">))</span>
+
+                <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Beginning bootstrap run </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">completed_bootstrap_runs</span><span class="p">)</span>
+                <span class="n">print0</span><span class="p">(</span><span class="s2">&quot;Beginning bootstrap run </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">completed_bootstrap_runs</span><span class="p">)</span>
+                <span class="n">saved_client</span> <span class="o">=</span> <span class="n">alg</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">log_prefix</span><span class="p">,</span> <span class="n">scheduler_node</span><span class="p">,</span> <span class="n">debug</span><span class="o">=</span><span class="n">cmdline_args</span><span class="o">.</span><span class="n">debug_logging</span><span class="p">,</span>
+                                       <span class="n">reuse_client</span><span class="o">=</span><span class="n">saved_client</span><span class="p">)</span>
+
+                <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s1">&#39;refine&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Refinement requested for best fit parameter set&#39;</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s1">&#39;fit_type&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;sim&#39;</span><span class="p">:</span>
+                        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Cannot refine further if Simplex algorithm was used for original fit&#39;</span><span class="p">)</span>
+                        <span class="n">print1</span><span class="p">(</span><span class="s2">&quot;You specified refine=1, but refine uses the Simplex algorithm, which you already just ran.&quot;</span>
+                              <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Skipping refine.&quot;</span><span class="p">)</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Refining further using the Simplex algorithm&#39;</span><span class="p">)</span>
+                        <span class="n">print1</span><span class="p">(</span><span class="s2">&quot;Refining the best fit by the Simplex algorithm&quot;</span><span class="p">)</span>
+                        <span class="n">config</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s1">&#39;simplex_start_point&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">alg</span><span class="o">.</span><span class="n">trajectory</span><span class="o">.</span><span class="n">best_fit</span><span class="p">()</span>
+                        <span class="n">simplex</span> <span class="o">=</span> <span class="n">algs</span><span class="o">.</span><span class="n">SimplexAlgorithm</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">refine</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+                        <span class="n">simplex</span><span class="o">.</span><span class="n">trajectory</span> <span class="o">=</span> <span class="n">alg</span><span class="o">.</span><span class="n">trajectory</span>  <span class="c1"># Reuse existing trajectory; don&#39;t start a new one.</span>
+                        <span class="n">saved_client</span> <span class="o">=</span> <span class="n">simplex</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">log_prefix</span><span class="p">,</span> <span class="n">scheduler_node</span><span class="p">,</span> <span class="n">reuse_client</span><span class="o">=</span><span class="n">saved_client</span><span class="p">)</span>
+
+                <span class="n">best_fit_pset</span> <span class="o">=</span> <span class="n">alg</span><span class="o">.</span><span class="n">trajectory</span><span class="o">.</span><span class="n">best_fit</span><span class="p">()</span>
+
+                <span class="k">if</span> <span class="n">alg</span><span class="o">.</span><span class="n">best_fit_obj</span> <span class="o">&lt;=</span> <span class="n">bootstrap_max_obj</span><span class="p">:</span>
+                    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Bootstrap run </span><span class="si">%s</span><span class="s1"> complete&#39;</span> <span class="o">%</span> <span class="n">completed_bootstrap_runs</span><span class="p">)</span>
+                    <span class="n">bootstrapped_psets</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">best_fit_pset</span><span class="p">,</span> <span class="n">alg</span><span class="o">.</span><span class="n">best_fit_obj</span><span class="p">,</span> <span class="s1">&#39;bootstrap_run_</span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">completed_bootstrap_runs</span><span class="p">,</span>
+                                           <span class="n">config</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s1">&#39;output_dir&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="s1">&#39;/Results/bootstrapped_parameter_sets.txt&#39;</span><span class="p">,</span>
+                                           <span class="n">completed_bootstrap_runs</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span>
+                    <span class="n">completed_bootstrap_runs</span> <span class="o">+=</span> <span class="mi">1</span>
+                    <span class="n">consec_failed_bootstrap_runs</span> <span class="o">=</span> <span class="mi">0</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">consec_failed_bootstrap_runs</span> <span class="o">+=</span> <span class="mi">1</span>
+                    <span class="n">print0</span><span class="p">(</span><span class="s2">&quot;Bootstrap run did not achieve maximum allowable objective function value.  Retrying&quot;</span><span class="p">)</span>
+                    <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;Bootstrap run did not achieve maximum allowable objective function value.&quot;</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">consec_failed_bootstrap_runs</span> <span class="o">&gt;</span> <span class="mi">20</span><span class="p">:</span>  <span class="c1"># Arbitrary...  should we make this configurable or smaller?</span>
+                        <span class="k">raise</span> <span class="n">PybnfError</span><span class="p">(</span><span class="s2">&quot;20 consecutive bootstrap runs failed to achieve maximum allowable objective &quot;</span>
+                                         <span class="s2">&quot;function values.  Check &#39;bootstrap_max_obj&#39; configuration key&quot;</span><span class="p">)</span>
+
+            <span class="c1"># bootstrapped_psets.write_to_file(config.config[&#39;output_dir&#39;] + &quot;/Results/bootstrapped_parameter_sets.txt&quot;)</span>
+            <span class="n">print0</span><span class="p">(</span><span class="s1">&#39;Bootstrapping complete&#39;</span><span class="p">)</span>
+
+        <span class="n">success</span> <span class="o">=</span> <span class="kc">True</span>
+
+    <span class="k">except</span> <span class="n">PybnfError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="c1"># Exceptions generated by problems such as bad user input should be caught here and print a useful message</span>
+        <span class="c1"># before quitting</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s1">&#39;Terminating due to a PybnfError:&#39;</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="n">e</span><span class="o">.</span><span class="n">log_message</span><span class="p">)</span>
+        <span class="n">print0</span><span class="p">(</span><span class="s1">&#39;Error: </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">e</span><span class="o">.</span><span class="n">message</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">KeyboardInterrupt</span><span class="p">:</span>
+        <span class="n">print0</span><span class="p">(</span><span class="s1">&#39;Fitting aborted.&#39;</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Terminating due to keyboard interrupt&#39;</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span><span class="s1">&#39;Keyboard interrupt&#39;</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+        <span class="c1"># Sends any unhandled errors to log instead of to user output</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span><span class="s1">&#39;Internal error&#39;</span><span class="p">)</span>
+        <span class="n">exceptiondata</span> <span class="o">=</span> <span class="n">traceback</span><span class="o">.</span><span class="n">format_exc</span><span class="p">()</span><span class="o">.</span><span class="n">splitlines</span><span class="p">()</span>
+        <span class="n">print0</span><span class="p">(</span><span class="s1">&#39;Sorry, an unknown error occurred: </span><span class="si">%s</span><span class="se">\n</span><span class="s1">&#39;</span>
+               <span class="s1">&#39;Logs have been saved to </span><span class="si">%s</span><span class="s1">.log.</span><span class="se">\n</span><span class="s1">&#39;</span>
+               <span class="s1">&#39;Please report this bug to help us improve PyBNF.&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">exceptiondata</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">log_prefix</span><span class="p">))</span>
+    <span class="k">finally</span><span class="p">:</span>
+        <span class="c1"># Stop dask-ssh regardless of success</span>
+        <span class="k">if</span> <span class="n">node_string</span><span class="p">:</span>
+            <span class="n">teardown_cluster</span><span class="p">(</span><span class="n">dask_ssh_proc</span><span class="p">)</span>
+            <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span>  <span class="c1"># wait for teardown before continuing</span>
+
+        <span class="c1"># Attempt to remove dask-worker-space directory if necessary</span>
+        <span class="c1"># (exists in directory where workers were instantiated)</span>
+        <span class="c1"># Tries current and home directories</span>
+        <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="s1">&#39;dask-worker-space&#39;</span><span class="p">):</span>
+            <span class="n">run</span><span class="p">([</span><span class="s1">&#39;rm&#39;</span><span class="p">,</span> <span class="s1">&#39;-rf&#39;</span><span class="p">,</span> <span class="s1">&#39;dask-worker-space&#39;</span><span class="p">])</span>
+        <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">&#39;HOME&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="s1">&#39;/dask-worker-space&#39;</span><span class="p">):</span>
+            <span class="n">run</span><span class="p">([</span><span class="s1">&#39;rm&#39;</span><span class="p">,</span> <span class="s1">&#39;-rf&#39;</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">&#39;HOME&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="s1">&#39;/dask-worker-space&#39;</span><span class="p">])</span>
+
+        <span class="c1"># After any error, try to clean up.</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">success</span><span class="p">:</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Fitting unsuccessful.  Attempting cleanup&#39;</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">alg</span><span class="p">:</span>
+                    <span class="n">alg</span><span class="o">.</span><span class="n">cleanup</span><span class="p">()</span>
+                    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Completed cleanup after exception&#39;</span><span class="p">)</span>
+        <span class="k">except</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span><span class="s1">&#39;During cleanup, another exception occurred&#39;</span><span class="p">)</span>
+        <span class="k">finally</span><span class="p">:</span>
+            <span class="n">end_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+            <span class="n">secs</span> <span class="o">=</span> <span class="n">end_time</span> <span class="o">-</span> <span class="n">start_time</span>
+            <span class="n">mins</span><span class="p">,</span> <span class="n">secs</span> <span class="o">=</span> <span class="nb">divmod</span><span class="p">(</span><span class="n">secs</span><span class="p">,</span> <span class="mi">60</span><span class="p">)</span>
+            <span class="n">hrs</span><span class="p">,</span> <span class="n">mins</span> <span class="o">=</span> <span class="nb">divmod</span><span class="p">(</span><span class="n">mins</span><span class="p">,</span> <span class="mi">60</span><span class="p">)</span>
+            <span class="n">print2</span><span class="p">(</span><span class="s1">&#39;Total fitting time: </span><span class="si">%d</span><span class="s1">:</span><span class="si">%02d</span><span class="s1">:</span><span class="si">%02d</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">hrs</span><span class="p">,</span> <span class="n">mins</span><span class="p">,</span> <span class="n">secs</span><span class="p">))</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Total fitting time: </span><span class="si">%d</span><span class="s1">:</span><span class="si">%02d</span><span class="s1">:</span><span class="si">%02d</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">hrs</span><span class="p">,</span> <span class="n">mins</span><span class="p">,</span> <span class="n">secs</span><span class="p">))</span>
+            <span class="n">exit</span><span class="p">(</span><span class="mi">0</span> <span class="k">if</span> <span class="n">success</span> <span class="k">else</span> <span class="mi">1</span><span class="p">)</span></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">PyBNF v0.3.1 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" >Module code</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2018, Ryan Suderman, Eshan Mitra.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.5.6.
+    </div>
+  </body>
+</html>

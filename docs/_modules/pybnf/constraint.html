@@ -1,0 +1,673 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>pybnf.constraint &#8212; PyBNF v0.3.1 documentation</title>
+    
+    <link rel="stylesheet" href="../../_static/sphinxdoc.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     'v0.3.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">PyBNF v0.3.1 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" accesskey="U">Module code</a> &#187;</li> 
+      </ul>
+    </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="../../index.html">
+              <img class="logo" src="../../_static/LogoSm.png" alt="Logo"/>
+            </a></p>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for pybnf.constraint</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Classes for defining various constraints that can be applied to the fitting run.  Used when incorporating qualitative</span>
+<span class="sd">data into the fit</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+
+<span class="kn">from</span> <span class="nn">.printing</span> <span class="k">import</span> <span class="n">PybnfError</span>
+<span class="kn">import</span> <span class="nn">pyparsing</span> <span class="k">as</span> <span class="nn">pp</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">re</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+
+
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="ConstraintSet"><a class="viewcode-back" href="../../modules/constraint.html#pybnf.constraint.ConstraintSet">[docs]</a><span class="k">class</span> <span class="nc">ConstraintSet</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Represents the set of all constraints provided in one con file</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">base_model</span><span class="p">,</span> <span class="n">base_suffix</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">constraints</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">base_suffix</span> <span class="o">=</span> <span class="n">base_suffix</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">base_model</span> <span class="o">=</span> <span class="n">base_model</span>
+
+<div class="viewcode-block" id="ConstraintSet.total_penalty"><a class="viewcode-back" href="../../modules/constraint.html#pybnf.constraint.ConstraintSet.total_penalty">[docs]</a>    <span class="k">def</span> <span class="nf">total_penalty</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sim_data_dict</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Evaluate the sim_data_dict against all constraints, and return the total penalty</span>
+
+<span class="sd">        :param sim_data_dict: Dictionary of the form {modelname: {suffix1: Data1}} containing the simulated data objects</span>
+<span class="sd">        :return:</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">sum</span><span class="p">([</span><span class="n">c</span><span class="o">.</span><span class="n">penalty</span><span class="p">(</span><span class="n">sim_data_dict</span><span class="p">)</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">constraints</span><span class="p">])</span></div>
+
+<div class="viewcode-block" id="ConstraintSet.load_constraint_file"><a class="viewcode-back" href="../../modules/constraint.html#pybnf.constraint.ConstraintSet.load_constraint_file">[docs]</a>    <span class="k">def</span> <span class="nf">load_constraint_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="mf">1.0</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Parse the constraint file filename and load them all into my constraint list</span>
+<span class="sd">        :param filename: Path of constraint file</span>
+<span class="sd">        :param scale: Factor by which we multiply all constraint weights</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Loading constraints for </span><span class="si">%s</span><span class="s1"> suffix </span><span class="si">%s</span><span class="s1"> from </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">base_model</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">base_suffix</span><span class="p">,</span> <span class="n">filename</span><span class="p">))</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">linenum</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">f</span><span class="p">:</span>
+                <span class="n">linenum</span> <span class="o">+=</span> <span class="mi">1</span>
+                <span class="k">if</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;\s*(#|$)&#39;</span><span class="p">,</span> <span class="n">line</span><span class="p">):</span>  <span class="c1"># Blank or comment</span>
+                    <span class="k">continue</span>
+                <span class="c1"># Parse the line</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">p</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">parse_constraint_line</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+                <span class="k">except</span> <span class="n">pp</span><span class="o">.</span><span class="n">ParseBaseException</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="n">PybnfError</span><span class="p">(</span><span class="s2">&quot;Unable to parse constraint &#39;</span><span class="si">%s</span><span class="s2">&#39; at line </span><span class="si">%i</span><span class="s2"> of </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">line</span><span class="p">,</span> <span class="n">linenum</span><span class="p">,</span> <span class="n">filename</span><span class="p">))</span>
+                <span class="c1"># Convert all the attributes of the parsed line into args to use to create the constraint</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">quant1</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">ineq</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+                <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+                    <span class="n">quant1</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">ineq</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                <span class="n">sign</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">ineq</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">quant2</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">ineq</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
+                <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+                    <span class="n">quant2</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">ineq</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+                <span class="k">if</span> <span class="n">p</span><span class="o">.</span><span class="n">weight_expr</span><span class="p">:</span>
+                    <span class="n">weight</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">weight_expr</span><span class="o">.</span><span class="n">weight</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">p</span><span class="o">.</span><span class="n">weight_expr</span><span class="o">.</span><span class="n">altpenalty</span><span class="p">:</span>
+                        <span class="n">altpenalty</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">weight_expr</span><span class="o">.</span><span class="n">altpenalty</span>
+                        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">):</span>
+                            <span class="k">try</span><span class="p">:</span>
+                                <span class="n">altpenalty</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">altpenalty</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+                            <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+                                <span class="k">pass</span>  <span class="c1"># If float conversion fails, it&#39;s a variable name, so leave it</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">altpenalty</span> <span class="o">=</span> <span class="kc">None</span>
+                    <span class="n">minpenalty</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">weight_expr</span><span class="o">.</span><span class="n">min</span><span class="p">)</span> <span class="k">if</span> <span class="n">p</span><span class="o">.</span><span class="n">weight_expr</span><span class="o">.</span><span class="n">min</span> <span class="k">else</span> <span class="mf">0.</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">weight</span> <span class="o">=</span> <span class="mf">1.</span>
+                    <span class="n">altpenalty</span> <span class="o">=</span> <span class="kc">None</span>
+                    <span class="n">minpenalty</span> <span class="o">=</span> <span class="mf">0.</span>
+
+                <span class="n">weight</span> <span class="o">*=</span> <span class="n">scale</span>  <span class="c1"># Scale the weight by the specified factor</span>
+
+                <span class="c1"># Check the constraint type based on the parse object, extract the constraint-type-specific args, and</span>
+                <span class="c1"># make the constraint</span>
+                <span class="k">if</span> <span class="n">p</span><span class="o">.</span><span class="n">enforce</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;at&#39;</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">enforce</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                        <span class="n">atval</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">enforce</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span>
+                        <span class="n">atvar</span> <span class="o">=</span> <span class="kc">None</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">atvar</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">enforce</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+                        <span class="n">atval</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">enforce</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">1</span><span class="p">])</span>
+                    <span class="n">repeat</span> <span class="o">=</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">enforce</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">3</span> <span class="ow">and</span> <span class="n">p</span><span class="o">.</span><span class="n">enforce</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;everytime&#39;</span><span class="p">)</span>
+                    <span class="n">before</span> <span class="o">=</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">enforce</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">3</span> <span class="ow">and</span> <span class="n">p</span><span class="o">.</span><span class="n">enforce</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;before&#39;</span><span class="p">)</span>
+                    <span class="n">con</span> <span class="o">=</span> <span class="n">AtConstraint</span><span class="p">(</span><span class="n">quant1</span><span class="p">,</span> <span class="n">sign</span><span class="p">,</span> <span class="n">quant2</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">base_model</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">base_suffix</span><span class="p">,</span> <span class="n">weight</span><span class="p">,</span> <span class="n">altpenalty</span><span class="o">=</span><span class="n">altpenalty</span><span class="p">,</span>
+                                           <span class="n">minpenalty</span><span class="o">=</span><span class="n">minpenalty</span><span class="p">,</span> <span class="n">atvar</span><span class="o">=</span><span class="n">atvar</span><span class="p">,</span> <span class="n">atval</span><span class="o">=</span><span class="n">atval</span><span class="p">,</span> <span class="n">repeat</span><span class="o">=</span><span class="n">repeat</span><span class="p">,</span> <span class="n">before</span><span class="o">=</span><span class="n">before</span><span class="p">)</span>
+                <span class="k">elif</span> <span class="n">p</span><span class="o">.</span><span class="n">enforce</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;always&#39;</span><span class="p">:</span>
+                    <span class="n">con</span> <span class="o">=</span> <span class="n">AlwaysConstraint</span><span class="p">(</span><span class="n">quant1</span><span class="p">,</span> <span class="n">sign</span><span class="p">,</span> <span class="n">quant2</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">base_model</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">base_suffix</span><span class="p">,</span> <span class="n">weight</span><span class="p">,</span> <span class="n">altpenalty</span><span class="o">=</span><span class="n">altpenalty</span><span class="p">,</span>
+                                           <span class="n">minpenalty</span><span class="o">=</span><span class="n">minpenalty</span><span class="p">)</span>
+                <span class="k">elif</span> <span class="n">p</span><span class="o">.</span><span class="n">enforce</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;once&#39;</span><span class="p">:</span>
+                    <span class="n">con</span> <span class="o">=</span> <span class="n">OnceConstraint</span><span class="p">(</span><span class="n">quant1</span><span class="p">,</span> <span class="n">sign</span><span class="p">,</span> <span class="n">quant2</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">base_model</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">base_suffix</span><span class="p">,</span> <span class="n">weight</span><span class="p">,</span> <span class="n">altpenalty</span><span class="p">,</span> <span class="n">minpenalty</span><span class="p">)</span>
+                <span class="k">elif</span> <span class="n">p</span><span class="o">.</span><span class="n">enforce</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;between&#39;</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">enforce</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                        <span class="n">startval</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">enforce</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span>
+                        <span class="n">startvar</span> <span class="o">=</span> <span class="kc">None</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">startvar</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">enforce</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+                        <span class="n">startval</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">enforce</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">1</span><span class="p">])</span>
+                    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">enforce</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                        <span class="n">endval</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">enforce</span><span class="p">[</span><span class="mi">2</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span>
+                        <span class="n">endvar</span> <span class="o">=</span> <span class="kc">None</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">endvar</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">enforce</span><span class="p">[</span><span class="mi">2</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+                        <span class="n">endval</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">enforce</span><span class="p">[</span><span class="mi">2</span><span class="p">][</span><span class="mi">1</span><span class="p">])</span>
+                    <span class="n">con</span> <span class="o">=</span> <span class="n">BetweenConstraint</span><span class="p">(</span><span class="n">quant1</span><span class="p">,</span> <span class="n">sign</span><span class="p">,</span> <span class="n">quant2</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">base_model</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">base_suffix</span><span class="p">,</span> <span class="n">weight</span><span class="p">,</span> <span class="n">altpenalty</span><span class="o">=</span><span class="n">altpenalty</span><span class="p">,</span>
+                                           <span class="n">minpenalty</span><span class="o">=</span><span class="n">minpenalty</span><span class="p">,</span> <span class="n">startvar</span><span class="o">=</span><span class="n">startvar</span><span class="p">,</span> <span class="n">startval</span><span class="o">=</span><span class="n">startval</span><span class="p">,</span> <span class="n">endvar</span><span class="o">=</span><span class="n">endvar</span><span class="p">,</span>
+                                           <span class="n">endval</span><span class="o">=</span><span class="n">endval</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s1">&#39;Unknown enforcement keyword </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">p</span><span class="o">.</span><span class="n">enforce</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">constraints</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">con</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Loaded </span><span class="si">%i</span><span class="s1"> constraints&#39;</span> <span class="o">%</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">constraints</span><span class="p">))</span></div>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">parse_constraint_line</span><span class="p">(</span><span class="n">line</span><span class="p">):</span>
+        <span class="n">obs</span> <span class="o">=</span> <span class="n">pp</span><span class="o">.</span><span class="n">Word</span><span class="p">(</span><span class="n">pp</span><span class="o">.</span><span class="n">alphas</span><span class="p">,</span> <span class="n">pp</span><span class="o">.</span><span class="n">alphanums</span><span class="o">+</span><span class="s1">&#39;_.&#39;</span><span class="p">)</span>
+        <span class="n">point</span> <span class="o">=</span> <span class="n">pp</span><span class="o">.</span><span class="n">Literal</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">)</span>
+        <span class="n">e</span> <span class="o">=</span> <span class="n">pp</span><span class="o">.</span><span class="n">CaselessLiteral</span><span class="p">(</span><span class="s2">&quot;E&quot;</span><span class="p">)</span>
+        <span class="n">const</span> <span class="o">=</span> <span class="n">pp</span><span class="o">.</span><span class="n">Combine</span><span class="p">(</span><span class="n">pp</span><span class="o">.</span><span class="n">Word</span><span class="p">(</span><span class="s2">&quot;+-&quot;</span> <span class="o">+</span> <span class="n">pp</span><span class="o">.</span><span class="n">nums</span><span class="p">,</span> <span class="n">pp</span><span class="o">.</span><span class="n">nums</span><span class="p">)</span> <span class="o">+</span>
+                         <span class="n">pp</span><span class="o">.</span><span class="n">Optional</span><span class="p">(</span><span class="n">point</span> <span class="o">+</span> <span class="n">pp</span><span class="o">.</span><span class="n">Optional</span><span class="p">(</span><span class="n">pp</span><span class="o">.</span><span class="n">Word</span><span class="p">(</span><span class="n">pp</span><span class="o">.</span><span class="n">nums</span><span class="p">)))</span> <span class="o">+</span>
+                         <span class="n">pp</span><span class="o">.</span><span class="n">Optional</span><span class="p">(</span><span class="n">e</span> <span class="o">+</span> <span class="n">pp</span><span class="o">.</span><span class="n">Word</span><span class="p">(</span><span class="s2">&quot;+-&quot;</span> <span class="o">+</span> <span class="n">pp</span><span class="o">.</span><span class="n">nums</span><span class="p">,</span> <span class="n">pp</span><span class="o">.</span><span class="n">nums</span><span class="p">)))</span>
+        <span class="n">iop</span> <span class="o">=</span> <span class="n">pp</span><span class="o">.</span><span class="n">oneOf</span><span class="p">(</span><span class="s2">&quot;&lt; &lt;= &gt; &gt;=&quot;</span><span class="p">)</span>
+        <span class="n">ineq0</span> <span class="o">=</span> <span class="n">obs</span> <span class="o">+</span> <span class="n">iop</span> <span class="o">+</span> <span class="p">(</span><span class="n">obs</span> <span class="o">^</span> <span class="n">const</span><span class="p">)</span>
+        <span class="n">ineq1</span> <span class="o">=</span> <span class="n">const</span> <span class="o">+</span> <span class="n">iop</span> <span class="o">+</span> <span class="n">obs</span>
+        <span class="n">ineq</span> <span class="o">=</span> <span class="n">ineq0</span> <span class="o">^</span> <span class="n">ineq1</span>
+        <span class="n">equals</span> <span class="o">=</span> <span class="n">pp</span><span class="o">.</span><span class="n">Suppress</span><span class="p">(</span><span class="s1">&#39;=&#39;</span><span class="p">)</span>
+        <span class="n">obs_crit</span> <span class="o">=</span> <span class="n">obs</span> <span class="o">-</span> <span class="n">equals</span> <span class="o">-</span> <span class="n">const</span>
+        <span class="n">enforce_crit</span> <span class="o">=</span> <span class="n">const</span> <span class="o">|</span> <span class="n">obs_crit</span>
+        <span class="n">enforce_at</span> <span class="o">=</span> <span class="n">pp</span><span class="o">.</span><span class="n">CaselessLiteral</span><span class="p">(</span><span class="s1">&#39;at&#39;</span><span class="p">)</span> <span class="o">-</span> <span class="n">pp</span><span class="o">.</span><span class="n">Group</span><span class="p">(</span><span class="n">enforce_crit</span><span class="p">)</span> <span class="o">-</span> <span class="n">pp</span><span class="o">.</span><span class="n">Optional</span><span class="p">(</span><span class="n">pp</span><span class="o">.</span><span class="n">oneOf</span><span class="p">(</span><span class="s1">&#39;everytime first&#39;</span><span class="p">,</span> <span class="n">caseless</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span> <span class="o">-</span>\
+            <span class="n">pp</span><span class="o">.</span><span class="n">Optional</span><span class="p">(</span><span class="n">pp</span><span class="o">.</span><span class="n">CaselessLiteral</span><span class="p">(</span><span class="s1">&#39;before&#39;</span><span class="p">))</span>
+        <span class="n">enforce_between</span> <span class="o">=</span> <span class="n">pp</span><span class="o">.</span><span class="n">CaselessLiteral</span><span class="p">(</span><span class="s1">&#39;between&#39;</span><span class="p">)</span> <span class="o">-</span> <span class="n">pp</span><span class="o">.</span><span class="n">Group</span><span class="p">(</span><span class="n">enforce_crit</span><span class="p">)</span> <span class="o">-</span> <span class="n">pp</span><span class="o">.</span><span class="n">Suppress</span><span class="p">(</span><span class="s1">&#39;,&#39;</span><span class="p">)</span> <span class="o">-</span> <span class="n">pp</span><span class="o">.</span><span class="n">Group</span><span class="p">(</span><span class="n">enforce_crit</span><span class="p">)</span>
+        <span class="n">enforce_other</span> <span class="o">=</span> <span class="n">pp</span><span class="o">.</span><span class="n">oneOf</span><span class="p">(</span><span class="s1">&#39;once always&#39;</span><span class="p">,</span> <span class="n">caseless</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">enforce</span> <span class="o">=</span> <span class="n">enforce_at</span> <span class="o">^</span> <span class="n">enforce_between</span> <span class="o">^</span> <span class="n">enforce_other</span>
+        <span class="nb">min</span> <span class="o">=</span> <span class="n">pp</span><span class="o">.</span><span class="n">CaselessLiteral</span><span class="p">(</span><span class="s1">&#39;min&#39;</span><span class="p">)</span> <span class="o">-</span> <span class="n">const</span><span class="o">.</span><span class="n">setResultsName</span><span class="p">(</span><span class="s1">&#39;min&#39;</span><span class="p">)</span>
+        <span class="n">penalty</span> <span class="o">=</span> <span class="n">pp</span><span class="o">.</span><span class="n">CaselessLiteral</span><span class="p">(</span><span class="s1">&#39;altpenalty&#39;</span><span class="p">)</span> <span class="o">-</span> <span class="n">pp</span><span class="o">.</span><span class="n">Group</span><span class="p">(</span><span class="n">ineq</span><span class="p">)</span><span class="o">.</span><span class="n">setResultsName</span><span class="p">(</span><span class="s1">&#39;altpenalty&#39;</span><span class="p">)</span>
+        <span class="n">wt_expr</span> <span class="o">=</span> <span class="n">const</span><span class="o">.</span><span class="n">setResultsName</span><span class="p">(</span><span class="s1">&#39;weight&#39;</span><span class="p">)</span> <span class="o">-</span> <span class="n">pp</span><span class="o">.</span><span class="n">Optional</span><span class="p">(</span><span class="n">penalty</span><span class="p">)</span> <span class="o">-</span> <span class="n">pp</span><span class="o">.</span><span class="n">Optional</span><span class="p">(</span><span class="nb">min</span><span class="p">)</span>
+        <span class="n">weight</span> <span class="o">=</span> <span class="n">pp</span><span class="o">.</span><span class="n">CaselessLiteral</span><span class="p">(</span><span class="s1">&#39;weight&#39;</span><span class="p">)</span> <span class="o">-</span> <span class="n">wt_expr</span>
+        <span class="n">comment</span> <span class="o">=</span> <span class="n">pp</span><span class="o">.</span><span class="n">Suppress</span><span class="p">(</span><span class="n">pp</span><span class="o">.</span><span class="n">Literal</span><span class="p">(</span><span class="s1">&#39;#&#39;</span><span class="p">)</span> <span class="o">-</span> <span class="n">pp</span><span class="o">.</span><span class="n">ZeroOrMore</span><span class="p">(</span><span class="n">pp</span><span class="o">.</span><span class="n">Word</span><span class="p">(</span><span class="n">pp</span><span class="o">.</span><span class="n">printables</span><span class="p">)))</span>
+        <span class="n">constraint</span> <span class="o">=</span> <span class="n">pp</span><span class="o">.</span><span class="n">Group</span><span class="p">(</span><span class="n">ineq</span><span class="p">)</span><span class="o">.</span><span class="n">setResultsName</span><span class="p">(</span><span class="s1">&#39;ineq&#39;</span><span class="p">)</span> <span class="o">+</span> <span class="n">pp</span><span class="o">.</span><span class="n">Group</span><span class="p">(</span><span class="n">enforce</span><span class="p">)</span><span class="o">.</span><span class="n">setResultsName</span><span class="p">(</span><span class="s1">&#39;enforce&#39;</span><span class="p">)</span> <span class="o">+</span> \
+                     <span class="n">pp</span><span class="o">.</span><span class="n">Optional</span><span class="p">(</span><span class="n">pp</span><span class="o">.</span><span class="n">Group</span><span class="p">(</span><span class="n">weight</span><span class="p">)</span><span class="o">.</span><span class="n">setResultsName</span><span class="p">(</span><span class="s1">&#39;weight_expr&#39;</span><span class="p">))</span> <span class="o">+</span> <span class="n">pp</span><span class="o">.</span><span class="n">Optional</span><span class="p">(</span><span class="n">comment</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">constraint</span><span class="o">.</span><span class="n">parseString</span><span class="p">(</span><span class="n">line</span><span class="p">,</span> <span class="n">parseAll</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Constraint"><a class="viewcode-back" href="../../modules/constraint.html#pybnf.constraint.Constraint">[docs]</a><span class="k">class</span> <span class="nc">Constraint</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Abstract class representing an optimization constraint with a penalty for violating the constraint</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">quant1</span><span class="p">,</span> <span class="n">sign</span><span class="p">,</span> <span class="n">quant2</span><span class="p">,</span> <span class="n">base_model</span><span class="p">,</span> <span class="n">base_suffix</span><span class="p">,</span> <span class="n">weight</span><span class="p">,</span> <span class="n">altpenalty</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">minpenalty</span><span class="o">=</span><span class="mf">0.</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Create a constraint of the form (quant1) (sign) (quant2)</span>
+<span class="sd">        :param quant1: String observable name or float. String could be in the form suffix.Observable to refer to any</span>
+<span class="sd">        observable in the fitting run.</span>
+<span class="sd">        :param sign: One of &#39;&lt;&#39;, &#39;&lt;=&#39;, &#39;&gt;&#39;, &#39;&gt;=&#39;</span>
+<span class="sd">        :param quant2: String observable name or float</span>
+<span class="sd">        :param base_suffix: Suffix to assume for observables that dont use the &#39;suffix.Observable&#39; notation</span>
+<span class="sd">        :param weight: Weight of the constraint, to multiply the extent of violation</span>
+<span class="sd">        :param altpenalty: a 3-tuple [quantity, sign, quantity], giving an inequality to use instead of the regular</span>
+<span class="sd">        constraint inequality to calculate the penalty</span>
+<span class="sd">        :param minpenalty: The minimum penalty that must be applied if the constraint is violated, regardless of how</span>
+<span class="sd">        low the extent of violation is.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Flip the inequality if it&#39;s a &#39;&gt;&#39;, so we can always assume a &#39;&lt;&#39;</span>
+        <span class="k">if</span> <span class="n">sign</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">&#39;&gt;&#39;</span><span class="p">,</span> <span class="s1">&#39;&gt;=&#39;</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">quant1</span> <span class="o">=</span> <span class="n">quant2</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">quant2</span> <span class="o">=</span> <span class="n">quant1</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">quant1</span> <span class="o">=</span> <span class="n">quant1</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">quant2</span> <span class="o">=</span> <span class="n">quant2</span>
+        <span class="k">if</span> <span class="s1">&#39;=&#39;</span> <span class="ow">in</span> <span class="n">sign</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">or_equal</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">or_equal</span> <span class="o">=</span> <span class="kc">False</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">base_model</span> <span class="o">=</span> <span class="n">base_model</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">base_suffix</span> <span class="o">=</span> <span class="n">base_suffix</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">weight</span> <span class="o">=</span> <span class="n">weight</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">min_penalty</span> <span class="o">=</span> <span class="n">minpenalty</span>
+
+        <span class="k">if</span> <span class="n">altpenalty</span><span class="p">:</span>
+            <span class="c1"># Also force the altpenalty to be a &#39;&lt;&#39;.</span>
+            <span class="c1"># Never matters whether this is an &#39;or equal&#39; or not.</span>
+            <span class="n">alt1</span><span class="p">,</span> <span class="n">altsign</span><span class="p">,</span> <span class="n">alt2</span> <span class="o">=</span> <span class="n">altpenalty</span>
+            <span class="k">if</span> <span class="n">altsign</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">&#39;&gt;&#39;</span><span class="p">,</span> <span class="s1">&#39;&gt;=&#39;</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">alt1</span> <span class="o">=</span> <span class="n">alt2</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">alt2</span> <span class="o">=</span> <span class="n">alt1</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">alt1</span> <span class="o">=</span> <span class="n">alt1</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">alt2</span> <span class="o">=</span> <span class="n">alt2</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">alt1</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">alt2</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="c1"># Key tuples need to be initialized after we receive the first data result, so we can figure out the keys.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">qkeys1</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">qkeys2</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">akeys1</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">akeys2</span> <span class="o">=</span> <span class="kc">None</span>
+
+<div class="viewcode-block" id="Constraint.find_keys"><a class="viewcode-back" href="../../modules/constraint.html#pybnf.constraint.Constraint.find_keys">[docs]</a>    <span class="k">def</span> <span class="nf">find_keys</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sim_data_dict</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Function to be called on the first evaluation of the penalty.</span>
+<span class="sd">        Read through the data dictionary and figure out what keys I need to use to access each relevant variable.</span>
+
+<span class="sd">        This needs to be done kind of by brute force, because we were never told the model file to use, and it&#39;s even</span>
+<span class="sd">        possible the input is poorly defined by referring to a suffix that exists in multiple models.</span>
+<span class="sd">        :param sim_data_dict:</span>
+<span class="sd">        :return:</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">keylist</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">q</span> <span class="ow">in</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">quant1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">quant2</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">alt1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">alt2</span><span class="p">):</span>
+            <span class="n">key</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_key</span><span class="p">(</span><span class="n">q</span><span class="p">,</span> <span class="n">sim_data_dict</span><span class="p">)</span>
+            <span class="n">keylist</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Got keys for constraint </span><span class="si">%s</span><span class="s2">&lt;</span><span class="si">%s</span><span class="s2">: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">quant1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">quant2</span><span class="p">,</span> <span class="n">keylist</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">qkeys1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">qkeys2</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">akeys1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">akeys2</span> <span class="o">=</span> <span class="n">keylist</span></div>
+
+<div class="viewcode-block" id="Constraint.get_key"><a class="viewcode-back" href="../../modules/constraint.html#pybnf.constraint.Constraint.get_key">[docs]</a>    <span class="k">def</span> <span class="nf">get_key</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">q</span><span class="p">,</span> <span class="n">sim_data_dict</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Converts a string from a constraint file (&#39;Observable&#39; or &#39;suffix.observable&#39;) into a tuple of the 3 keys you</span>
+<span class="sd">        would need to index into the sim_data_dict to get the right column of data.</span>
+
+<span class="sd">        :param q:</span>
+<span class="sd">        :return:</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">q</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="k">return</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="s1">&#39;.&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">q</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">base_model</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">sim_data_dict</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">PybnfError</span><span class="p">(</span><span class="s1">&#39;Constraint file is associated with model </span><span class="si">%s</span><span class="s1">, but that model was not found&#39;</span> <span class="o">%</span>
+                                 <span class="bp">self</span><span class="o">.</span><span class="n">base_model</span><span class="p">)</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">base_suffix</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">sim_data_dict</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">base_model</span><span class="p">]:</span>
+                <span class="k">raise</span> <span class="n">PybnfError</span><span class="p">(</span><span class="s2">&quot;Constraint file </span><span class="si">%s</span><span class="s2">.con refers to suffix &#39;</span><span class="si">%s</span><span class="s2">&#39; in model &#39;</span><span class="si">%s</span><span class="s2">&#39;, but that model does not &quot;</span>
+                                 <span class="s2">&quot;produce output with that suffix&quot;</span> <span class="o">%</span>
+                                 <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">base_suffix</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">base_suffix</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">base_model</span><span class="p">))</span>
+            <span class="k">if</span> <span class="n">q</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">sim_data_dict</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">base_model</span><span class="p">][</span><span class="bp">self</span><span class="o">.</span><span class="n">base_suffix</span><span class="p">]</span><span class="o">.</span><span class="n">cols</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">PybnfError</span><span class="p">(</span><span class="s2">&quot;Observable &#39;</span><span class="si">%s</span><span class="s2">&#39; specified in constraint file was not found in the output of model &quot;</span>
+                                 <span class="s2">&quot;&#39;</span><span class="si">%s</span><span class="s2">&#39;, suffix &#39;</span><span class="si">%s</span><span class="s2">&#39;&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">q</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">base_model</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">base_suffix</span><span class="p">))</span>
+            <span class="k">return</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">base_model</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">base_suffix</span><span class="p">,</span> <span class="n">q</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">parts</span> <span class="o">=</span> <span class="n">q</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">parts</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">2</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">PybnfError</span><span class="p">(</span><span class="s1">&#39;Parsing constraint variable </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">q</span><span class="p">,</span>
+                                 <span class="s2">&quot;Parsing constraint variable </span><span class="si">%s</span><span class="s2"> - The format should be &#39;suffix.Observable&#39; Should &quot;</span>
+                                 <span class="s2">&quot;not contain multiple &#39;.&#39; characters.&quot;</span><span class="p">)</span>
+            <span class="n">options</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">sim_data_dict</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">parts</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">in</span> <span class="n">sim_data_dict</span><span class="p">[</span><span class="n">m</span><span class="p">]:</span>
+                    <span class="n">options</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">m</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">options</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">PybnfError</span><span class="p">(</span><span class="s2">&quot;Could not find any experimental data corresponding to the suffix &#39;</span><span class="si">%s</span><span class="s2">&#39; specified &quot;</span>
+                                 <span class="s2">&quot;in your constraint file&quot;</span> <span class="o">%</span> <span class="n">parts</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">options</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">PybnfError</span><span class="p">(</span><span class="s2">&quot;Suffix &#39;</span><span class="si">%s</span><span class="s2">&#39; in your constraint file appears in multiple model files. Please &quot;</span>
+                                 <span class="s2">&quot;change your suffix names so it isn&#39;t ambiguous&quot;</span> <span class="o">%</span> <span class="n">parts</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+            <span class="k">if</span> <span class="n">parts</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">sim_data_dict</span><span class="p">[</span><span class="n">options</span><span class="p">[</span><span class="mi">0</span><span class="p">]][</span><span class="n">parts</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span><span class="o">.</span><span class="n">cols</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">PybnfError</span><span class="p">(</span><span class="s2">&quot;Obserable &#39;</span><span class="si">%s</span><span class="s2">&#39; in constraint file - The output with suffix </span><span class="si">%s</span><span class="s2"> does not contain an &quot;</span>
+                                 <span class="s2">&quot;observable </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">q</span><span class="p">,</span> <span class="n">parts</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">parts</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span>
+            <span class="k">return</span> <span class="p">(</span><span class="n">options</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">parts</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">parts</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span></div>
+
+<div class="viewcode-block" id="Constraint.index"><a class="viewcode-back" href="../../modules/constraint.html#pybnf.constraint.Constraint.index">[docs]</a>    <span class="k">def</span> <span class="nf">index</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sim_data_dict</span><span class="p">,</span> <span class="n">keys</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Shortcut function for applying all 3 indices to the data object</span>
+<span class="sd">        :return:</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">sim_data_dict</span><span class="p">[</span><span class="n">keys</span><span class="p">[</span><span class="mi">0</span><span class="p">]][</span><span class="n">keys</span><span class="p">[</span><span class="mi">1</span><span class="p">]][</span><span class="n">keys</span><span class="p">[</span><span class="mi">2</span><span class="p">]]</span></div>
+
+<div class="viewcode-block" id="Constraint.get_penalty"><a class="viewcode-back" href="../../modules/constraint.html#pybnf.constraint.Constraint.get_penalty">[docs]</a>    <span class="k">def</span> <span class="nf">get_penalty</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sim_data_dict</span><span class="p">,</span> <span class="n">imin</span><span class="p">,</span> <span class="n">imax</span><span class="p">,</span> <span class="n">once</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">require_length</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Helper function for calculating the penalty, that can be called from the subclasses.</span>
+<span class="sd">        Enforces the constraint for the entire interval unless the once option is set.</span>
+
+<span class="sd">        :param sim_data_dict: The dictionary of data objects</span>
+<span class="sd">        :param imin: First index at which to check the constraint</span>
+<span class="sd">        :param imax: Last index at which to check the constraint (exclusive)</span>
+<span class="sd">        :param once: If true, enforce that the constraint holds once at some point during the time interval</span>
+<span class="sd">        :param require_length: If set to an integer, raise an error if the length of the selected data column(s) is not</span>
+<span class="sd">        equal to that value. (Used to check that &quot;at&quot; and &quot;between&quot; constraints are not encountering an unsupported</span>
+<span class="sd">        case)</span>
+<span class="sd">        :return:</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">def</span> <span class="nf">length_error</span><span class="p">():</span>
+            <span class="k">raise</span> <span class="n">PybnfError</span><span class="p">(</span><span class="s1">&#39;Applying constraint </span><span class="si">%s</span><span class="s1">&lt;</span><span class="si">%s</span><span class="s1">. Constraints involving observables that have different time &#39;</span>
+                             <span class="s1">&#39;points in their simulation outputs are not currently supported&#39;</span> <span class="o">%</span>
+                             <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">quant1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">quant2</span><span class="p">))</span>
+
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">quant1</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="n">q1_col</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">sim_data_dict</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">qkeys1</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">require_length</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">q1_col</span><span class="p">)</span> <span class="o">!=</span> <span class="n">require_length</span><span class="p">:</span>
+                <span class="n">length_error</span><span class="p">()</span>
+            <span class="n">q1</span> <span class="o">=</span> <span class="n">q1_col</span><span class="p">[</span><span class="n">imin</span><span class="p">:</span><span class="n">imax</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">q1</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">quant1</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">quant2</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="n">q2_col</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">sim_data_dict</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">qkeys2</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">require_length</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">q2_col</span><span class="p">)</span> <span class="o">!=</span> <span class="n">require_length</span><span class="p">:</span>
+                <span class="n">length_error</span><span class="p">()</span>
+            <span class="n">q2</span> <span class="o">=</span> <span class="n">q2_col</span><span class="p">[</span><span class="n">imin</span><span class="p">:</span><span class="n">imax</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">q2</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">quant2</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">once</span><span class="p">:</span>
+                <span class="n">penalty</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">q1</span><span class="o">-</span><span class="n">q2</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">penalty</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">q1</span> <span class="o">-</span> <span class="n">q2</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+            <span class="n">length_error</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="n">penalty</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">or</span> <span class="p">(</span><span class="n">penalty</span> <span class="o">==</span> <span class="mf">0.</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">or_equal</span><span class="p">):</span>
+            <span class="c1"># Failed constraint</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">alt1</span><span class="p">:</span>
+                <span class="c1"># Replace the penalty with the alt penalty</span>
+                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">alt1</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+                    <span class="n">a1</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">sim_data_dict</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">akeys1</span><span class="p">)[</span><span class="n">imin</span><span class="p">:</span><span class="n">imax</span><span class="p">]</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">a1</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">alt1</span>
+                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">alt2</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+                    <span class="n">a2</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">sim_data_dict</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">akeys2</span><span class="p">)[</span><span class="n">imin</span><span class="p">:</span><span class="n">imax</span><span class="p">]</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">a2</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">alt2</span>
+
+                <span class="k">if</span> <span class="n">once</span><span class="p">:</span>
+                    <span class="n">penalty</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">a1</span> <span class="o">-</span> <span class="n">a2</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">penalty</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">a1</span> <span class="o">-</span> <span class="n">a2</span><span class="p">)</span>
+                <span class="n">penalty</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mf">0.</span><span class="p">,</span> <span class="n">penalty</span><span class="p">)</span>
+            <span class="c1"># Apply the minimum penalty</span>
+            <span class="n">penalty</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">min_penalty</span><span class="p">,</span> <span class="n">penalty</span><span class="p">)</span>
+
+        <span class="c1"># If constraint satisfied or penalty is negative for any other reason, return 0.</span>
+        <span class="n">penalty</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mf">0.</span><span class="p">,</span> <span class="n">penalty</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">penalty</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">weight</span></div>
+
+<div class="viewcode-block" id="Constraint.penalty"><a class="viewcode-back" href="../../modules/constraint.html#pybnf.constraint.Constraint.penalty">[docs]</a>    <span class="k">def</span> <span class="nf">penalty</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sim_data_dict</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        penalty function for violating the constraint. Returns 0 if constraint is satisfied, or a positive value</span>
+<span class="sd">        if the constraint is violated. Implementation depends on the type of constraint.</span>
+
+<span class="sd">        :param sim_data_dict: Dictionary of the form {modelname: {suffix1: Data1}} containing the simulated data objects</span>
+<span class="sd">        :type sim_data_dict: dict</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s1">&#39;Subclasses of Constraint must override penalty()&#39;</span><span class="p">)</span></div></div>
+
+
+<span class="k">class</span> <span class="nc">AtConstraint</span><span class="p">(</span><span class="n">Constraint</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">quant1</span><span class="p">,</span> <span class="n">sign</span><span class="p">,</span> <span class="n">quant2</span><span class="p">,</span> <span class="n">base_model</span><span class="p">,</span> <span class="n">base_suffix</span><span class="p">,</span> <span class="n">weight</span><span class="p">,</span> <span class="n">atvar</span><span class="p">,</span> <span class="n">atval</span><span class="p">,</span> <span class="n">altpenalty</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">minpenalty</span><span class="o">=</span><span class="mf">0.</span><span class="p">,</span>
+                 <span class="n">repeat</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">before</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Creates a new constraint of the form</span>
+
+<span class="sd">        X1&gt;value at X2=value</span>
+
+<span class="sd">        :param atvar: Variable checked to determine the &#39;at&#39; condition, or None for the independent variable</span>
+<span class="sd">        :param atval: Value that the atvar must take to activate the &#39;at&#39; condition</span>
+<span class="sd">        :param repeat: If True, enforce the constraint every time the &#39;at&#39; condition is met. If False, only enforce</span>
+<span class="sd">        the first time</span>
+<span class="sd">        :param before: If True, enforce the constraint at the time point immediately before the &#39;at&#39; condition is met</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">quant1</span><span class="p">,</span> <span class="n">sign</span><span class="p">,</span> <span class="n">quant2</span><span class="p">,</span> <span class="n">base_model</span><span class="p">,</span> <span class="n">base_suffix</span><span class="p">,</span> <span class="n">weight</span><span class="p">,</span> <span class="n">altpenalty</span><span class="p">,</span> <span class="n">minpenalty</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">atvar</span> <span class="o">=</span> <span class="n">atvar</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">atval</span> <span class="o">=</span> <span class="n">atval</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">repeat</span> <span class="o">=</span> <span class="n">repeat</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">before</span> <span class="o">=</span> <span class="n">before</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">atkeys</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Created &#39;at&#39; constraint </span><span class="si">%s</span><span class="s2">&lt;</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">quant1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">quant2</span><span class="p">))</span>
+
+    <span class="k">def</span> <span class="nf">find_keys</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sim_data_dict</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Function to be called on the first evaluation of the penalty.</span>
+<span class="sd">        Read through the data dictionary and figure out what keys I need to use to access each relevant variable.</span>
+
+<span class="sd">        This needs to be done kind of by brute force, because we were never told the model file to use, and it&#39;s even</span>
+<span class="sd">        possible the input is poorly defined by referring to a suffix that exists in multiple models.</span>
+<span class="sd">        :param sim_data_dict:</span>
+<span class="sd">        :return:</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">keylist</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">q</span> <span class="ow">in</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">quant1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">quant2</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">alt1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">alt2</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">atvar</span><span class="p">):</span>
+            <span class="n">key</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_key</span><span class="p">(</span><span class="n">q</span><span class="p">,</span> <span class="n">sim_data_dict</span><span class="p">)</span>
+            <span class="n">keylist</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">qkeys1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">qkeys2</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">akeys1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">akeys2</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">atkeys</span> <span class="o">=</span> <span class="n">keylist</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">atkeys</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="c1"># No name was specified for atvar; we default to the independent variable of the default suffix</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">atkeys</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">base_model</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">base_suffix</span><span class="p">,</span>
+                           <span class="n">sim_data_dict</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">base_model</span><span class="p">][</span><span class="bp">self</span><span class="o">.</span><span class="n">base_suffix</span><span class="p">]</span><span class="o">.</span><span class="n">indvar</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Got keys for &#39;at&#39; constraint </span><span class="si">%s</span><span class="s2">&lt;</span><span class="si">%s</span><span class="s2">: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span>
+                      <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">quant1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">quant2</span><span class="p">,</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">qkeys1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">qkeys2</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">akeys1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">akeys2</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">atkeys</span><span class="p">]))</span>
+
+    <span class="k">def</span> <span class="nf">penalty</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sim_data_dict</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Compute the penalty</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># Load the keys if we haven&#39;t yet done so</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">atkeys</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">find_keys</span><span class="p">(</span><span class="n">sim_data_dict</span><span class="p">)</span>
+
+        <span class="c1"># Find the index where the when condition is met</span>
+        <span class="n">atdata</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">sim_data_dict</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">atkeys</span><span class="p">)</span>
+        <span class="n">at_col</span> <span class="o">=</span> <span class="n">atdata</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">atval</span>
+        <span class="c1"># Make array that is True at every point where the atvar crosses the atval</span>
+        <span class="n">flip_points</span> <span class="o">=</span> <span class="n">at_col</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">!=</span> <span class="n">at_col</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span>
+        <span class="n">flip_inds</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nonzero</span><span class="p">(</span><span class="n">flip_points</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">repeat</span><span class="p">:</span>
+            <span class="n">flip_inds</span> <span class="o">=</span> <span class="n">flip_inds</span><span class="p">[:</span><span class="mi">1</span><span class="p">]</span>
+
+        <span class="n">penalty</span> <span class="o">=</span> <span class="mf">0.</span>
+        <span class="k">for</span> <span class="n">fi</span> <span class="ow">in</span> <span class="n">flip_inds</span><span class="p">:</span>
+            <span class="c1"># Make sure we pick the correct end of the interval if there&#39;s a point equal to the &quot;at&quot;</span>
+            <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">isclose</span><span class="p">(</span><span class="n">atdata</span><span class="p">[</span><span class="n">fi</span><span class="o">+</span><span class="mi">1</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">atval</span><span class="p">,</span> <span class="n">atol</span><span class="o">=</span><span class="mf">0.</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">isclose</span><span class="p">(</span><span class="n">atdata</span><span class="p">[</span><span class="n">fi</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">atval</span><span class="p">,</span> <span class="n">atol</span><span class="o">=</span><span class="mf">0.</span><span class="p">)):</span>
+                <span class="n">fi</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="c1"># If constraint was declared with &quot;before&quot;, go back 1.</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">before</span> <span class="ow">and</span> <span class="n">fi</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">fi</span> <span class="o">-=</span> <span class="mi">1</span>
+            <span class="n">penalty</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_penalty</span><span class="p">(</span><span class="n">sim_data_dict</span><span class="p">,</span> <span class="n">fi</span><span class="p">,</span> <span class="n">fi</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="n">require_length</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">at_col</span><span class="p">))</span>
+            <span class="c1"># Todo - if atvar and quant1 were simulated on different time scales, need to scour independent variable cols</span>
+
+        <span class="k">return</span> <span class="n">penalty</span>
+
+
+<span class="k">class</span> <span class="nc">BetweenConstraint</span><span class="p">(</span><span class="n">Constraint</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">quant1</span><span class="p">,</span> <span class="n">sign</span><span class="p">,</span> <span class="n">quant2</span><span class="p">,</span> <span class="n">base_model</span><span class="p">,</span> <span class="n">base_suffix</span><span class="p">,</span> <span class="n">weight</span><span class="p">,</span> <span class="n">startvar</span><span class="p">,</span> <span class="n">startval</span><span class="p">,</span> <span class="n">endvar</span><span class="p">,</span> <span class="n">endval</span><span class="p">,</span> <span class="n">altpenalty</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">minpenalty</span><span class="o">=</span><span class="mf">0.</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Creates a new constraint of the form</span>
+
+<span class="sd">        X1 &lt; X2 between X3=value  X4=value</span>
+
+<span class="sd">        :param startvar: Variable checked to determine the start of the interval, or None for the independent variable</span>
+<span class="sd">        :param startval: Value that the startvar must take to trigger the start of the interval</span>
+<span class="sd">        :param endvar: Variable checked to determine the end of the interval, or None for the independent variable</span>
+<span class="sd">        :param endval: Value that the endvar must take to trigger the start of the interval</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">quant1</span><span class="p">,</span> <span class="n">sign</span><span class="p">,</span> <span class="n">quant2</span><span class="p">,</span> <span class="n">base_model</span><span class="p">,</span> <span class="n">base_suffix</span><span class="p">,</span> <span class="n">weight</span><span class="p">,</span> <span class="n">altpenalty</span><span class="p">,</span> <span class="n">minpenalty</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">startvar</span> <span class="o">=</span> <span class="n">startvar</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">startval</span> <span class="o">=</span> <span class="n">startval</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">endvar</span> <span class="o">=</span> <span class="n">endvar</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">endval</span> <span class="o">=</span> <span class="n">endval</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">startkeys</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">endkeys</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Created &#39;between&#39; constraint </span><span class="si">%s</span><span class="s2">&lt;</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">quant1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">quant2</span><span class="p">))</span>
+
+    <span class="k">def</span> <span class="nf">find_keys</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sim_data_dict</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Function to be called on the first evaluation of the penalty.</span>
+<span class="sd">        Read through the data dictionary and figure out what keys I need to use to access each relevant variable.</span>
+
+<span class="sd">        This needs to be done kind of by brute force, because we were never told the model file to use, and it&#39;s even</span>
+<span class="sd">        possible the input is poorly defined by referring to a suffix that exists in multiple models.</span>
+<span class="sd">        :param sim_data_dict:</span>
+<span class="sd">        :return:</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">keylist</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">q</span> <span class="ow">in</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">quant1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">quant2</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">alt1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">alt2</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">startvar</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">endvar</span><span class="p">):</span>
+            <span class="n">key</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_key</span><span class="p">(</span><span class="n">q</span><span class="p">,</span> <span class="n">sim_data_dict</span><span class="p">)</span>
+            <span class="n">keylist</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">qkeys1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">qkeys2</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">akeys1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">akeys2</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">startkeys</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">endkeys</span> <span class="o">=</span> <span class="n">keylist</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">startkeys</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="c1"># No name was specified for startvar; we default to the independent variable of the default suffix</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">startkeys</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">base_model</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">base_suffix</span><span class="p">,</span>
+                           <span class="n">sim_data_dict</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">base_model</span><span class="p">][</span><span class="bp">self</span><span class="o">.</span><span class="n">base_suffix</span><span class="p">]</span><span class="o">.</span><span class="n">indvar</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">endkeys</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="c1"># Same for endvar</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">endkeys</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">base_model</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">base_suffix</span><span class="p">,</span>
+                           <span class="n">sim_data_dict</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">base_model</span><span class="p">][</span><span class="bp">self</span><span class="o">.</span><span class="n">base_suffix</span><span class="p">]</span><span class="o">.</span><span class="n">indvar</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Got keys for &#39;between&#39; constraint </span><span class="si">%s</span><span class="s2">&lt;</span><span class="si">%s</span><span class="s2">: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span>
+                      <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">quant1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">quant2</span><span class="p">,</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">qkeys1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">qkeys2</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">akeys1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">akeys2</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">startkeys</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">endkeys</span><span class="p">]))</span>
+
+
+    <span class="k">def</span> <span class="nf">penalty</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sim_data_dict</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Compute the penalty</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">startkeys</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">find_keys</span><span class="p">(</span><span class="n">sim_data_dict</span><span class="p">)</span>
+
+        <span class="c1"># Find the indices bounding the condition</span>
+        <span class="n">startdat</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">sim_data_dict</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">startkeys</span><span class="p">)</span>
+        <span class="n">startcol</span> <span class="o">=</span> <span class="n">startdat</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">startval</span>
+        <span class="n">start</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nonzero</span><span class="p">(</span><span class="n">startcol</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">!=</span> <span class="n">startcol</span><span class="p">[</span><span class="mi">1</span><span class="p">:])[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">start</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="c1"># Interval never started</span>
+            <span class="k">return</span> <span class="mf">0.</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">start</span> <span class="o">=</span> <span class="n">start</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="c1"># If a point is exactly equal, make sure we pick the right end of the interval</span>
+            <span class="k">if</span> <span class="n">start</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">startdat</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span> <span class="ow">and</span> <span class="n">np</span><span class="o">.</span><span class="n">isclose</span><span class="p">(</span><span class="n">startdat</span><span class="p">[</span><span class="n">start</span><span class="o">+</span><span class="mi">1</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">startval</span><span class="p">,</span> <span class="n">atol</span><span class="o">=</span><span class="mf">0.</span><span class="p">)</span> \
+                    <span class="ow">and</span> <span class="ow">not</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">isclose</span><span class="p">(</span><span class="n">startdat</span><span class="p">[</span><span class="n">start</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">startval</span><span class="p">,</span> <span class="n">atol</span><span class="o">=</span><span class="mf">0.</span><span class="p">)):</span>
+                <span class="n">start</span> <span class="o">+=</span> <span class="mi">1</span>
+
+        <span class="n">enddat</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">sim_data_dict</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">endkeys</span><span class="p">)</span>
+        <span class="n">endcol</span> <span class="o">=</span> <span class="n">enddat</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">endval</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">startcol</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">endcol</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="n">PybnfError</span><span class="p">(</span><span class="s1">&#39;Applying constraint </span><span class="si">%s</span><span class="s1">&lt;</span><span class="si">%s</span><span class="s1">. Constraints involving observables that have different time &#39;</span>
+                             <span class="s1">&#39;points in their simulation outputs are not currently supported&#39;</span> <span class="o">%</span>
+                             <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">quant1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">quant2</span><span class="p">))</span>
+        <span class="c1"># Note: [0] strips a useless extra dimension</span>
+        <span class="n">end</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nonzero</span><span class="p">(</span><span class="n">endcol</span><span class="p">[</span><span class="n">start</span><span class="o">+</span><span class="mi">1</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">!=</span> <span class="n">endcol</span><span class="p">[</span><span class="n">start</span><span class="o">+</span><span class="mi">2</span><span class="p">:])[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">end</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="c1"># Interval never ended</span>
+            <span class="n">end</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">startcol</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">end</span> <span class="o">=</span> <span class="n">end</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>  <span class="c1"># Take the first point satisfying the end condition</span>
+            <span class="n">end</span> <span class="o">+=</span> <span class="n">start</span> <span class="o">+</span> <span class="mi">1</span>
+        <span class="k">if</span> <span class="n">end</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">endcol</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span> <span class="ow">and</span> <span class="n">np</span><span class="o">.</span><span class="n">isclose</span><span class="p">(</span><span class="n">enddat</span><span class="p">[</span><span class="n">end</span><span class="o">+</span><span class="mi">1</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">endval</span><span class="p">,</span> <span class="n">atol</span><span class="o">=</span><span class="mf">0.</span><span class="p">)</span> \
+                <span class="ow">and</span> <span class="ow">not</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">isclose</span><span class="p">(</span><span class="n">enddat</span><span class="p">[</span><span class="n">end</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">endval</span><span class="p">,</span> <span class="n">atol</span><span class="o">=</span><span class="mf">0.</span><span class="p">)):</span>
+            <span class="n">end</span> <span class="o">+=</span> <span class="mi">1</span>
+
+        <span class="n">penalty</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_penalty</span><span class="p">(</span><span class="n">sim_data_dict</span><span class="p">,</span> <span class="n">start</span><span class="p">,</span> <span class="n">end</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="n">require_length</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">endcol</span><span class="p">))</span>
+
+        <span class="k">return</span> <span class="n">penalty</span>
+
+
+<span class="k">class</span> <span class="nc">AlwaysConstraint</span><span class="p">(</span><span class="n">Constraint</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">quant1</span><span class="p">,</span> <span class="n">sign</span><span class="p">,</span> <span class="n">quant2</span><span class="p">,</span> <span class="n">base_model</span><span class="p">,</span> <span class="n">base_suffix</span><span class="p">,</span> <span class="n">weight</span><span class="p">,</span> <span class="n">altpenalty</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">minpenalty</span><span class="o">=</span><span class="mf">0.</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Creates a new constraint of the form</span>
+
+<span class="sd">        X1&gt;X2 always</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">quant1</span><span class="p">,</span> <span class="n">sign</span><span class="p">,</span> <span class="n">quant2</span><span class="p">,</span> <span class="n">base_model</span><span class="p">,</span> <span class="n">base_suffix</span><span class="p">,</span> <span class="n">weight</span><span class="p">,</span> <span class="n">altpenalty</span><span class="p">,</span> <span class="n">minpenalty</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Created &#39;always&#39; constraint </span><span class="si">%s</span><span class="s2">&lt;</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">quant1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">quant2</span><span class="p">))</span>
+
+    <span class="k">def</span> <span class="nf">penalty</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sim_data_dict</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Compute the always penalty</span>
+<span class="sd">        The penalty is given by the worst miss of the constraint over the entire data column</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">qkeys1</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">qkeys2</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">find_keys</span><span class="p">(</span><span class="n">sim_data_dict</span><span class="p">)</span>
+
+        <span class="c1"># Todo - if q1 and q2 are on different time scales</span>
+        <span class="n">penalty</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_penalty</span><span class="p">(</span><span class="n">sim_data_dict</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>  <span class="c1"># Note: Indexing by 0:None takes the entire column</span>
+
+        <span class="k">return</span> <span class="n">penalty</span>
+
+
+<span class="k">class</span> <span class="nc">OnceConstraint</span><span class="p">(</span><span class="n">Constraint</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">quant1</span><span class="p">,</span> <span class="n">sign</span><span class="p">,</span> <span class="n">quant2</span><span class="p">,</span> <span class="n">base_model</span><span class="p">,</span> <span class="n">base_suffix</span><span class="p">,</span> <span class="n">weight</span><span class="p">,</span> <span class="n">altpenalty</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">minpenalty</span><span class="o">=</span><span class="mf">0.</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Creates a new constraint of the form</span>
+
+<span class="sd">        X1&gt;X2 once</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">quant1</span><span class="p">,</span> <span class="n">sign</span><span class="p">,</span> <span class="n">quant2</span><span class="p">,</span> <span class="n">base_model</span><span class="p">,</span> <span class="n">base_suffix</span><span class="p">,</span> <span class="n">weight</span><span class="p">,</span> <span class="n">altpenalty</span><span class="p">,</span> <span class="n">minpenalty</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Created &#39;once&#39; constraint </span><span class="si">%s</span><span class="s2">&lt;</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">quant1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">quant2</span><span class="p">))</span>
+
+    <span class="k">def</span> <span class="nf">penalty</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sim_data_dict</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Compute the penalty</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">qkeys1</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">qkeys2</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">find_keys</span><span class="p">(</span><span class="n">sim_data_dict</span><span class="p">)</span>
+
+        <span class="c1"># Note: Indexing by 0:None takes the entire column</span>
+        <span class="n">penalty</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_penalty</span><span class="p">(</span><span class="n">sim_data_dict</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="n">once</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">penalty</span>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">PyBNF v0.3.1 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" >Module code</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2018, Ryan Suderman, Eshan Mitra.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.5.6.
+    </div>
+  </body>
+</html>
