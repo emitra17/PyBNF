@@ -701,6 +701,42 @@ class SbmlModel(SbmlModelNoTimeout):
         return super().execute(self.curr_folder, self.curr_file, None)
 
 
+class CExecutable:
+    """
+    Model consisting of a C++ executable generated with ModelMaker
+    """
+
+    def __init__(self, path):
+        """
+        :param path: The path to the executable
+        """
+        self.path = path
+        self.name = path
+
+    def evaluate(self, param_list, timeout):
+        """
+        Calculate the objective function given a list of parameters in order
+        :param param_list: A list of parameter values, in the order they appeared in the net file
+        :param timeout: Timeout for running the executable
+        :return: The value of the objective function
+        """
+        proc = run([self.path, '1'] + [str(par) for par in param_list], stdout=PIPE, stderr=DEVNULL, check=True,
+                   universal_newlines=True, timeout=timeout)
+        return float(proc.stdout)
+
+    def evaluate_gradient(self, param_list, timeout):
+        """
+        Calculate the gradient at the specified point
+        :param param_list: A list of parameter values, in the order they appeared in the net file
+        :param timeout: Timeout for running the executable
+        :return: The gradient as an array
+        """
+        proc = run([self.path, '2'] + [str(par) for par in param_list], stdout=PIPE, stderr=DEVNULL, check=True,
+                   universal_newlines=True, timeout=timeout)
+        result_vals = proc.stdout.split(',')[:-1]
+        return np.array([float(x) for x in result_vals])
+
+
 class FailedSimulationError(Exception):
     """
     Raised when a simulation fails that was not a result of a subprocess.run() call (currently only use with

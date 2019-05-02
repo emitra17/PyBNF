@@ -379,6 +379,44 @@ class MultimodelJobGroup(JobGroup):
         return final_result
 
 
+class CJob:
+    """
+    A job that consists of running a CExecutable rather than a model
+    """
+
+    def __init__(self, model, params, param_order, job_id, timeout):
+        """
+        :param model: CExecutable object
+        :param params: PSet
+        :param param_order: List of the parameter names in the order they appear in the net file
+        :param job_id: String identifier for this job
+        :param timeout: Max run time in seconds
+        """
+        self.model = model
+        self.params = params
+        self.param_order = param_order
+        self.job_id = job_id
+        self.timeout = timeout
+
+    def run_simulation(self, debug, failed_sim_dir):
+        """
+        :param debug: Ignored, to match signature of Job.run_simulation
+        :param failed_sim_dir: Ignored, to match signature of Job.run_simulation
+        :return:
+        """
+        param_list = []
+        for p in self.param_order:
+            param_list.append(self.params[p])
+        try:
+            obj = self.model.evaluate(param_list, self.timeout)
+        except CalledProcessError:
+            return FailedSimulation(self.params, self.job_id, 1)
+
+        res = Result(self.params, None, self.job_id)
+        res.score = obj
+        return res
+
+
 class custom_as_completed(as_completed):
     """
     Subclass created to modify a section of dask.distributed code
@@ -697,7 +735,12 @@ class Algorithm(object):
             self.job_id_counter += 1
             job_id = 'sim_%i' % self.job_id_counter
         logger.debug('Creating Job %s' % job_id)
-        if self.config.config['smoothing'] > 1:
+        if self.config.exec_mode:
+            # Create a CJob to run a C++ executable
+            # TODO: Temporary arrangement: param_order is input as a multiple-string config key
+            return [CJob(self.model_list[0], params, self.config.config['param_order'], job_id,
+                         self.config.config['wall_time_sim'])]
+        elif self.config.config['smoothing'] > 1:
             # Create multiple identical Jobs for use with smoothing
             newjobs = []
             newnames = []
@@ -836,7 +879,7 @@ class Algorithm(object):
             os.mkdir(self.failed_logs_dir)
 
         if self.config.config['local_objective_eval'] == 0 and self.config.config['smoothing'] == 1 and \
-                self.config.config['parallelize_models'] == 1:
+                self.config.config['parallelize_models'] == 1 and not self.config.exec_mode:
             calculator = ObjectiveCalculator(self.objective, self.exp_data, self.config.constraints)
             [self.calc_future] = client.scatter([calculator], broadcast=True)
         else:

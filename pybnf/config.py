@@ -6,7 +6,7 @@ from .objective import ChiSquareObjective, SumOfSquaresObjective, NormSumOfSquar
     AveNormSumOfSquaresObjective, SumOfDiffsObjective
 
 from .pset import BNGLModel, ModelError, SbmlModel, SbmlModelNoTimeout, FreeParameter, TimeCourse, ParamScan, \
-    Mutation, MutationSet
+    Mutation, MutationSet, CExecutable
 from .printing import verbosity, print1, PybnfError
 from .constraint import ConstraintSet
 
@@ -101,8 +101,14 @@ class Configuration(object):
         :param d: The result from parsing a configuration file
         :type d: dict
         """
-        if 'models' not in d or len(d['models']) == 0:
-            raise UnspecifiedConfigurationKeyError("'model' must be specified in the configuration file.")
+        if 'executable' in d:
+            # Unusual run in which we are calling a C++ executable instead of the usual simulators
+            self.exec_mode = True
+        else:
+            self.exec_mode = False
+            if 'models' not in d or len(d['models']) == 0:
+                raise UnspecifiedConfigurationKeyError("'model' must be specified in the configuration file.")
+
         if 'fit_type' not in d:
             d['fit_type'] = 'de'
             print1('Warning: fit_type was not specified. Defaulting to de (Differential Evolution).')
@@ -128,26 +134,37 @@ class Configuration(object):
         for k, v in d.items():
             self.config[k] = v
 
-        self._data_map = dict()  # Internal structure to help get both regular and mutant data to the right place
-        self.models = self._load_models()
-        logger.debug('Loaded models')
-        self._load_actions()
-        logger.debug('Loaded actions')
-        self._load_simulators()
-        logger.debug('Loaded simulators')
-        self._load_mutants()
-        logger.debug('Loaded mutants')
-        self.mapping = self._check_actions()  # dict of model prefix -> set of experimental data prefixes
-        logger.debug('Loaded model:exp mapping')
-        self.exp_data, self.constraints = self._load_exp_data()
-        logger.debug('Loaded data')
-        self.obj = self._load_obj_func()
-        logger.debug('Loaded objective function')
-        self.variables = self._load_variables()
-        self._check_variable_correspondence()
-        logger.debug('Loaded variables')
-        self._postprocess_normalization()
-        self._load_postprocessing()
+        if not self.exec_mode:
+            # Normal use case
+            self._data_map = dict()  # Internal structure to help get both regular and mutant data to the right place
+            self.models = self._load_models()
+            logger.debug('Loaded models')
+            self._load_actions()
+            logger.debug('Loaded actions')
+            self._load_simulators()
+            logger.debug('Loaded simulators')
+            self._load_mutants()
+            logger.debug('Loaded mutants')
+            self.mapping = self._check_actions()  # dict of model prefix -> set of experimental data prefixes
+            logger.debug('Loaded model:exp mapping')
+            self.exp_data, self.constraints = self._load_exp_data()
+            logger.debug('Loaded data')
+            self.obj = self._load_obj_func()
+            logger.debug('Loaded objective function')
+            self.variables = self._load_variables()
+            self._check_variable_correspondence()
+            logger.debug('Loaded variables')
+            self._postprocess_normalization()
+            self._load_postprocessing()
+        else:
+            # Running with C++ executable
+            self.models = {d['executable']: CExecutable(d['executable'])}
+            self.mapping = None
+            self.exp_data = None
+            self.constraints = None
+            self.obj = None
+            self.variables = self._load_variables()
+            logger.debug('Loaded variables')
         logger.debug('Completed configuration')
 
     @staticmethod
