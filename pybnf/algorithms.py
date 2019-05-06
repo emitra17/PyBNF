@@ -963,6 +963,11 @@ class Algorithm(object):
         client.cancel(list(pending.keys()))
         self.output_results('final')
 
+        if self.config.exec_mode:
+            # Post-run file handling does not apply
+            logger.info('Fitting complete. Skipping post-run file handling because this run used a binary executable.')
+            return
+
         # Copy the best simulations into the results folder
         best_name = self.trajectory.best_fit_name()
         best_pset = self.trajectory.best_fit()
