@@ -210,6 +210,8 @@ def main():
                 alg = algs.DreamAlgorithm(config)
             elif config.config['fit_type'] == 'check':
                 alg = algs.ModelCheck(config)
+            elif config.config['fit_type'] == 'nuts':
+                alg = algs.FullRunner(config)
             else:
                 raise PybnfError('Invalid fit_type %s. Options are: pso, de, ade, ss, mh, pt, sa, sim, check' % config.config['fit_type'])
 

@@ -2809,6 +2809,231 @@ class SimplexAlgorithm(Algorithm):
         return max(v.lower_bound, min(v.upper_bound, result))
 
 
+class FullRunner(Algorithm):
+    """
+    Algorithm class used for the non-standard workflow of the NoUTurnSampler (and maybe other algorithms in the future)
+    in which we spawn N processes for N independent calls to run_full, and just let those go for the whole run
+    """
+
+    def run(self, client, resume=None, debug=False):
+        if not self.config.exec_mode:
+            raise PybnfError('fit_type=%s is only supported with a binary executable to calculate gradients' %
+                             self.config.config['fit_type'])
+        if resume:
+            raise NotImplementedError('Resume is not implemented for fit_type=%s' % self.config.config['fit_type'])
+
+        # Create N instances of the single-run algorithm
+        instances = [NoUTurnSampler(self.config) for _ in range(self.config.config['population_size'])]
+        start_points = self.random_latin_hypercube_psets(self.config.config['population_size'])
+        for i, alg in enumerate(instances):
+            alg.set_instance(start_points[i], i)
+
+        # TODO: Submit N runs in parallel (after debugging serial case)
+        for alg in instances:
+            alg.run_full()
+
+
+class NoUTurnSampler:
+    """
+    Implementation of the No U Turn Sampler
+
+    This is not implemented as a regular PyBNF algorithm; instead run_full() performs the entire run.
+    Could make multiple run_full calls in parallel.
+
+    This is easier as a first try than the regular PyBNF workflow because we avoid having to suspend the algorithm
+    at awkward points when we want a gradient eval.
+
+    """
+
+    def __init__(self, config):
+        self.config = config
+        # Extract the model object (should be only one) from the config
+        self.model = copy.deepcopy(list(self.config.models.values())[0])
+        self.max_iterations = config.config['max_iterations']
+        self.epsilon = config.config['hmc_epsilon']  # Todo: Add adaptive method for choosing
+        self.delta_max = 1000
+
+        # To be set during later configuration
+        self.index = -1
+        self.theta = None
+        self.theta_score = np.nan
+
+    def set_instance(self, x0, index):
+        """
+        Set parameters specific to one instance of this algorithm
+        If running multiple independent instances in parallel, each one should have this function called with different
+        values
+        :param x0: PSet starting point
+        :type x0: PSet
+        :param index: Unique identifier for this instance
+        :type index: int
+        """
+        self.index = index
+        self.theta = self.pset2array(x0)
+
+    def run_full(self):
+        # Algorithm 3 from Hoffman 2011
+
+        # Note: We take theta as a numpy array, not a PSet object. Feels easier (at least for now), esp. because
+        # PSet features like box constraints and log space are not supported, and we need the ordering anyway for
+        # our many gradient evals.
+
+        # Set up output file
+        with open(self.config.config['output_dir'] + '/Results/samples%i.txt', 'w') as f:
+            f.write('# ')
+            f.write('\t'.join(self.config.config['param_order']))
+            f.write('\n')
+
+        for m in range(self.max_iterations):
+            logger.debug('Begin iteration %i' % m)
+            r0 = np.random.normal(0, 1, len(self.theta))  # Initial momentum in each dimension
+            # Note: theta gets unnecessarily re-scored here. Small overhead vs the upcoming 2^L gradients.
+            u = np.random.uniform(0, self.eval_objective(self.theta, r0))  # Slice variable
+            logger.debug('Slice score is %s' % u)
+            theta_minus = self.theta  # The backward-most position visited
+            r_minus = r0  # The momentum at theta_minus
+            theta_plus = self.theta  # The forward-most position visited
+            r_plus = r0  # The momentum at theta_plus
+            theta_m = self.theta  # Our current pick for the next pset to sample?
+            n = 1  # Number of psets in C, eligible to be picked next
+            j = 0  # Height of the tree, ie number of doubling steps so far
+            s = True  # Whether to keep going with another round of doubling
+
+            while s:
+                vj = np.random.choice((-1, 1))  # Whether to go backwards or forwards in time
+                logger.debug('Step j=%i with vj=%i' % (j, vj))
+                if vj == -1:
+                    # Go 2^j steps backward
+                    theta_minus, r_minus, _, _, theta_new, n_new, s_new = self.build_tree(theta_minus, r_minus, u, vj, j, self.epsilon)
+                else:
+                    # Go 2^j steps forward
+                    _, _, theta_plus, r_plus, theta_new, n_new, s_new = self.build_tree(theta_plus, r_plus, u, vj, j, self.epsilon)
+                if s:
+                    # If the new subtree did not locally trigger stop condition, it's eligible to be picked from
+                    # Choose either the existing root from last iteration, or the root of the new subtree
+                    # We use a quirky transition kernel that biases toward picking the new root
+                    # (see paper for why that's okay)
+                    logger.debug('The new subtree contains %s candidates' % n_new)
+                    if min(1., n_new/n) < np.random.random():
+                        theta_m = theta_new
+                        logger.debug('Updated theta to %s' % theta_m[:5])
+                    else:
+                        logger.debug('Kept the previous theta')
+                else:
+                    logger.debug('The new subtree locally triggered a stop condition')
+                n = n + n_new
+                # Check if the whole new tree triggers stop
+                s_current = np.dot(theta_plus-theta_minus, r_minus) >= 0 and \
+                    np.dot(theta_minus-theta_plus, r_plus) >= 0
+                if not s_current:
+                    logger.debug('Full tree triggered stop condition')
+                s = s_new and s_current
+                j += 1
+            # Stop condition met - sample and complete iteration
+            logger.debug('Finished iteration %i' % m)
+            print2('Finished iteration %i' % m)
+            self.theta = theta_m
+            self.sample_parameters(theta_m)
+
+        return True
+
+    def build_tree(self, theta, r, u, v, j, epsilon):
+        """
+        Take 2^j Hamiltonian steps forward or backward, while (recursively) building the underlying tree, and
+        sampling as we go.
+
+        :param theta: Starting point
+        :param r: Starting momentum
+        :param u: Slice variable
+        :param v: Direction (+1 or -1)
+        :param j: Tree height (aka log2(#steps))
+        :param epsilon: Sensitivity
+        :return: Tuple (theta_minus, r_minus, theta_plus, r_plus, theta_new, n_new, s_new) where
+        (theta_minus, r_minus) - the backwardmost point of the tree
+        (theta_plus, r_plus) - the forwardmost point of the tree
+        theta_new - the sampled point of the tree (random among eligible points)
+        n_new - the number of eligible points in the tree (which is the weight of theta_new going forward)
+        s_new - if False, stop criterion satisfied (and potentially throw away tree without sampling)
+        """
+
+        if j == 0:
+            # Base case - take one leapfrog step in the direction v
+            theta_new, r_new = self.leapfrog(theta, r, v*epsilon)
+            score = self.eval_objective(theta_new, r_new)
+            n_new = 1 if score < u else 0
+            s_new = score > np.log(u) - self.delta_max
+            if not s_new:
+                logger.debug('Theta %s triggered stop condition via delta_max' % theta_new[:5])
+            return theta_new, r_new, theta_new, r_new, theta_new, n_new, s_new
+
+        # Recursion - implicitly build the left and right subtrees.
+        # Build the half of the tree that is "one step" forward/back from the initial theta
+        theta_minus, r_minus, theta_plus, r_plus, theta_new, n_new, s_new = self.build_tree(theta, r, u, v, j-1, epsilon)
+        if s_new:  # (Don't bother if we aren't using this subtree)
+            # Build the half of the tree that is "two steps" forward/back from the initial theta
+            if v == -1:
+                theta_minus, r_minus, _, _, theta_new2, n_new2, s_new2 = self.build_tree(theta_minus, r_minus, u, v, j-1, epsilon)
+            else:
+                _, _, theta_plus, r_plus, theta_new2, n_new2, s_new2 = self.build_tree(theta_plus, r_plus, u, v, j-1, epsilon)
+            # Weighted choice of either theta_new (selection from first half) or theta_new2 (selection from second half)
+            # as the selection for the whole tree
+            if n_new + n_new2 != 0 and np.random.random() < n_new2 / (n_new + n_new2):
+                theta_new = theta_new2
+            # Trigger overall stop condition if the stop condition was triggered in the second half.
+            # (Dot product checks the whole 2nd half, s_new2 checks for a deeper subtree)
+            s_current = np.dot(theta_plus - theta_minus, r_minus) >= 0 and \
+                    np.dot(theta_minus - theta_plus, r_minus) >= 0
+            if not s_current:
+                logger.debug('Subtree from %s to %s triggered stop condition' % (theta_minus[:5], theta_plus[:5]))
+            s_new = s_new2 and s_current
+            # Overall n_new is sum of 2 halves
+            n_new = n_new + n_new2
+        return theta_minus, r_minus, theta_plus, r_plus, theta_new, n_new, s_new
+
+    def leapfrog(self, theta, r, epsilon):
+        """
+        Propagate pset theta with momentum r forward one time step epsilon.
+        """
+        grad1 = self.eval_gradient(theta)
+        r_new = r + (epsilon / 2) * grad1
+        theta_new = theta + epsilon * r_new
+        grad2 = self.eval_gradient(theta_new)
+        r_new += (epsilon / 2) * grad2
+
+        return theta_new, r_new
+
+    def pset2array(self, params):
+        """
+        Convert a PSet object to a numpy array with the parameters in the canonical order
+        :param params:
+        :type params: PSet
+        :return:
+        :type: np.array
+        """
+        return np.array([params[name] for name in self.config.config['param_order']])
+
+    def sample_parameters(self, params):
+        """
+        Save sample for the parameter set represented by the numpy array params
+        :param params:
+        :return:
+        """
+        # TODO: Would be helpful to include Ln_probability of sampled value
+        with open(self.config.config['output_dir'] + '/Results/samples%i.txt', 'a') as f:
+            f.write('\t'.join([str(x) for x in params]))
+
+    def eval_objective(self, params, r):
+        obj = self.model.evaluate(params, timeout=None)
+        logger.debug('Params %s has objective %s' % (params[:5], obj))
+        score = obj - 0.5 * np.dot(r, r)
+        logger.debug('With momentum %s it has score %s' % (r[:5], score))
+        return score
+
+    def eval_gradient(self, params):
+        grad = self.model.evaluate_gradient(params, timeout=None)
+        logger.debug('Params %s has gradient %s' % (params[:5], grad[:5]))
+        return grad
+
 def latin_hypercube(nsamples, ndims):
     """
     Latin hypercube sampling.
