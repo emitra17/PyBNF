@@ -26,7 +26,7 @@ numkeys_float = ['min_objective', 'cognitive', 'social', 'particle_weight',
                  'mutation_rate', 'mutation_factor', 'stop_tolerance', 'step_size', 'simplex_step', 'simplex_log_step',
                  'simplex_reflection', 'simplex_expansion', 'simplex_contraction', 'simplex_shrink', 'cooling',
                  'beta_max', 'bootstrap_max_obj', 'simplex_stop_tol', 'v_stop', 'gamma_prob', 'zeta', 'lambda',
-                 'constraint_scale', 'hmc_epsilon']
+                 'constraint_scale', 'target_accept_rate']
 multnumkeys = ['credible_intervals', 'beta', 'beta_range']
 b_var_def_keys = ['uniform_var', 'loguniform_var']
 var_def_keys = ['lognormal_var', 'normal_var']

@@ -2850,7 +2850,6 @@ class NoUTurnSampler:
         # Extract the model object (should be only one) from the config
         self.model = copy.deepcopy(list(self.config.models.values())[0])
         self.max_iterations = config.config['max_iterations']
-        self.epsilon = config.config['hmc_epsilon']  # Todo: Add adaptive method for choosing
         self.delta_max = 1000
 
         # To be set during later configuration
@@ -2884,14 +2883,23 @@ class NoUTurnSampler:
             f.write('\t'.join(self.config.config['param_order']))
             f.write('\n')
 
+        self.epsilon = self.find_reasonable_epsilon(self.theta)
+        H_bar = 0  # Current H_bar, a strange quantity that comes up in the adjustment algorithm
+        log_e_bar = 0  # Current log(epsilon_bar), a strange quantity that comes up in the adjustment algorithm
+        tune_delta = self.config.config['target_accept_rate']  # User-specified parameter for epsilon adjustment (the target (pseudo-)accept rate)
+        t0 = 10  # Parameter for adjustment algorithm
+        tune_gamma = 0.05  # Parameter for adjustment algorithm
+        tune_kappa = 0.75  # Parameter for adjustment algorithm
+        tune_mu = np.log(10*self.epsilon)
+
         for m in range(self.max_iterations):
             logger.debug('Begin iteration %i' % m)
             r0 = np.random.normal(0, 1, len(self.theta))  # Initial momentum in each dimension
             # Note: theta gets unnecessarily re-scored here. Small overhead vs the upcoming 2^L gradients.
-            log_l = self.eval_objective(self.theta, r0)
+            log_l0 = self.eval_objective(self.theta, r0)
             # We want u uniformly random from 0 to exp(log_l), but want to save log(u) to avoid numerical errors
             # So we pretend to do rand(0,1) * exp(log_l) and actually save the log of that, log(rand) + logl
-            log_u = np.log(np.random.random()) + log_l  # Slice variable
+            log_u = np.log(np.random.random()) + log_l0  # Slice variable
             logger.debug('Log slice score is %s' % log_u)
             theta_minus = self.theta  # The backward-most position visited
             r_minus = r0  # The momentum at theta_minus
@@ -2907,10 +2915,10 @@ class NoUTurnSampler:
                 logger.debug('Step j=%i with vj=%i' % (j, vj))
                 if vj == -1:
                     # Go 2^j steps backward
-                    theta_minus, r_minus, _, _, theta_new, n_new, s_new = self.build_tree(theta_minus, r_minus, log_u, vj, j, self.epsilon)
+                    theta_minus, r_minus, _, _, theta_new, n_new, s_new, alpha_new, nalpha_new = self.build_tree(theta_minus, r_minus, log_u, vj, j, self.epsilon, log_l0)
                 else:
                     # Go 2^j steps forward
-                    _, _, theta_plus, r_plus, theta_new, n_new, s_new = self.build_tree(theta_plus, r_plus, log_u, vj, j, self.epsilon)
+                    _, _, theta_plus, r_plus, theta_new, n_new, s_new, alpha_new, nalpha_new = self.build_tree(theta_plus, r_plus, log_u, vj, j, self.epsilon, log_l0)
                 if s:
                     # If the new subtree did not locally trigger stop condition, it's eligible to be picked from
                     # Choose either the existing root from last iteration, or the root of the new subtree
@@ -2936,11 +2944,20 @@ class NoUTurnSampler:
             logger.debug('Finished iteration %i' % m)
             print2('Finished iteration %i' % m)
             self.theta = theta_m
-            self.sample_parameters(theta_m)
+            if m < self.config.config['burn_in']:
+                # Adapt epsilon
+                H_bar = (1 - (1/(m+t0)))*H_bar + (1/(m+t0))*(tune_delta - alpha_new/nalpha_new)
+                self.epsilon = np.exp((tune_mu - m**0.5/tune_gamma)*H_bar)
+                log_e_bar = m**(-tune_kappa)*np.log(self.epsilon) + (1-m**(-tune_kappa))*log_e_bar
+                logger.debug('Adjusted epsilon to %s' % self.epsilon)
+            else:
+                self.epsilon = np.exp(log_e_bar)
+                logger.debug('Use the tuned value of epsilon = %s' % self.epsilon)
+                self.sample_parameters(theta_m)
 
         return True
 
-    def build_tree(self, theta, r, log_u, v, j, epsilon):
+    def build_tree(self, theta, r, log_u, v, j, epsilon, logl_theta0):
         """
         Take 2^j Hamiltonian steps forward or backward, while (recursively) building the underlying tree, and
         sampling as we go.
@@ -2951,12 +2968,15 @@ class NoUTurnSampler:
         :param v: Direction (+1 or -1)
         :param j: Tree height (aka log2(#steps))
         :param epsilon: Sensitivity
+        :param logl_theta0: Initial log-likelihood value for this iteration (used to tune epsilon during burn-in)
         :return: Tuple (theta_minus, r_minus, theta_plus, r_plus, theta_new, n_new, s_new) where
         (theta_minus, r_minus) - the backwardmost point of the tree
         (theta_plus, r_plus) - the forwardmost point of the tree
         theta_new - the sampled point of the tree (random among eligible points)
         n_new - the number of eligible points in the tree (which is the weight of theta_new going forward)
         s_new - if False, stop criterion satisfied (and potentially throw away tree without sampling)
+        alpha_new - Sum of the test statistic min(1, P(theta)/P(theta0)) for all theta in this tree (used to tune epsilon)
+        nalpha_new - The number of parameter sets included in the alpha_new total (used to tune epsilon)
         """
 
         if j == 0:
@@ -2967,21 +2987,25 @@ class NoUTurnSampler:
             s_new = score > log_u - self.delta_max
             if not s_new:
                 logger.debug('Theta %s triggered stop condition via delta_max (score=%s)' % (theta_new[:5], score))
-            return theta_new, r_new, theta_new, r_new, theta_new, n_new, s_new
+            alpha_new = 1. if logl_theta0 > score else np.exp(score-logl_theta0)
+            return theta_new, r_new, theta_new, r_new, theta_new, n_new, s_new, alpha_new, 1
 
         # Recursion - implicitly build the left and right subtrees.
         # Build the half of the tree that is "one step" forward/back from the initial theta
-        theta_minus, r_minus, theta_plus, r_plus, theta_new, n_new, s_new = self.build_tree(theta, r, log_u, v, j-1, epsilon)
+        theta_minus, r_minus, theta_plus, r_plus, theta_new, n_new, s_new, alpha_new, nalpha_new = self.build_tree(theta, r, log_u, v, j-1, epsilon, logl_theta0)
         if s_new:  # (Don't bother if we aren't using this subtree)
             # Build the half of the tree that is "two steps" forward/back from the initial theta
             if v == -1:
-                theta_minus, r_minus, _, _, theta_new2, n_new2, s_new2 = self.build_tree(theta_minus, r_minus, log_u, v, j-1, epsilon)
+                theta_minus, r_minus, _, _, theta_new2, n_new2, s_new2, alpha_new2, nalpha_new2 = self.build_tree(theta_minus, r_minus, log_u, v, j-1, epsilon, logl_theta0)
             else:
-                _, _, theta_plus, r_plus, theta_new2, n_new2, s_new2 = self.build_tree(theta_plus, r_plus, log_u, v, j-1, epsilon)
+                _, _, theta_plus, r_plus, theta_new2, n_new2, s_new2, alpha_new2, nalpha_new2 = self.build_tree(theta_plus, r_plus, log_u, v, j-1, epsilon, logl_theta0)
             # Weighted choice of either theta_new (selection from first half) or theta_new2 (selection from second half)
             # as the selection for the whole tree
             if n_new + n_new2 != 0 and np.random.random() < n_new2 / (n_new + n_new2):
                 theta_new = theta_new2
+            # Propagate the alpha sum
+            alpha_new = alpha_new + alpha_new2
+            nalpha_new = nalpha_new + nalpha_new2
             # Trigger overall stop condition if the stop condition was triggered in the second half.
             # (Dot product checks the whole 2nd half, s_new2 checks for a deeper subtree)
             s_current = np.dot(theta_plus - theta_minus, r_minus) >= 0 and \
@@ -2991,7 +3015,7 @@ class NoUTurnSampler:
             s_new = s_new2 and s_current
             # Overall n_new is sum of 2 halves
             n_new = n_new + n_new2
-        return theta_minus, r_minus, theta_plus, r_plus, theta_new, n_new, s_new
+        return theta_minus, r_minus, theta_plus, r_plus, theta_new, n_new, s_new, alpha_new, nalpha_new
 
     def leapfrog(self, theta, r, epsilon):
         """
@@ -3044,6 +3068,27 @@ class NoUTurnSampler:
         grad = self.model.evaluate_gradient(params, timeout=None)
         logger.debug('Params %s has gradient %s' % (params[:5], grad[:5]))
         return -grad
+
+    def find_reasonable_epsilon(self, theta):
+        # Algorithm 4 from paper
+        epsilon = 1.
+        r = np.random.normal(0, 1, len(theta))
+        logl_theta = self.eval_objective(theta, r)
+        theta_new, r_new = self.leapfrog(theta, r, epsilon)
+        logl_theta_new = self.eval_objective(theta_new, r_new)
+        a = 1 if logl_theta_new - logl_theta > np.log(0.5) else -1
+        iters = 0
+        while a*(logl_theta_new - logl_theta) > -a * np.log(2):
+            epsilon *= 2**a
+            theta_new, r_new = self.leapfrog(theta, r, epsilon)
+            logl_theta_new = self.eval_objective(theta_new, r_new)
+            iters += 1
+            if iters > 100:
+                logger.error('Loop ran too long in find_reasonable_epsilon')
+                break
+        logger.debug('Chose "reasonable" epsilon = %s' % epsilon)
+        return epsilon
+
 
 def latin_hypercube(nsamples, ndims):
     """

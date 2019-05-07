@@ -209,7 +209,9 @@ class Configuration(object):
             'gamma_prob': 0.1,
             'zeta': 1e-6,
             'lambda': 0.1,
-            'crossover_number': 3
+            'crossover_number': 3,
+
+            'target_accept_rate': 0.6
         }
         return default
 
