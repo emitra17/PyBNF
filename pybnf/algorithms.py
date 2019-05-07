@@ -2888,8 +2888,11 @@ class NoUTurnSampler:
             logger.debug('Begin iteration %i' % m)
             r0 = np.random.normal(0, 1, len(self.theta))  # Initial momentum in each dimension
             # Note: theta gets unnecessarily re-scored here. Small overhead vs the upcoming 2^L gradients.
-            u = np.random.uniform(0, self.eval_objective(self.theta, r0))  # Slice variable
-            logger.debug('Slice score is %s' % u)
+            log_l = self.eval_objective(self.theta, r0)
+            # We want u uniformly random from 0 to exp(log_l), but want to save log(u) to avoid numerical errors
+            # So we pretend to do rand(0,1) * exp(log_l) and actually save the log of that, log(rand) + logl
+            log_u = np.log(np.random.random()) + log_l  # Slice variable
+            logger.debug('Log slice score is %s' % log_u)
             theta_minus = self.theta  # The backward-most position visited
             r_minus = r0  # The momentum at theta_minus
             theta_plus = self.theta  # The forward-most position visited
@@ -2904,10 +2907,10 @@ class NoUTurnSampler:
                 logger.debug('Step j=%i with vj=%i' % (j, vj))
                 if vj == -1:
                     # Go 2^j steps backward
-                    theta_minus, r_minus, _, _, theta_new, n_new, s_new = self.build_tree(theta_minus, r_minus, u, vj, j, self.epsilon)
+                    theta_minus, r_minus, _, _, theta_new, n_new, s_new = self.build_tree(theta_minus, r_minus, log_u, vj, j, self.epsilon)
                 else:
                     # Go 2^j steps forward
-                    _, _, theta_plus, r_plus, theta_new, n_new, s_new = self.build_tree(theta_plus, r_plus, u, vj, j, self.epsilon)
+                    _, _, theta_plus, r_plus, theta_new, n_new, s_new = self.build_tree(theta_plus, r_plus, log_u, vj, j, self.epsilon)
                 if s:
                     # If the new subtree did not locally trigger stop condition, it's eligible to be picked from
                     # Choose either the existing root from last iteration, or the root of the new subtree
@@ -2924,7 +2927,7 @@ class NoUTurnSampler:
                 n = n + n_new
                 # Check if the whole new tree triggers stop
                 s_current = np.dot(theta_plus-theta_minus, r_minus) >= 0 and \
-                    np.dot(theta_minus-theta_plus, r_plus) >= 0
+                    np.dot(theta_plus-theta_minus, r_plus) >= 0
                 if not s_current:
                     logger.debug('Full tree triggered stop condition')
                 s = s_new and s_current
@@ -2937,7 +2940,7 @@ class NoUTurnSampler:
 
         return True
 
-    def build_tree(self, theta, r, u, v, j, epsilon):
+    def build_tree(self, theta, r, log_u, v, j, epsilon):
         """
         Take 2^j Hamiltonian steps forward or backward, while (recursively) building the underlying tree, and
         sampling as we go.
@@ -2960,21 +2963,21 @@ class NoUTurnSampler:
             # Base case - take one leapfrog step in the direction v
             theta_new, r_new = self.leapfrog(theta, r, v*epsilon)
             score = self.eval_objective(theta_new, r_new)
-            n_new = 1 if score < u else 0
-            s_new = score > np.log(u) - self.delta_max
+            n_new = 1 if score < log_u else 0
+            s_new = score > log_u - self.delta_max
             if not s_new:
-                logger.debug('Theta %s triggered stop condition via delta_max' % theta_new[:5])
+                logger.debug('Theta %s triggered stop condition via delta_max (score=%s)' % (theta_new[:5], score))
             return theta_new, r_new, theta_new, r_new, theta_new, n_new, s_new
 
         # Recursion - implicitly build the left and right subtrees.
         # Build the half of the tree that is "one step" forward/back from the initial theta
-        theta_minus, r_minus, theta_plus, r_plus, theta_new, n_new, s_new = self.build_tree(theta, r, u, v, j-1, epsilon)
+        theta_minus, r_minus, theta_plus, r_plus, theta_new, n_new, s_new = self.build_tree(theta, r, log_u, v, j-1, epsilon)
         if s_new:  # (Don't bother if we aren't using this subtree)
             # Build the half of the tree that is "two steps" forward/back from the initial theta
             if v == -1:
-                theta_minus, r_minus, _, _, theta_new2, n_new2, s_new2 = self.build_tree(theta_minus, r_minus, u, v, j-1, epsilon)
+                theta_minus, r_minus, _, _, theta_new2, n_new2, s_new2 = self.build_tree(theta_minus, r_minus, log_u, v, j-1, epsilon)
             else:
-                _, _, theta_plus, r_plus, theta_new2, n_new2, s_new2 = self.build_tree(theta_plus, r_plus, u, v, j-1, epsilon)
+                _, _, theta_plus, r_plus, theta_new2, n_new2, s_new2 = self.build_tree(theta_plus, r_plus, log_u, v, j-1, epsilon)
             # Weighted choice of either theta_new (selection from first half) or theta_new2 (selection from second half)
             # as the selection for the whole tree
             if n_new + n_new2 != 0 and np.random.random() < n_new2 / (n_new + n_new2):
@@ -2982,7 +2985,7 @@ class NoUTurnSampler:
             # Trigger overall stop condition if the stop condition was triggered in the second half.
             # (Dot product checks the whole 2nd half, s_new2 checks for a deeper subtree)
             s_current = np.dot(theta_plus - theta_minus, r_minus) >= 0 and \
-                    np.dot(theta_minus - theta_plus, r_minus) >= 0
+                    np.dot(theta_plus - theta_minus, r_minus) >= 0
             if not s_current:
                 logger.debug('Subtree from %s to %s triggered stop condition' % (theta_minus[:5], theta_plus[:5]))
             s_new = s_new2 and s_current
@@ -3023,16 +3026,24 @@ class NoUTurnSampler:
             f.write('\t'.join([str(x) for x in params]))
 
     def eval_objective(self, params, r):
+        """
+        calculate the log likelihood of the parameters and r: L(theta) - 1/2 r^2
+        Note that our objective function is the negative log likelihood, so we negate it.
+        """
         obj = self.model.evaluate(params, timeout=None)
         logger.debug('Params %s has objective %s' % (params[:5], obj))
-        score = obj - 0.5 * np.dot(r, r)
+        score = -obj - 0.5 * np.dot(r, r)
         logger.debug('With momentum %s it has score %s' % (r[:5], score))
         return score
 
     def eval_gradient(self, params):
+        """
+        Calculate the gradient of the log likelihood at the specified point
+        Note that our objective function is the negative log likelihood, so we negate the gradient.
+        """
         grad = self.model.evaluate_gradient(params, timeout=None)
         logger.debug('Params %s has gradient %s' % (params[:5], grad[:5]))
-        return grad
+        return -grad
 
 def latin_hypercube(nsamples, ndims):
     """
