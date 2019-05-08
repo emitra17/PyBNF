@@ -2892,7 +2892,7 @@ class NoUTurnSampler:
         tune_kappa = 0.75  # Parameter for adjustment algorithm
         tune_mu = np.log(10*self.epsilon)
 
-        for m in range(self.max_iterations):
+        for m in range(1,self.max_iterations+1):
             logger.debug('Begin iteration %i' % m)
             r0 = np.random.normal(0, 1, len(self.theta))  # Initial momentum in each dimension
             # Note: theta gets unnecessarily re-scored here. Small overhead vs the upcoming 2^L gradients.
@@ -2946,6 +2946,7 @@ class NoUTurnSampler:
             self.theta = theta_m
             if m < self.config.config['burn_in']:
                 # Adapt epsilon
+                logger.debug('Adjusting epsilon. Current Hbar is %s. This iteration alpha_new/n = %s/%s. Target ratio is %s' % (H_bar, alpha_new, nalpha_new, tune_delta))
                 H_bar = (1 - (1/(m+t0)))*H_bar + (1/(m+t0))*(tune_delta - alpha_new/nalpha_new)
                 self.epsilon = np.exp((tune_mu - m**0.5/tune_gamma)*H_bar)
                 log_e_bar = m**(-tune_kappa)*np.log(self.epsilon) + (1-m**(-tune_kappa))*log_e_bar
@@ -2983,11 +2984,11 @@ class NoUTurnSampler:
             # Base case - take one leapfrog step in the direction v
             theta_new, r_new = self.leapfrog(theta, r, v*epsilon)
             score = self.eval_objective(theta_new, r_new)
-            n_new = 1 if score < log_u else 0
-            s_new = score > log_u - self.delta_max
+            n_new = 1 if log_u < score else 0
+            s_new = log_u < score + self.delta_max
             if not s_new:
                 logger.debug('Theta %s triggered stop condition via delta_max (score=%s)' % (theta_new[:5], score))
-            alpha_new = 1. if logl_theta0 > score else np.exp(score-logl_theta0)
+            alpha_new = 1. if logl_theta0 < score else np.exp(score-logl_theta0)
             return theta_new, r_new, theta_new, r_new, theta_new, n_new, s_new, alpha_new, 1
 
         # Recursion - implicitly build the left and right subtrees.
@@ -3046,8 +3047,9 @@ class NoUTurnSampler:
         :return:
         """
         # TODO: Would be helpful to include Ln_probability of sampled value
-        with open(self.config.config['output_dir'] + '/Results/samples%i.txt', 'a') as f:
+        with open(self.config.config['output_dir'] + '/Results/samples%i.txt' % self.index, 'a') as f:
             f.write('\t'.join([str(x) for x in params]))
+            f.write('\n')
 
     def eval_objective(self, params, r):
         """
@@ -3071,6 +3073,7 @@ class NoUTurnSampler:
 
     def find_reasonable_epsilon(self, theta):
         # Algorithm 4 from paper
+        logger.debug('Choosing a "reasonable" epsilon')
         epsilon = 1.
         r = np.random.normal(0, 1, len(theta))
         logl_theta = self.eval_objective(theta, r)
