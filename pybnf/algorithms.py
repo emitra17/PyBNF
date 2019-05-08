@@ -2878,12 +2878,13 @@ class NoUTurnSampler:
         # our many gradient evals.
 
         # Set up output file
-        with open(self.config.config['output_dir'] + '/Results/samples%i.txt', 'w') as f:
+        with open(self.config.config['output_dir'] + '/Results/samples%i.txt' % self.index, 'w') as f:
             f.write('# ')
             f.write('\t'.join(self.config.config['param_order']))
             f.write('\n')
 
-        self.epsilon = self.find_reasonable_epsilon(self.theta)
+        # self.epsilon = self.find_reasonable_epsilon(self.theta)
+        self.epsilon = 0.2
         H_bar = 0  # Current H_bar, a strange quantity that comes up in the adjustment algorithm
         log_e_bar = 0  # Current log(epsilon_bar), a strange quantity that comes up in the adjustment algorithm
         tune_delta = self.config.config['target_accept_rate']  # User-specified parameter for epsilon adjustment (the target (pseudo-)accept rate)
@@ -2925,7 +2926,7 @@ class NoUTurnSampler:
                     # We use a quirky transition kernel that biases toward picking the new root
                     # (see paper for why that's okay)
                     logger.debug('The new subtree contains %s candidates' % n_new)
-                    if min(1., n_new/n) < np.random.random():
+                    if min(1., n_new/n) > np.random.random():
                         theta_m = theta_new
                         logger.debug('Updated theta to %s' % theta_m[:5])
                     else:
@@ -2944,17 +2945,17 @@ class NoUTurnSampler:
             logger.debug('Finished iteration %i' % m)
             print2('Finished iteration %i' % m)
             self.theta = theta_m
-            if m < self.config.config['burn_in']:
-                # Adapt epsilon
-                logger.debug('Adjusting epsilon. Current Hbar is %s. This iteration alpha_new/n = %s/%s. Target ratio is %s' % (H_bar, alpha_new, nalpha_new, tune_delta))
-                H_bar = (1 - (1/(m+t0)))*H_bar + (1/(m+t0))*(tune_delta - alpha_new/nalpha_new)
-                self.epsilon = np.exp((tune_mu - m**0.5/tune_gamma)*H_bar)
-                log_e_bar = m**(-tune_kappa)*np.log(self.epsilon) + (1-m**(-tune_kappa))*log_e_bar
-                logger.debug('Adjusted epsilon to %s' % self.epsilon)
-            else:
-                self.epsilon = np.exp(log_e_bar)
-                logger.debug('Use the tuned value of epsilon = %s' % self.epsilon)
-                self.sample_parameters(theta_m)
+            # if m < self.config.config['burn_in']:
+            #     # Adapt epsilon
+            #     logger.debug('Adjusting epsilon. Current Hbar is %s. This iteration alpha_new/n = %s/%s. Target ratio is %s' % (H_bar, alpha_new, nalpha_new, tune_delta))
+            #     H_bar = (1 - (1/(m+t0)))*H_bar + (1/(m+t0))*(tune_delta - alpha_new/nalpha_new)
+            #     self.epsilon = np.exp((tune_mu - m**0.5/tune_gamma)*H_bar)
+            #     log_e_bar = m**(-tune_kappa)*np.log(self.epsilon) + (1-m**(-tune_kappa))*log_e_bar
+            #     logger.debug('Adjusted epsilon to %s' % self.epsilon)
+            # else:
+            #     self.epsilon = np.exp(log_e_bar)
+            #     logger.debug('Use the tuned value of epsilon = %s' % self.epsilon)
+            self.sample_parameters(theta_m)
 
         return True
 
