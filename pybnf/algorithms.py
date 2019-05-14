@@ -2920,7 +2920,7 @@ class NoUTurnSampler:
                 else:
                     # Go 2^j steps forward
                     _, _, theta_plus, r_plus, theta_new, n_new, s_new, alpha_new, nalpha_new = self.build_tree(theta_plus, r_plus, log_u, vj, j, self.epsilon, log_l0)
-                if s:
+                if s_new:
                     # If the new subtree did not locally trigger stop condition, it's eligible to be picked from
                     # Choose either the existing root from last iteration, or the root of the new subtree
                     # We use a quirky transition kernel that biases toward picking the new root
