@@ -2861,10 +2861,22 @@ class NoUTurnSampler:
         # To be set by set_instance()
         self.index = -1
         self.theta0 = None
+        self.theta_min = None
+        self.theta_max = None
 
     def set_instance(self, params, index):
         self.theta0 = self.pset2array(params)
         self.index = index
+
+        # Build self.theta_min and self.theta_max using the FreeParameter instances in params
+        self.theta_min = np.zeros(len(params))
+        self.theta_max = np.zeros(len(params))
+        for i, name in enumerate(self.config.config['param_order']):
+            free_param = params.get_param(name)
+            self.theta_min[i] = free_param.lower_bound
+            self.theta_max[i] = free_param.upper_bound
+        logger.debug('Set theta_min = %s' % self.theta_min[:5])
+        logger.debug('Set theta_max = %s' % self.theta_max[:5])
 
     def pset2array(self, params):
         """
@@ -2937,6 +2949,11 @@ class NoUTurnSampler:
         Returns the log likelihood of the parameter set theta, r
         aka the negative objective function, minus the r term
         """
+        # If any parameters are out of bounds, return -inf without evaluating
+        if not self.check_bounds(theta):
+            logger.debug('Params %s is out of bounds' % theta[:5])
+            return -np.inf
+
         obj = self.model.evaluate(theta, None)
         logger.debug('Params %s has objective %s' % (theta[:5], obj))
         score = -obj - 0.5*np.dot(r, r)
@@ -3025,6 +3042,14 @@ class NoUTurnSampler:
         with open(self.config.config['output_dir'] + '/Results/samples%i.txt' % self.index, 'a') as f:
             f.write(' '.join([str(x) for x in theta]))
             f.write('\n')
+
+    def check_bounds(self, theta):
+        """
+        Check if any of the parameter values are out of bounds
+        :param theta:
+        :return: True if acceptable, False if out of bounds
+        """
+        return np.all(theta > self.theta_min) and np.all(theta < self.theta_max)
 
     def find_reasonable_epsilon(self, theta):
         # Currently unused
