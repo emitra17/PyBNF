@@ -2868,6 +2868,13 @@ class NoUTurnSampler:
         self.theta0 = self.pset2array(params)
         self.index = index
 
+        # If params had a specified fixed start value, change theta0 to that value.
+        # Todo: This is badly hacked, clean up for production code
+        for i, name in enumerate(self.config.config['param_order']):
+            if ('start', name) in self.config.config:
+                self.theta0[i] = self.config.config[('start', name)][0]
+                logger.debug('Set predefined start value %s=%s' % (name, self.config.config[('start', name)][0]))
+
         # Build self.theta_min and self.theta_max using the FreeParameter instances in params
         self.theta_min = np.zeros(len(params))
         self.theta_max = np.zeros(len(params))

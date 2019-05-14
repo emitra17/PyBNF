@@ -30,7 +30,7 @@ numkeys_float = ['min_objective', 'cognitive', 'social', 'particle_weight',
 multnumkeys = ['credible_intervals', 'beta', 'beta_range']
 b_var_def_keys = ['uniform_var', 'loguniform_var']
 var_def_keys = ['lognormal_var', 'normal_var']
-var_def_keys_1or2nums = ['var', 'logvar']
+var_def_keys_1or2nums = ['var', 'logvar', 'start']
 strkeylist = ['bng_command', 'output_dir', 'fit_type', 'objfunc', 'initialization',
               'cluster_type', 'scheduler_node', 'scheduler_file', 'de_strategy', 'sbml_integrator', 'simulation_dir',
               'executable']
