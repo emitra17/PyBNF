@@ -211,7 +211,7 @@ class Configuration(object):
             'lambda': 0.1,
             'crossover_number': 3,
 
-            'target_accept_rate': 0.6
+            'hmc_epsilon': 0.2, 'delta_max': 1000., 'hmc_burn_in': 0
         }
         return default
 

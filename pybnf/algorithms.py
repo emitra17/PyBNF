@@ -2854,8 +2854,8 @@ class NoUTurnSampler:
         # Extract the model object (should be only one) from the config
         self.model = copy.deepcopy(list(self.config.models.values())[0])
         self.max_iterations = config.config['max_iterations']
-        self.delta_max = 1000
-        self.epsilon = 0.2
+        self.delta_max = self.config.config['delta_max']
+        self.epsilon = self.config.config['hmc_epsilon']
         self.grad_memory = dict()  # To avoid recomputing gradients, stores all gradients queried this iteration.
 
         # To be set by set_instance()
@@ -2923,7 +2923,8 @@ class NoUTurnSampler:
                 s = s_new and s_full
                 j+=1
             # Stop condition reached - end of iteration
-            self.sample_parameters(theta_m)
+            if m > self.config.config['hmc_burn_in']:
+                self.sample_parameters(theta_m)
             if m % 20 == 0:
                 print2('Instance %i finished iteration %i' % (self.index, m))
                 logger.info('Instance %i finished iteration %i' % (self.index, m))
