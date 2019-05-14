@@ -2856,6 +2856,7 @@ class NoUTurnSampler:
         self.max_iterations = config.config['max_iterations']
         self.delta_max = 1000
         self.epsilon = 0.2
+        self.grad_memory = dict()  # To avoid recomputing gradients, stores all gradients queried this iteration.
 
         # To be set by set_instance()
         self.index = -1
@@ -2867,7 +2868,8 @@ class NoUTurnSampler:
 
     def pset2array(self, params):
         """
-        COPIED FROM NoUTurnSampler
+        Convert a PSet object to a numpy array with the parameter values in the order specified by the param_order
+        config key.
         """
         return np.array([params[name] for name in self.config.config['param_order']])
 
@@ -2881,6 +2883,7 @@ class NoUTurnSampler:
         theta_m = self.theta0
         for m in range(1, self.max_iterations+1):
             logger.debug('Begin iteration %i' % m)
+            self.grad_memory = dict()  # Clear all gradients saved the previous iteration
             r0 = np.random.normal(0, 1, len(self.theta0))  # Random initial momentum
             score0 = self.eval_objective(theta_m, r0)
             # Want a slice variable uniform from 0 to exp(score0), but save the log of it
@@ -2945,8 +2948,16 @@ class NoUTurnSampler:
         aka the negative gradient of the objective function
         :return:
         """
-        grad = self.model.evaluate_gradient(theta, None)
-        logger.debug('Params %s has gradient %s' % (theta[:5], grad[:5]))
+        theta_tuple = tuple(theta)
+        try:
+            # See if gradient already stored in memory
+            grad = self.grad_memory[theta_tuple]
+            logger.debug('Got gradient of params %s from memory' % theta[:5])
+        except KeyError:
+            # Gradient not stored, need to evaluate it
+            grad = self.model.evaluate_gradient(theta, None)
+            logger.debug('Params %s has gradient %s' % (theta[:5], grad[:5]))
+            self.grad_memory[theta_tuple] = grad
         return -grad
 
     def build_tree(self, theta, r, log_u, v, j):
