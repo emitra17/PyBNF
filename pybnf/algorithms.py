@@ -2823,7 +2823,7 @@ class FullRunner(Algorithm):
             raise NotImplementedError('Resume is not implemented for fit_type=%s' % self.config.config['fit_type'])
 
         # Create N instances of the single-run algorithm
-        instances = [NoUTurnSampler(self.config) for _ in range(self.config.config['population_size'])]
+        instances = [NoUTurnSampler2(self.config) for _ in range(self.config.config['population_size'])]
         start_points = self.random_latin_hypercube_psets(self.config.config['population_size'])
         for i, alg in enumerate(instances):
             alg.set_instance(start_points[i], i)
@@ -3092,6 +3092,169 @@ class NoUTurnSampler:
                 break
         logger.debug('Chose "reasonable" epsilon = %s' % epsilon)
         return epsilon
+
+class NoUTurnSampler2:
+
+    def __init__(self, config):
+        self.config = config
+        # Extract the model object (should be only one) from the config
+        self.model = copy.deepcopy(list(self.config.models.values())[0])
+        self.max_iterations = config.config['max_iterations']
+        self.delta_max = 1000
+        self.epsilon = 0.2
+
+        # To be set by set_instance()
+        self.index = -1
+        self.theta0 = None
+
+    def set_instance(self, params, index):
+        self.theta0 = self.pset2array(params)
+        self.index = index
+
+    def pset2array(self, params):
+        """
+        COPIED FROM NoUTurnSampler
+        """
+        return np.array([params[name] for name in self.config.config['param_order']])
+
+    def run_full(self):
+        # Set up output file
+        with open(self.config.config['output_dir'] + '/Results/samples%i.txt' % self.index, 'w') as f:
+            f.write('# ')
+            f.write('\t'.join(self.config.config['param_order']))
+            f.write('\n')
+
+        theta_m = self.theta0
+        for m in range(1, self.max_iterations+1):
+            logger.debug('Begin iteration %i' % m)
+            r0 = np.random.normal(0, 1, len(self.theta0))
+            score0 = self.eval_objective(theta_m, r0)
+            # Want a slice variable uniform from 0 to exp(score0), but save the log of it
+            # Pretend to do random(0,1)*exp(score0) but actually save ln(random) + score0
+            log_u = np.log(np.random.random()) + score0
+            logger.debug('log_u = %s' % log_u)
+            theta_minus = theta_m
+            theta_plus = theta_m
+            r_minus = r0
+            r_plus = r0
+            j = 0
+            n = 1
+            s = True
+
+            while s:
+                logger.debug('Step with j=%i' % j)
+                vj = np.random.choice((-1,1))
+                logger.debug('Chose direction vj=%i' % vj)
+                if vj == -1:
+                    theta_minus,r_minus,_,_,theta_new,n_new,s_new = self.build_tree(theta_minus,r_minus,log_u,vj,j)
+                else:
+                    _,_,theta_plus,r_plus,theta_new,n_new,s_new = self.build_tree(theta_plus,r_plus,log_u,vj,j)
+                if s_new:
+                    logger.debug('New subtree contains %i candidates' % n_new)
+                    # Choose between existing theta_m and new one.
+                    if np.random.random() < min(1, n_new/n):
+                        theta_m = theta_new
+                        logger.debug('Updated theta to %s' % theta_m[:5])
+                    else:
+                        logger.debug('Kept current theta')
+                else:
+                    logger.debug('Subtree locally triggered stop condition')
+                n += n_new
+                s_full = np.dot(theta_plus-theta_minus, r_minus) >= 0. and np.dot(theta_plus-theta_minus, r_plus) >= 0.
+                if not s_full:
+                    logger.debug('Full tree triggered stop condition')
+                s = s_new and s_full
+                j+=1
+            # Stop condition reached - end of iteration
+            self.sample_parameters(theta_m)
+            logger.debug('Finished iteration %i' % m)
+            print2('Finished iteration %i' % m)
+
+    def eval_objective(self, theta, r):
+        """
+        Returns the log likelihood of the parameter set theta, r
+        aka the negative objective function, minus the r term
+        """
+        obj = self.model.evaluate(theta, None)
+        logger.debug('Params %s has objective %s' % (theta[:5], obj))
+        score = -obj - 0.5*np.dot(r, r)
+        logger.debug('Params %s has score %s' % (theta[:5], obj))
+        return score
+
+    def eval_gradient(self, theta):
+        """
+        Returns the gradient of the log likelihood
+        aka the negative gradient of the objective function
+        :return:
+        """
+        grad = self.model.evaluate_gradient(theta, None)
+        logger.debug('Params %s has gradient %s' % (theta[:5], grad[:5]))
+        return -grad
+
+    def build_tree(self, theta, r, log_u, v, j):
+        """
+        Recursively build the tree starting at the specified theta
+
+        :param theta: Current parameter set
+        :param r: Current momentum
+        :param log_u: Log of the slice variable
+        :param v: direction to move
+        :param j: Height of the tree (ie make 2**j steps in the specified direction)
+        :return: A tuple of values...
+        theta_minus - most early theta in built tree
+        r_minus - momentum at theta_minus
+        theta_plus - most late theta in built tree
+        r_plus - momentum at theta_plus
+        theta_new - the sampled theta from the new tree
+        n_new - the number of param sets eligible to be sampled
+        s_new - If False, this tree triggered stop condition.
+        """
+
+        if j==0:
+            # Base case - take one leapfrog step in direction v
+            theta_new, r_new = self.leapfrog(theta, r, v*self.epsilon)
+            score_new = self.eval_objective(theta_new, r_new)
+            n_new = 1 if log_u < score_new else 0
+            s_new = log_u < score_new + self.delta_max
+            if not s_new:
+                logger.debug('Parameters %s triggered stop condition via delta_max' % theta_new[:5])
+            return theta_new, r_new, theta_new, r_new, theta_new, n_new, s_new
+
+        # Recursion - implicitly build the left and right subtrees
+        # Build the first half of the tree (one step away from current theta)
+        theta_minus, r_minus, theta_plus, r_plus, theta_new, n_new, s_new = self.build_tree(theta, r, log_u, v, j-1)
+        if s_new:  # (Don't bother if stop condition was locally triggered)
+            # Build the second half of the tree (two steps away from current theta)
+            if v == -1:
+                theta_minus, r_minus, _, _, theta_new2, n_new2, s_new2 = self.build_tree(theta_minus, r_minus, log_u, v, j-1)
+            else:
+                _, _, theta_plus, r_plus, theta_new2, n_new2, s_new2 = self.build_tree(theta_plus, r_plus, log_u, v, j-1)
+            # Decide whether to sample from the first half or the second half of the tree
+            if n_new + n_new2 > 0 and np.random.random() < n_new2 / (n_new + n_new2):
+                theta_new = theta_new2
+            # Check if we locally triggered stop
+            s_curr = np.dot(theta_plus-theta_minus, r_minus) >= 0 and np.dot(theta_plus-theta_minus, r_plus) >= 0
+            s_new = s_new2 and s_curr
+            n_new = n_new + n_new2
+        return theta_minus, r_minus, theta_plus, r_plus, theta_new, n_new, s_new
+
+    def leapfrog(self, theta, r, epsilon):
+        """
+        Take theta,r one step forward (or backward with negative epsilon)
+        """
+        r_new = r + epsilon/2 * self.eval_gradient(theta)
+        theta_new = theta + epsilon * r_new
+        r_new = r_new + epsilon / 2 * self.eval_gradient(theta_new)
+
+        return theta_new, r_new
+
+    def sample_parameters(self, theta):
+        """
+        Save parameters theta to file
+        """
+        with open(self.config.config['output_dir'] + '/Results/samples%i.txt' % self.index, 'a') as f:
+            f.write(' '.join([str(x) for x in theta]))
+            f.write('\n')
 
 
 def latin_hypercube(nsamples, ndims):
