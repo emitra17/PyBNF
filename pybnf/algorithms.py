@@ -2828,9 +2828,23 @@ class FullRunner(Algorithm):
         for i, alg in enumerate(instances):
             alg.set_instance(start_points[i], i)
 
-        # TODO: Submit N runs in parallel (after debugging serial case)
-        for alg in instances:
-            alg.run_full()
+        # Submit N runs in parallel
+        if self.config.config['population_size'] > 1:
+            futures = dict()  # Maps a future to the index of the instance it is running
+            for i, instance in enumerate(instances):
+                f = client.submit(instance.run_full)
+                futures[f] = i
+            pool = custom_as_completed(futures, with_results=True, raise_errors=False)
+            while len(futures) > 0:
+                f, res = next(pool)
+                index = futures.pop(f)
+                logger.info('Completed instance %i' % index)
+                print1('Completed instance %i' % index)
+        else:
+            # If only one instance is used, run without dask for easier debugging
+            instances[0].run_full()
+
+        instances[0].finalize(instances)
 
 
 class NoUTurnSampler:
@@ -2907,8 +2921,12 @@ class NoUTurnSampler:
                 j+=1
             # Stop condition reached - end of iteration
             self.sample_parameters(theta_m)
-            logger.debug('Finished iteration %i' % m)
-            print2('Finished iteration %i' % m)
+            if m % 20 == 0:
+                print2('Instance %i finished iteration %i' % (self.index, m))
+                logger.info('Instance %i finished iteration %i' % (self.index, m))
+            else:
+                logger.debug('Instance %i finished iteration %i' % (self.index, m))
+        return True
 
     def eval_objective(self, theta, r):
         """
@@ -3017,6 +3035,32 @@ class NoUTurnSampler:
                 break
         logger.debug('Chose "reasonable" epsilon = %s' % epsilon)
         return epsilon
+
+    @staticmethod
+    def finalize(instances):
+        """
+        This function is called once after all instances complete, to do final output/cleanup.
+
+        :param instances: Iterable of all algorithm objects used in this run
+        :return:
+        """
+
+        # Combine all separate samples files into one samples file
+        final_out = open(instances[0].config.config['output_dir'] + '/Results/samples.txt', 'w')
+
+        first = True
+        for inst in instances:
+            this_output_file = inst.config.config['output_dir'] + '/Results/samples%i.txt' % inst.index
+            # Write all lines to the output file, except skip the header for files after the first
+            with open(this_output_file) as f:
+                header = f.readline()
+                if first:
+                    final_out.write(header)
+                    first = False
+                for line in f:
+                    final_out.write(line)
+            if inst.config.config['delete_old_files'] >= 2:
+                os.remove(this_output_file)
 
 
 def latin_hypercube(nsamples, ndims):
